@@ -1,4 +1,7 @@
-export type Outcome = "pending" | "correct" | "incorrect";
+/** Runtime list of outcome values; `Outcome` is derived so the type stays in sync. */
+export const OUTCOMES = ["pending", "correct", "incorrect"] as const;
+
+export type Outcome = (typeof OUTCOMES)[number];
 
 export type Prediction = {
   id: string;

@@ -1,8 +1,20 @@
 "use client";
 
-import type { Outcome } from "@/types/prediction";
+import { OUTCOMES, type Outcome } from "@/types/prediction";
 
 export type FilterStatus = Outcome | "all";
+
+const OUTCOME_LABELS: Record<Outcome, string> = {
+  pending: "Pending",
+  correct: "Correct",
+  incorrect: "Incorrect",
+};
+
+/** Single source of truth for the status filter dropdown (value + visible label). */
+export const STATUS_FILTER_OPTIONS: { value: FilterStatus; label: string }[] = [
+  { value: "all", label: "All" },
+  ...OUTCOMES.map((value) => ({ value, label: OUTCOME_LABELS[value] })),
+];
 
 type PredictionFiltersProps = {
   source: string;
@@ -57,10 +69,11 @@ export const PredictionFilters = ({
             onChange={(e) => onStatusChange(e.target.value as FilterStatus)}
             disabled={disabled}
           >
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="correct">Correct</option>
-            <option value="incorrect">Incorrect</option>
+            {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
       </div>
