@@ -5,6 +5,12 @@ import { memo } from "react";
 import { formatIsoDate } from "@/utils/format-date";
 import type { Outcome, Prediction } from "@/types/prediction";
 
+function shortPreview(text: string, max = 80): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max)}…`;
+}
+
 type PredictionListProps = {
   predictions: Prediction[];
   loading: boolean;
@@ -53,7 +59,7 @@ export const PredictionList = memo(function PredictionList({
 
   if (!loading && predictions.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400">
+      <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300">
         {emptyMessage}
       </div>
     );
@@ -71,13 +77,14 @@ export const PredictionList = memo(function PredictionList({
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/source/${encodeURIComponent(p.sourceSlug)}`}
-                  className="font-medium text-zinc-900 hover:underline dark:text-zinc-50"
+                  className="rounded font-medium text-zinc-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-zinc-50 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                  aria-label={`View all predictions for ${p.source}`}
                 >
                   {p.source}
                 </Link>
                 {outcomeBadge(p.outcome)}
                 {p.category ? (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-300">
                     {p.category}
                   </span>
                 ) : null}
@@ -85,7 +92,7 @@ export const PredictionList = memo(function PredictionList({
               <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
                 {p.text}
               </p>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-300">
                 Added {formatIsoDate(p.created_at)}
                 {p.target_date
                   ? ` · Target ${formatIsoDate(p.target_date)}`
@@ -96,14 +103,16 @@ export const PredictionList = memo(function PredictionList({
               <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
-                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                  aria-label={`Mark as correct: ${shortPreview(p.text)}`}
                   onClick={() => void onOutcomeChange(p.id, "correct")}
                 >
                   Mark correct
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                  aria-label={`Mark as incorrect: ${shortPreview(p.text)}`}
                   onClick={() => void onOutcomeChange(p.id, "incorrect")}
                 >
                   Mark incorrect

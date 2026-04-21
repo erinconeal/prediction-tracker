@@ -47,11 +47,21 @@ export const AccuracySummary = memo(function AccuracySummary({
       </h2>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[320px] text-left text-sm">
+          <caption className="sr-only">
+            Accuracy by source: total predictions and resolved accuracy percentage
+            per person.
+          </caption>
           <thead>
-            <tr className="border-b border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-              <th className="pb-2 font-medium">Source</th>
-              <th className="pb-2 font-medium">Total</th>
-              <th className="pb-2 font-medium">Accuracy</th>
+            <tr className="border-b border-zinc-200 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300">
+              <th scope="col" className="pb-2 font-medium">
+                Source
+              </th>
+              <th scope="col" className="pb-2 font-medium">
+                Total
+              </th>
+              <th scope="col" className="pb-2 font-medium">
+                Accuracy
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -60,13 +70,16 @@ export const AccuracySummary = memo(function AccuracySummary({
                 key={r.source}
                 className="border-b border-zinc-100 dark:border-zinc-800"
               >
-                <td className="py-2 font-medium text-zinc-900 dark:text-zinc-100">
+                <th
+                  scope="row"
+                  className="py-2 text-left font-medium text-zinc-900 dark:text-zinc-100"
+                >
                   {r.source}
-                </td>
-                <td className="py-2 text-zinc-600 dark:text-zinc-400">
+                </th>
+                <td className="py-2 text-zinc-700 tabular-nums dark:text-zinc-300">
                   {r.total}
                 </td>
-                <td className="py-2 text-zinc-600 dark:text-zinc-400">
+                <td className="py-2 text-zinc-700 tabular-nums dark:text-zinc-300">
                   {r.accuracy === null ? "—" : `${r.accuracy}%`}
                 </td>
               </tr>

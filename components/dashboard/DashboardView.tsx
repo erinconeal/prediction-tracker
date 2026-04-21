@@ -50,7 +50,7 @@ export function DashboardView() {
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           Dashboard
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-300">
           Track public predictions, resolve outcomes, and compare accuracy across
           sources.
         </p>
@@ -73,13 +73,15 @@ export function DashboardView() {
 
       {error ? (
         <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100"
           role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
         >
           <span>{error}</span>
           <button
             type="button"
-            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white"
+            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-red-50 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white dark:focus-visible:ring-red-700 dark:focus-visible:ring-offset-red-950"
             onClick={() => void refetch()}
           >
             Retry
@@ -102,7 +104,11 @@ export function DashboardView() {
             Predictions
           </h2>
           {loading && data.length > 0 ? (
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span
+              className="text-xs text-zinc-600 dark:text-zinc-300"
+              role="status"
+              aria-live="polite"
+            >
               Updating…
             </span>
           ) : null}

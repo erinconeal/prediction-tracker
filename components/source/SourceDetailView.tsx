@@ -45,14 +45,14 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
       <div>
         <Link
           href="/"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+          className="inline-flex rounded text-sm font-medium text-indigo-700 underline-offset-2 hover:text-indigo-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:text-indigo-300 dark:hover:text-indigo-200 dark:focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-950"
         >
           ← Back to dashboard
         </Link>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           {stats.name}
         </h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
           Source slug:{" "}
           <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
             {sourceSlug}
@@ -62,7 +62,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
             Total predictions
           </p>
           <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -70,7 +70,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
           </p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
             Resolved
           </p>
           <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -78,7 +78,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
           </p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
             Accuracy
           </p>
           <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -89,13 +89,15 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
 
       {error ? (
         <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100"
           role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
         >
           <span>{error}</span>
           <button
             type="button"
-            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white"
+            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-red-50 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white dark:focus-visible:ring-red-700 dark:focus-visible:ring-offset-red-950"
             onClick={() => void refetch()}
           >
             Retry

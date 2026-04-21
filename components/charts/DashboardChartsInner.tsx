@@ -26,6 +26,12 @@ export type DashboardChartsInnerProps = {
   outcomeSplit: OutcomeSlice[];
 };
 
+/** Matches `h-64` height; avoids Recharts’ default -1×-1 `initialDimension` warning before ResizeObserver measures. */
+const chartInitialSize = { width: 480, height: 256 } as const;
+
+/** Pie sits in `max-w-md` (28rem = 448px); keep initial width ≤ that cap to avoid oversizing before ResizeObserver. */
+const chartInitialSizePie = { width: 448, height: 256 } as const;
+
 export function DashboardChartsInner({
   accuracyOverTime,
   perSource,
@@ -43,7 +49,12 @@ export function DashboardChartsInner({
         </h3>
         {hasTime ? (
           <div className="h-64 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={0}
+              initialDimension={chartInitialSize}
+            >
               <LineChart data={accuracyOverTime} margin={{ left: 0, right: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-700" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
@@ -67,7 +78,7 @@ export function DashboardChartsInner({
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
             Not enough resolved predictions with dates to chart.
           </p>
         )}
@@ -79,7 +90,12 @@ export function DashboardChartsInner({
         </h3>
         {hasBar ? (
           <div className="h-64 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={0}
+              initialDimension={chartInitialSize}
+            >
               <BarChart data={perSource} layout="vertical" margin={{ left: 8, right: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-700" />
                 <XAxis type="number" />
@@ -90,7 +106,7 @@ export function DashboardChartsInner({
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No data.</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">No data.</p>
         )}
       </section>
 
@@ -100,7 +116,12 @@ export function DashboardChartsInner({
         </h3>
         {hasPie ? (
           <div className="mx-auto h-64 max-w-md min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={0}
+              initialDimension={chartInitialSizePie}
+            >
               <PieChart>
                 <Pie
                   data={outcomeSplit}
@@ -117,7 +138,7 @@ export function DashboardChartsInner({
             </ResponsiveContainer>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No data.</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">No data.</p>
         )}
       </section>
     </div>
