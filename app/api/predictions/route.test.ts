@@ -1,0 +1,150 @@
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+async function loadRouteModule() {
+  vi.resetModules();
+  return import("./route");
+}
+
+describe("GET /api/predictions route", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  test("given no query params, should return a non-empty list of prediction rows", async () => {
+    const { GET } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions");
+
+    const response = await GET(request);
+    const body = (await response.json()) as Array<{
+      id: string;
+      source: string;
+      text: string;
+      outcome: string;
+    }>;
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    expect(
+      body.every(
+        (row) =>
+          typeof row.id === "string" &&
+          typeof row.source === "string" &&
+          typeof row.text === "string" &&
+          ["pending", "correct", "incorrect"].includes(row.outcome),
+      ),
+    ).toBe(true);
+  });
+
+  test("given known status filter, should return only matching outcomes", async () => {
+    const { GET } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions?status=correct");
+
+    const response = await GET(request);
+    const body = (await response.json()) as Array<{ outcome: string }>;
+
+    expect(response.status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body.every((row) => row.outcome === "correct")).toBe(true);
+  });
+
+  test("given unknown status filter, should ignore it instead of erroring", async () => {
+    const { GET } = await loadRouteModule();
+    const allRequest = new Request("http://localhost/api/predictions");
+    const unknownStatusRequest = new Request(
+      "http://localhost/api/predictions?status=nope",
+    );
+
+    const allResponse = await GET(allRequest);
+    const unknownStatusResponse = await GET(unknownStatusRequest);
+    const allBody = (await allResponse.json()) as unknown[];
+    const unknownStatusBody = (await unknownStatusResponse.json()) as unknown[];
+
+    expect(unknownStatusResponse.status).toBe(200);
+    expect(unknownStatusBody).toEqual(allBody);
+  });
+
+  test("given source query by slug, should filter by source", async () => {
+    const { GET } = await loadRouteModule();
+    const request = new Request(
+      "http://localhost/api/predictions?source=jane-analyst",
+    );
+
+    const response = await GET(request);
+    const body = (await response.json()) as Array<{ source: string }>;
+
+    expect(response.status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body.every((row) => row.source === "Jane Analyst")).toBe(true);
+  });
+});
+
+describe("POST /api/predictions route", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  test("given invalid JSON body, should return 400", async () => {
+    const { POST } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{ invalid",
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toBe("Invalid JSON body");
+  });
+
+  test("given missing required strings, should return 400 validation error", async () => {
+    const { POST } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: " ", text: "" }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("required strings");
+  });
+
+  test("given valid payload, should create row and return 201", async () => {
+    const { POST } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "  New Source  ",
+        text: "  New prediction text  ",
+        category: "  Markets  ",
+        target_date: "2026-12-31",
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as {
+      source: string;
+      text: string;
+      category: string | null;
+      target_date: string | null;
+      sourceSlug: string;
+      outcome: string;
+      id: string;
+    };
+
+    expect(response.status).toBe(201);
+    expect(body.id).toBeTruthy();
+    expect(body.source).toBe("New Source");
+    expect(body.text).toBe("New prediction text");
+    expect(body.category).toBe("Markets");
+    expect(body.sourceSlug).toBe("new-source");
+    expect(body.outcome).toBe("pending");
+    expect(body.target_date).toBe("2026-12-31T00:00:00.000Z");
+  });
+});

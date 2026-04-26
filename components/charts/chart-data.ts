@@ -9,7 +9,8 @@ export type OutcomeSlice = { name: string; value: number; fill: string };
 function monthKey(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  // Use UTC to keep bucket keys stable across environments/time zones.
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 /** Resolved predictions bucketed by creation month; accuracy = correct / resolved. */
