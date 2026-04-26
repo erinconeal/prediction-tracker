@@ -74,7 +74,15 @@ export async function listPredictions(
       body,
     );
   }
-  return parseJson<Prediction[]>(response);
+  const result = await parseJson<unknown>(response);
+  if (!Array.isArray(result)) {
+    throw new ApiError(
+      "Predictions response must be a JSON array",
+      response.status,
+      result,
+    );
+  }
+  return result as Prediction[];
 }
 
 export async function createPrediction(
