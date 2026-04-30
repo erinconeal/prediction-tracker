@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
-import { updatePredictionOutcome as patchRow } from "@/lib/prediction-store";
+import {
+  getPredictionById,
+  updatePredictionOutcome as patchRow,
+} from "@/lib/prediction-store";
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+export async function GET(_request: Request, context: RouteContext) {
+  const { id } = await context.params;
+  const row = getPredictionById(id);
+  if (!row) {
+    return NextResponse.json({ message: "Prediction not found" }, { status: 404 });
+  }
+  return NextResponse.json(row);
+}
 
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;

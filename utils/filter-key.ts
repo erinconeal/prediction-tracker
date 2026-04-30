@@ -5,6 +5,11 @@ export function getFilterKey(filters: PredictionFilters): string {
   const normalized: Record<string, string | undefined> = {
     source: filters.source?.trim() || undefined,
     status: filters.status === "all" || filters.status === undefined ? undefined : filters.status,
+    category: filters.category?.trim() || undefined,
+    limit:
+      filters.limit !== undefined ? String(filters.limit) : undefined,
+    offset:
+      filters.offset !== undefined ? String(filters.offset) : undefined,
   };
   return JSON.stringify(
     Object.keys(normalized)

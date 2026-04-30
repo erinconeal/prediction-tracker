@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, listPredictions } from "@/services/api";
 import type { Prediction, PredictionFilters } from "@/types/prediction";
 import { getFilterKey } from "@/utils/filter-key";
+import { isAbortError } from "@/utils/is-abort-error";
 
 export type UsePredictionsResult = {
   data: Prediction[];
@@ -11,13 +12,6 @@ export type UsePredictionsResult = {
   error: string | null;
   refetch: () => Promise<void>;
 };
-
-/** fetch(signal) aborts as DOMException or Error depending on runtime. */
-function isAbortError(e: unknown): boolean {
-  if (e instanceof DOMException && e.name === "AbortError") return true;
-  if (e instanceof Error && e.name === "AbortError") return true;
-  return false;
-}
 
 /**
  * Fetches predictions through the API service, tracks loading/error, caches the
@@ -139,7 +133,8 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
         refetchAbortRef.current = null;
       }
     }
-  }, [filterKey]);
+    /** Empty deps: refetch reads `filtersRef` / cache at call time; `filterKey` is not needed. */
+  }, []);
 
   return { data, loading, error, refetch };
 }

@@ -5,6 +5,12 @@ import {
 } from "@/lib/prediction-store";
 import type { CreatePredictionInput, Outcome } from "@/types/prediction";
 
+function parseQueryInt(value: string | null, fallback: number): number {
+  if (value === null || value === "") return fallback;
+  const n = Number.parseInt(value, 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 /**
  * Lists predictions for the UI service layer. Query params mirror `PredictionFilters`:
  * unknown `status` values are ignored so the client cannot force invalid enum strings
@@ -13,6 +19,7 @@ import type { CreatePredictionInput, Outcome } from "@/types/prediction";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const source = searchParams.get("source") ?? undefined;
+  const category = searchParams.get("category") ?? undefined;
   const statusParam = searchParams.get("status");
   let status: Outcome | undefined;
   if (
@@ -22,7 +29,15 @@ export async function GET(request: Request) {
   ) {
     status = statusParam;
   }
-  const data = listRows({ source, status });
+  const limit = parseQueryInt(searchParams.get("limit"), 50);
+  const offset = Math.max(0, parseQueryInt(searchParams.get("offset"), 0));
+  const data = listRows({
+    source,
+    status,
+    category: category?.trim() ? category.trim() : undefined,
+    limit,
+    offset,
+  });
   return NextResponse.json(data);
 }
 

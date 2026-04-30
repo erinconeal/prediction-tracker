@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import Link from "next/link";
 import { PredictionList } from "@/components/predictions/PredictionList";
 import { usePredictions } from "@/hooks/usePredictions";
+import { computeSourceAccuracyStats } from "@/lib/source-stats";
 import { updatePredictionOutcome } from "@/services/api";
 import type { Outcome } from "@/types/prediction";
 
@@ -13,24 +14,19 @@ type SourceDetailViewProps = {
 
 export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   const filters = useMemo(
-    () => ({ source: sourceSlug, status: "all" as const }),
+    () => ({
+      source: sourceSlug,
+      status: "all" as const,
+      limit: 100,
+    }),
     [sourceSlug],
   );
   const { data, loading, error, refetch } = usePredictions(filters);
 
-  const stats = useMemo(() => {
-    let resolved = 0;
-    let correct = 0;
-    const name = data[0]?.source ?? sourceSlug;
-    for (const p of data) {
-      if (p.outcome === "pending") continue;
-      resolved += 1;
-      if (p.outcome === "correct") correct += 1;
-    }
-    const accuracy =
-      resolved === 0 ? null : Math.round((correct / resolved) * 1000) / 10;
-    return { name, total: data.length, resolved, accuracy };
-  }, [data, sourceSlug]);
+  const stats = useMemo(
+    () => computeSourceAccuracyStats(data, { nameFallback: sourceSlug }),
+    [data, sourceSlug],
+  );
 
   const handleOutcomeChange = useCallback(
     async (id: string, outcome: Exclude<Outcome, "pending">) => {

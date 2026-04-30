@@ -3,6 +3,8 @@ import type { Prediction } from "@/types/prediction";
 import {
   ApiError,
   createPrediction,
+  getPrediction,
+  listLeaderboard,
   listPredictions,
   updatePredictionOutcome,
 } from "./api";
@@ -69,6 +71,21 @@ describe("listPredictions", () => {
     );
   });
 
+  test("given category limit and offset, should append query parameters", async () => {
+    fetchMock.mockResolvedValue(jsonResponse([]));
+
+    await listPredictions({
+      category: "Tech",
+      limit: 20,
+      offset: 40,
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/predictions?category=Tech&limit=20&offset=40",
+      expect.anything(),
+    );
+  });
+
   test("given ok JSON array, should return predictions", async () => {
     const row = samplePrediction({ id: "x" });
     fetchMock.mockResolvedValue(jsonResponse([row]));
@@ -121,6 +138,55 @@ describe("listPredictions", () => {
       message: "Request failed with 502",
       status: 502,
     });
+  });
+});
+
+describe("getPrediction", () => {
+  const fetchMock = vi.fn<typeof fetch>();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("should GET encoded id", async () => {
+    const row = samplePrediction({ id: "abc" });
+    fetchMock.mockResolvedValue(jsonResponse(row));
+
+    const result = await getPrediction("abc");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/predictions/abc",
+      expect.objectContaining({ method: "GET", cache: "no-store" }),
+    );
+    expect(result).toEqual(row);
+  });
+});
+
+describe("listLeaderboard", () => {
+  const fetchMock = vi.fn<typeof fetch>();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("default should GET /api/leaderboard", async () => {
+    fetchMock.mockResolvedValue(jsonResponse([{ rank: 1, source: "A" }]));
+
+    const result = await listLeaderboard();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/leaderboard",
+      expect.objectContaining({ method: "GET" }),
+    );
+    expect(result).toEqual([{ rank: 1, source: "A" }]);
   });
 });
 

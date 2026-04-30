@@ -77,6 +77,38 @@ describe("GET /api/predictions route", () => {
     expect(body.length).toBeGreaterThan(0);
     expect(body.every((row) => row.source === "Jane Analyst")).toBe(true);
   });
+
+  test("given category query, should return only matching category case-insensitive", async () => {
+    const { GET } = await loadRouteModule();
+    const request = new Request(
+      "http://localhost/api/predictions?category=economics",
+    );
+
+    const response = await GET(request);
+    const body = (await response.json()) as Array<{ category: string | null }>;
+
+    expect(response.status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+    expect(body.every((row) => row.category === "Economics")).toBe(true);
+  });
+
+  test("given limit and offset, should return stable page slices", async () => {
+    const { GET } = await loadRouteModule();
+    const first = await GET(
+      new Request("http://localhost/api/predictions?limit=1&offset=0"),
+    );
+    const second = await GET(
+      new Request("http://localhost/api/predictions?limit=1&offset=1"),
+    );
+    const a = (await first.json()) as Array<{ id: string }>;
+    const b = (await second.json()) as Array<{ id: string }>;
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(a).toHaveLength(1);
+    expect(b).toHaveLength(1);
+    expect(a[0]!.id).not.toBe(b[0]!.id);
+  });
 });
 
 describe("POST /api/predictions route", () => {

@@ -18,6 +18,12 @@ export type PredictionFilters = {
   /** Matches `source` display name or `sourceSlug` (e.g. URL segment). */
   source?: string;
   status?: Outcome | "all";
+  /** Case-insensitive exact match on stored `category`; omit for all topics. */
+  category?: string;
+  /** Page size for list API (default 50, max 100). */
+  limit?: number;
+  /** Offset into sorted filtered results (default 0). */
+  offset?: number;
 };
 
 export type CreatePredictionInput = {

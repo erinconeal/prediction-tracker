@@ -7,6 +7,47 @@ async function loadRoutes() {
   return { ...collection, ...item };
 }
 
+describe("GET /api/predictions/[id] route", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  test("given unknown id, should return 404", async () => {
+    const { GET } = await loadRoutes();
+    const response = await GET(
+      new Request("http://localhost/api/predictions/nope"),
+      { params: Promise.resolve({ id: "nope" }) },
+    );
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(404);
+    expect(body.message).toBe("Prediction not found");
+  });
+
+  test("given existing id, should return prediction row", async () => {
+    const { POST, GET } = await loadRoutes();
+    const createRequest = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "GET Source", text: "Row for GET" }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      text: string;
+    };
+
+    const response = await GET(
+      new Request(`http://localhost/api/predictions/${created.id}`),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    const body = (await response.json()) as { id: string; text: string };
+
+    expect(response.status).toBe(200);
+    expect(body.id).toBe(created.id);
+    expect(body.text).toBe("Row for GET");
+  });
+});
+
 describe("PATCH /api/predictions/[id] route", () => {
   beforeEach(() => {
     vi.resetModules();

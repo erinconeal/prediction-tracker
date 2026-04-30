@@ -1,124 +1,124 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { DashboardCharts } from "@/components/charts/DashboardCharts";
-import { AccuracySummary } from "@/components/dashboard/AccuracySummary";
-import { PredictionForm } from "@/components/predictions/PredictionForm";
 import {
-  PredictionFilters,
-  type FilterStatus,
-} from "@/components/predictions/PredictionFilters";
-import { PredictionList } from "@/components/predictions/PredictionList";
-import { usePredictions } from "@/hooks/usePredictions";
-import {
-  createPrediction,
-  updatePredictionOutcome,
-} from "@/services/api";
-import type { CreatePredictionInput, Outcome } from "@/types/prediction";
+  CategoryTopicTabs,
+  categoryFromTopicTab,
+  type TopicTab,
+} from "@/components/home/CategoryTopicTabs";
+import { FeaturedPredictionCarousel } from "@/components/home/FeaturedPredictionCarousel";
+import { HomeLayout } from "@/components/home/HomeLayout";
+import { TopPerformersPanel } from "@/components/home/TopPerformersPanel";
+import { PredictionGrid } from "@/components/predictions/PredictionGrid";
+import { usePredictionFeed } from "@/hooks/usePredictionFeed";
+
+const PAGE_SIZE = 20;
 
 export function DashboardView() {
-  const [sourceInput, setSourceInput] = useState("");
-  const [status, setStatus] = useState<FilterStatus>("all");
-  const filters = useMemo(
+  const [topic, setTopic] = useState<TopicTab>("All");
+  const category = useMemo(() => categoryFromTopicTab(topic), [topic]);
+
+  const feedFilters = useMemo(
     () => ({
-      source: sourceInput.trim() || undefined,
-      status,
+      status: "all" as const,
+      ...(category !== undefined ? { category } : {}),
     }),
-    [sourceInput, status],
-  );
-  const { data, loading, error, refetch } = usePredictions(filters);
-
-  const handleCreate = useCallback(
-    async (input: CreatePredictionInput) => {
-      await createPrediction(input);
-      await refetch();
-    },
-    [refetch],
+    [category],
   );
 
-  const handleOutcomeChange = useCallback(
-    async (id: string, outcome: Exclude<Outcome, "pending">) => {
-      await updatePredictionOutcome(id, outcome);
-      await refetch();
-    },
-    [refetch],
-  );
+  const {
+    data,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    refetch,
+    loadMore,
+  } = usePredictionFeed(feedFilters, { pageSize: PAGE_SIZE });
+
+  const featured = useMemo(() => data.slice(0, 10), [data]);
+
+  const emptyMessage =
+    topic === "All"
+      ? "No predictions match these filters."
+      : `No predictions in “${topic}” yet.`;
+
+  const handleTopicChange = useCallback((tab: TopicTab) => {
+    setTopic(tab);
+  }, []);
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Dashboard
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-300">
-          Track public predictions, resolve outcomes, and compare accuracy across
-          sources.
-        </p>
-      </div>
-
-      <PredictionForm onSubmit={handleCreate} disabled={loading} />
-
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Filters
-        </h2>
-        <PredictionFilters
-          source={sourceInput}
-          onSourceChange={setSourceInput}
-          status={status}
-          onStatusChange={setStatus}
-          disabled={loading}
-        />
-      </section>
-
-      {error ? (
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-        >
-          <span>{error}</span>
-          <button
-            type="button"
-            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-red-50 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white dark:focus-visible:ring-red-700 dark:focus-visible:ring-offset-red-950"
-            onClick={() => void refetch()}
-          >
-            Retry
-          </button>
-        </div>
-      ) : null}
-
-      <AccuracySummary predictions={data} />
-
-      <section className="space-y-4">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Trends
-        </h2>
-        <DashboardCharts predictions={data} />
-      </section>
-
-      <section className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-            Predictions
-          </h2>
-          {loading && data.length > 0 ? (
-            <span
-              className="text-xs text-zinc-600 dark:text-zinc-300"
-              role="status"
-              aria-live="polite"
+    <HomeLayout
+      hero={<FeaturedPredictionCarousel predictions={featured} />}
+      main={
+        <div className="space-y-10">
+          {error ? (
+            <div
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
             >
-              Updating…
-            </span>
+              <span>{error}</span>
+              <button
+                type="button"
+                className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-red-50 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white dark:focus-visible:ring-red-700 dark:focus-visible:ring-offset-red-950"
+                onClick={() => void refetch()}
+              >
+                Retry
+              </button>
+            </div>
           ) : null}
+
+          <section className="space-y-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                  All predictions
+                </h2>
+                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                  Newest first. Open a card for timeline and source stats.
+                </p>
+              </div>
+              {loading && data.length > 0 ? (
+                <span
+                  className="text-xs text-zinc-600 dark:text-zinc-300"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Updating…
+                </span>
+              ) : null}
+            </div>
+
+            <CategoryTopicTabs
+              active={topic}
+              onChange={handleTopicChange}
+              disabled={loading && data.length === 0}
+            />
+
+            <PredictionGrid
+              predictions={data}
+              loading={loading}
+              emptyMessage={emptyMessage}
+            />
+
+            {hasMore && data.length > 0 ? (
+              <div className="flex justify-center pt-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-sm font-medium text-zinc-900 shadow-sm hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+                  disabled={loadingMore}
+                  onClick={() => void loadMore()}
+                >
+                  {loadingMore ? "Loading…" : "Load more"}
+                </button>
+              </div>
+            ) : null}
+          </section>
         </div>
-        <PredictionList
-          predictions={data}
-          loading={loading}
-          onOutcomeChange={handleOutcomeChange}
-        />
-      </section>
-    </div>
+      }
+      aside={<TopPerformersPanel limit={10} />}
+    />
   );
 }
