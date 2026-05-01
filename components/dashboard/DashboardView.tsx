@@ -11,6 +11,10 @@ import { HomeLayout } from "@/components/home/HomeLayout";
 import { TopPerformersPanel } from "@/components/home/TopPerformersPanel";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
+import {
+  DEFAULT_MAX_FEATURED_SLIDES,
+  pickFeaturedFromFeed,
+} from "@/lib/featured-feed";
 
 const PAGE_SIZE = 20;
 
@@ -36,7 +40,10 @@ export function DashboardView() {
     loadMore,
   } = usePredictionFeed(feedFilters, { pageSize: PAGE_SIZE });
 
-  const featured = useMemo(() => data.slice(0, 10), [data]);
+  const { slides: featuredSlides, spotlightTitle } = useMemo(
+    () => pickFeaturedFromFeed(data, DEFAULT_MAX_FEATURED_SLIDES),
+    [data],
+  );
 
   const emptyMessage =
     topic === "All"
@@ -49,7 +56,13 @@ export function DashboardView() {
 
   return (
     <HomeLayout
-      hero={<FeaturedPredictionCarousel predictions={featured} />}
+      hero={
+        <FeaturedPredictionCarousel
+          predictions={featuredSlides}
+          spotlightTitle={spotlightTitle}
+          statsContextPredictions={data}
+        />
+      }
       main={
         <div className="space-y-10">
           {error ? (

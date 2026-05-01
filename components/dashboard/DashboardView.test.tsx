@@ -53,6 +53,8 @@ const leaderboardRow = {
   resolved: 0,
   correct: 0,
   accuracyPercent: null as number | null,
+  streakKind: null as "correct" | "incorrect" | null,
+  streakLength: 0,
 };
 
 describe("DashboardView", () => {
