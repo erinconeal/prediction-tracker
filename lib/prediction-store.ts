@@ -38,12 +38,20 @@ function seed(): void {
       text: "Unemployment dips below 4% this year.",
       category: "Economics",
     },
+    {
+      source: "Jane Analyst",
+      text: "The Fed cuts rates at least twice before year-end.",
+      category: "Economics",
+    },
   ];
-  for (const input of samples) {
-    predictions.push(createInternal(input, iso(now)));
-  }
+  samples.forEach((input, i) => {
+    predictions.push(
+      createInternal(input, iso(new Date(now.getTime() + i))),
+    );
+  });
   predictions[0]!.outcome = "correct";
   predictions[1]!.outcome = "incorrect";
+  predictions[2]!.outcome = "correct";
 }
 
 function createInternal(
@@ -87,6 +95,17 @@ function matchesCategory(p: Prediction, category: string): boolean {
   return p.category !== null && p.category.toLowerCase() === c;
 }
 
+/** Newest first; same `created_at` breaks ties with `id` (stable, deterministic). */
+export function comparePredictionsNewestFirst(
+  a: Prediction,
+  b: Prediction,
+): number {
+  const t =
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  if (t !== 0) return t;
+  return b.id.localeCompare(a.id);
+}
+
 /**
  * Filtered and sorted (newest `created_at` first) view of the store, without pagination.
  * Used by listPredictions and by leaderboard aggregation.
@@ -101,11 +120,7 @@ export function filterAndSortPredictions(
     if (filter.category && !matchesCategory(p, filter.category)) return false;
     return true;
   });
-  return filtered.sort((a, b) => {
-    const t = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    if (t !== 0) return t;
-    return b.id.localeCompare(a.id);
-  });
+  return filtered.sort(comparePredictionsNewestFirst);
 }
 
 /**

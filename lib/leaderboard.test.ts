@@ -6,6 +6,7 @@ function row(
   source: string,
   outcome: Prediction["outcome"],
   id: string,
+  created_at = "2026-01-01T00:00:00.000Z",
 ): Prediction {
   return {
     id,
@@ -13,7 +14,7 @@ function row(
     sourceSlug: source.toLowerCase().replace(/\s+/g, "-"),
     text: "t",
     category: null,
-    created_at: "2026-01-01T00:00:00.000Z",
+    created_at,
     target_date: null,
     outcome,
   };
@@ -64,5 +65,61 @@ describe("computeLeaderboard", () => {
       2,
     );
     expect(rows).toHaveLength(2);
+  });
+
+  test("given resolved sequence, streak counts from newest matching run", () => {
+    const rows = computeLeaderboard(
+      [
+        row("Jane", "incorrect", "a", "2026-01-01T00:00:00.000Z"),
+        row("Jane", "correct", "b", "2026-01-02T00:00:00.000Z"),
+        row("Jane", "correct", "c", "2026-01-03T00:00:00.000Z"),
+      ],
+      10,
+    );
+    expect(rows[0]).toMatchObject({
+      source: "Jane",
+      streakKind: "correct",
+      streakLength: 2,
+    });
+  });
+
+  test("given newest resolved incorrect, should report incorrect streak", () => {
+    const rows = computeLeaderboard(
+      [
+        row("Tech", "correct", "a", "2026-01-01T00:00:00.000Z"),
+        row("Tech", "incorrect", "b", "2026-01-02T00:00:00.000Z"),
+        row("Tech", "incorrect", "c", "2026-01-03T00:00:00.000Z"),
+      ],
+      10,
+    );
+    expect(rows[0]).toMatchObject({
+      source: "Tech",
+      streakKind: "incorrect",
+      streakLength: 2,
+    });
+  });
+
+  test("given only pending, should have null streak", () => {
+    const rows = computeLeaderboard([row("Solo", "pending", "1")], 10);
+    expect(rows[0]).toMatchObject({
+      streakKind: null,
+      streakLength: 0,
+    });
+  });
+
+  test("given identical timestamps, streak head matches global newest-first order", () => {
+    const t = "2026-06-01T12:00:00.000Z";
+    const rows = computeLeaderboard(
+      [
+        row("S", "correct", "aaa", t),
+        row("S", "incorrect", "zzz", t),
+      ],
+      10,
+    );
+    expect(rows[0]).toMatchObject({
+      source: "S",
+      streakKind: "incorrect",
+      streakLength: 1,
+    });
   });
 });

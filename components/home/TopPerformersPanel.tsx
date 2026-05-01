@@ -3,6 +3,7 @@
 import { memo, type ReactNode } from "react";
 import Link from "next/link";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
+import type { LeaderboardRow } from "@/lib/leaderboard";
 import { slugify } from "@/utils/slugify";
 
 type TopPerformersPanelProps = {
@@ -10,6 +11,60 @@ type TopPerformersPanelProps = {
   limit?: number;
   className?: string;
 };
+
+function AccuracyMiniBar({
+  percent,
+  resolved,
+  total,
+}: {
+  percent: number | null;
+  resolved: number;
+  total: number;
+}) {
+  const width = percent === null ? 0 : Math.min(100, Math.max(0, percent));
+  const ariaLabel =
+    percent === null
+      ? undefined
+      : resolved < total
+        ? `Accuracy ${percent}% (${resolved} of ${total} predictions resolved)`
+        : `Accuracy ${percent}% (${resolved} resolved)`;
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <div
+        className="h-2 min-w-0 flex-1 overflow-hidden rounded-sm bg-zinc-200 dark:bg-zinc-700"
+        {...(percent !== null
+          ? {
+              role: "progressbar" as const,
+              "aria-valuenow": Math.round(percent),
+              "aria-valuemin": 0,
+              "aria-valuemax": 100,
+              "aria-label": ariaLabel,
+            }
+          : { "aria-hidden": true as const })}
+      >
+        <div
+          className="h-full rounded-sm bg-emerald-600 transition-[width] duration-300 dark:bg-emerald-500"
+          style={{ width: `${width}%` }}
+        />
+      </div>
+      <span className="w-11 shrink-0 text-right text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+        {percent === null ? "—" : `${percent}%`}
+      </span>
+    </div>
+  );
+}
+
+function StreakLine({ row }: { row: LeaderboardRow }) {
+  if (row.streakKind === null || row.streakLength < 1) return null;
+  const hot = row.streakKind === "correct";
+  return (
+    <p className="mt-1 text-xs text-zinc-700 dark:text-zinc-200">
+      <span aria-hidden>{hot ? "🔥" : "❄️"}</span>{" "}
+      <span className="font-medium tabular-nums">{row.streakLength}</span>
+      {hot ? " correct" : " incorrect"} in a row
+    </p>
+  );
+}
 
 export const TopPerformersPanel = memo(function TopPerformersPanel({
   limit = 10,
@@ -82,7 +137,7 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
           Ranked by accuracy among resolved predictions.
         </p>
       </div>
-      <ol className="mt-4 min-h-0 flex-1 list-none space-y-3 overflow-y-auto p-0">
+      <ol className="mt-4 min-h-0 flex-1 list-none space-y-4 overflow-y-auto p-0">
         {rows.map((r) => {
           const slug = slugify(r.source);
           return (
@@ -100,11 +155,26 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
                 >
                   {r.source}
                 </Link>
-                <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                  {r.accuracyPercent === null
-                    ? `— (${r.total} prediction${r.total === 1 ? "" : "s"}, none resolved)`
-                    : `${r.accuracyPercent}% accuracy (${r.total} prediction${r.total === 1 ? "" : "s"})`}
+                <AccuracyMiniBar
+                  percent={r.accuracyPercent}
+                  resolved={r.resolved}
+                  total={r.total}
+                />
+                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                  {r.total} prediction{r.total === 1 ? "" : "s"}
+                  {r.resolved === 0 ? (
+                    <span className="text-zinc-500 dark:text-zinc-500">
+                      {" "}
+                      · none resolved
+                    </span>
+                  ) : r.resolved < r.total ? (
+                    <span className="text-zinc-500 dark:text-zinc-500">
+                      {" "}
+                      · {r.resolved} of {r.total} resolved
+                    </span>
+                  ) : null}
                 </p>
+                <StreakLine row={r} />
               </div>
             </li>
           );
