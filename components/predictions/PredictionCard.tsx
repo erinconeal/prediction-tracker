@@ -30,10 +30,13 @@ const sizeClass: Record<PredictionCardSize, string> = {
 };
 
 const textClass: Record<PredictionCardSize, string> = {
-  compact: "text-sm leading-relaxed",
-  default: "text-base leading-relaxed",
-  featured: "text-lg leading-relaxed sm:text-xl",
+  compact: "text-base leading-snug",
+  default: "text-lg leading-snug",
+  featured: "text-xl leading-snug sm:text-2xl",
 };
+
+const linkSourceClass =
+  "text-zinc-600 underline-offset-2 hover:text-zinc-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-zinc-400 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900";
 
 export const PredictionCard = memo(function PredictionCard({
   prediction: p,
@@ -45,61 +48,58 @@ export const PredictionCard = memo(function PredictionCard({
   className = "",
 }: PredictionCardProps) {
   const pad = sizeClass[size];
-  const quoteClass = `font-medium text-zinc-900 dark:text-zinc-50 ${textClass[size]}`;
+  const quoteClass = `font-semibold text-zinc-900 dark:text-zinc-50 ${textClass[size]}`;
 
   const sourceBody = linkSource ? (
     <Link
       href={`/source/${encodeURIComponent(p.sourceSlug)}`}
-      className="text-zinc-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-zinc-50 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+      className={linkSourceClass}
     >
       {p.source}
     </Link>
   ) : (
-    <span className="text-zinc-900 dark:text-zinc-50">{p.source}</span>
+    <span className="text-zinc-600 dark:text-zinc-400">{p.source}</span>
   );
+
+  const dtClass =
+    "font-normal uppercase tracking-wide text-zinc-400 dark:text-zinc-500";
+  const ddClass = "text-zinc-600 dark:text-zinc-400";
+  const categoryDdClass = "text-zinc-500 dark:text-zinc-500";
 
   return (
     <article
       className={`rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 ${pad} ${className}`.trim()}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1 space-y-4">
-          <p className={quoteClass}>{p.text}</p>
-          <dl className="grid gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-            <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-              <dt className="font-medium text-zinc-500 dark:text-zinc-400">
-                Source
-              </dt>
-              <dd className="min-w-0">{sourceBody}</dd>
-              <dt className="font-medium text-zinc-500 dark:text-zinc-400">
-                Category
-              </dt>
-              <dd>{p.category?.trim() ? p.category : "—"}</dd>
-              <dt className="font-medium text-zinc-500 dark:text-zinc-400">
-                Target date
-              </dt>
-              <dd>
-                {p.target_date ? formatMonthYear(p.target_date) : "—"}
-              </dd>
-              {showCreatedAt ? (
-                <>
-                  <dt className="font-medium text-zinc-500 dark:text-zinc-400">
-                    Added
-                  </dt>
-                  <dd>{formatIsoDate(p.created_at)}</dd>
-                </>
-              ) : null}
-            </div>
-          </dl>
-          {scoreSlot ? (
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">
-              {scoreSlot}
-            </div>
-          ) : null}
+      <div className="min-w-0 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <p className={`min-w-0 flex-1 ${quoteClass}`}>{p.text}</p>
+          <OutcomeBadge outcome={p.outcome} className="shrink-0" />
         </div>
-        <div className="flex shrink-0 sm:justify-end">
-          <OutcomeBadge outcome={p.outcome} />
-        </div>
+        <dl className="grid gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            <dt className={dtClass}>Source</dt>
+            <dd className={`min-w-0 ${ddClass}`}>{sourceBody}</dd>
+            <dt className={dtClass}>Category</dt>
+            <dd className={categoryDdClass}>
+              {p.category?.trim() ? p.category : "—"}
+            </dd>
+            <dt className={dtClass}>Target date</dt>
+            <dd className={ddClass}>
+              {p.target_date ? formatMonthYear(p.target_date) : "—"}
+            </dd>
+            {showCreatedAt ? (
+              <>
+                <dt className={dtClass}>Added</dt>
+                <dd className={ddClass}>{formatIsoDate(p.created_at)}</dd>
+              </>
+            ) : null}
+          </div>
+        </dl>
+        {scoreSlot ? (
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            {scoreSlot}
+          </div>
+        ) : null}
       </div>
       {footerSlot ? (
         <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">

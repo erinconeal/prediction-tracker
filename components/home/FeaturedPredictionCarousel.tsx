@@ -92,9 +92,9 @@ export const FeaturedPredictionCarousel = memo(
             <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
               {spotlightTitle}
             </p>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500">
               {current.category ? (
-                <span className="rounded-full bg-white px-2.5 py-0.5 font-medium text-zinc-800 ring-1 ring-zinc-200 dark:bg-zinc-950 dark:text-zinc-200 dark:ring-zinc-700">
+                <span className="rounded-full bg-zinc-100/90 px-2.5 py-0.5 font-normal text-zinc-600 ring-1 ring-zinc-200/80 dark:bg-zinc-950/80 dark:text-zinc-500 dark:ring-zinc-700/80">
                   {current.category}
                 </span>
               ) : null}
@@ -117,14 +117,16 @@ export const FeaturedPredictionCarousel = memo(
               </span>
               <Link
                 href={`/source/${encodeURIComponent(current.sourceSlug)}`}
-                className="font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
+                className="font-normal text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-100"
               >
                 {current.source}
               </Link>
               <span aria-hidden className="text-zinc-400 dark:text-zinc-600">
                 ·
               </span>
-              <span className="min-w-0">{accuracyPhrase}</span>
+              <span className="min-w-0 text-zinc-500 dark:text-zinc-500">
+                {accuracyPhrase}
+              </span>
             </p>
           </div>
           <div className="flex flex-wrap justify-end gap-4">
