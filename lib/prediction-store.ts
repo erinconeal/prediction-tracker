@@ -4,6 +4,7 @@ import type {
   Prediction,
   PredictionListSort,
 } from "@/types/prediction";
+import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
 import { slugify } from "@/utils/slugify";
 
 export type ListPredictionsFilter = {
@@ -101,17 +102,6 @@ function matchesCategory(p: Prediction, category: string): boolean {
   return p.category !== null && p.category.toLowerCase() === c;
 }
 
-/** Newest first; same `created_at` breaks ties with `id` (stable, deterministic). */
-export function comparePredictionsNewestFirst(
-  a: Prediction,
-  b: Prediction,
-): number {
-  const t =
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  if (t !== 0) return t;
-  return b.id.localeCompare(a.id);
-}
-
 type SourceAgg = {
   total: number;
   resolved: number;
@@ -159,8 +149,9 @@ function compareBySourceAccuracy(
   b: Prediction,
   keys: Map<string, SourceSortKey>,
 ): number {
-  const ka = keys.get(a.source)!;
-  const kb = keys.get(b.source)!;
+  const ka = keys.get(a.source);
+  const kb = keys.get(b.source);
+  if (!ka || !kb) return comparePredictionsNewestFirst(a, b);
   const ar = ka.accuracyPercent ?? -1;
   const br = kb.accuracyPercent ?? -1;
   if (br !== ar) return br - ar;
@@ -254,6 +245,7 @@ export function updatePredictionOutcome(
   seed();
   const row = predictions.find((p) => p.id === id);
   if (!row) return null;
+  if (row.outcome === outcome) return row;
   row.outcome = outcome;
   row.resolved_at = new Date().toISOString();
   return row;

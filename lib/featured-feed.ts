@@ -1,4 +1,4 @@
-import { comparePredictionsNewestFirst } from "@/lib/prediction-store";
+import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
 import type { Prediction } from "@/types/prediction";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;

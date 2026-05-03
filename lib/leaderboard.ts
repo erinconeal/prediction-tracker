@@ -1,4 +1,4 @@
-import { comparePredictionsNewestFirst } from "@/lib/prediction-store";
+import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
 import type { Prediction } from "@/types/prediction";
 
 export type LeaderboardRow = {
