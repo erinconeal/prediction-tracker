@@ -10,6 +10,7 @@ function row(overrides: Partial<Prediction> = {}): Prediction {
     text: "x",
     category: null,
     created_at: "2024-01-01T00:00:00.000Z",
+    resolved_at: null,
     target_date: null,
     outcome: "pending",
     ...overrides,

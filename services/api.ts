@@ -58,6 +58,9 @@ function buildListUrl(filters: PredictionFilters): string {
   if (filters.offset !== undefined) {
     params.set("offset", String(filters.offset));
   }
+  if (filters.sort && filters.sort !== "newest") {
+    params.set("sort", filters.sort);
+  }
   const q = params.toString();
   return q ? `${BASE}?${q}` : BASE;
 }

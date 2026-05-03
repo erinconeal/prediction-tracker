@@ -15,6 +15,7 @@ function row(overrides: Partial<Prediction> = {}): Prediction {
     text: "x",
     category: null,
     created_at: "2024-01-01T00:00:00.000Z",
+    resolved_at: null,
     target_date: null,
     outcome: "pending",
     ...overrides,
@@ -31,7 +32,7 @@ describe("pickFeaturedFromFeed", () => {
     });
   });
 
-  test("given only old predictions, uses fallback title and feed order backfill", () => {
+  test("given only old predictions, uses fallback title and newest-first backfill", () => {
     const old = new Date("2026-01-01T00:00:00.000Z").toISOString();
     const data = [
       row({ id: "a", created_at: old }),
@@ -40,7 +41,7 @@ describe("pickFeaturedFromFeed", () => {
     ];
     const { slides, spotlightTitle } = pickFeaturedFromFeed(data, 2, now);
     expect(spotlightTitle).toBe(SPOTLIGHT_TITLE_FALLBACK);
-    expect(slides.map((p) => p.id)).toEqual(["a", "b"]);
+    expect(slides.map((p) => p.id)).toEqual(["c", "b"]);
   });
 
   test("given in-week items first, prefers them then backfills", () => {
@@ -54,13 +55,15 @@ describe("pickFeaturedFromFeed", () => {
     ];
     const { slides, spotlightTitle } = pickFeaturedFromFeed(data, 3, now);
     expect(spotlightTitle).toBe(SPOTLIGHT_TITLE_WEEK);
-    expect(slides.map((p) => p.id)).toEqual(["new1", "new2", "old1"]);
+    expect(slides.map((p) => p.id)).toEqual(["new2", "new1", "old2"]);
   });
 
   test("given all in-week, caps at max and uses week title", () => {
-    const recent = new Date("2026-04-29T00:00:00.000Z").toISOString();
     const data = Array.from({ length: 10 }, (_, i) =>
-      row({ id: `n${i}`, created_at: recent }),
+      row({
+        id: `n${i}`,
+        created_at: new Date(`2026-04-${29 - i}T12:00:00.000Z`).toISOString(),
+      }),
     );
     const max = 3;
     const { slides, spotlightTitle } = pickFeaturedFromFeed(data, max, now);

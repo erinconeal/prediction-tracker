@@ -2,6 +2,7 @@ import type {
   CreatePredictionInput,
   Outcome,
   Prediction,
+  PredictionListSort,
 } from "@/types/prediction";
 import { slugify } from "@/utils/slugify";
 
@@ -12,6 +13,7 @@ export type ListPredictionsFilter = {
   category?: string;
   limit?: number;
   offset?: number;
+  sort?: PredictionListSort;
 };
 
 const predictions: Prediction[] = [];
@@ -52,6 +54,9 @@ function seed(): void {
   predictions[0]!.outcome = "correct";
   predictions[1]!.outcome = "incorrect";
   predictions[2]!.outcome = "correct";
+  predictions[0]!.resolved_at = iso(new Date(now.getTime() - 1 * 3600000));
+  predictions[1]!.resolved_at = iso(new Date(now.getTime() - 2 * 3600000));
+  predictions[2]!.resolved_at = iso(new Date(now.getTime() - 3 * 3600000));
 }
 
 function createInternal(
@@ -66,6 +71,7 @@ function createInternal(
     text: input.text.trim(),
     category: input.category?.trim() ? input.category.trim() : null,
     created_at: createdAtIso,
+    resolved_at: null,
     target_date: input.target_date?.trim()
       ? normalizeTargetDate(input.target_date.trim())
       : null,
@@ -106,25 +112,119 @@ export function comparePredictionsNewestFirst(
   return b.id.localeCompare(a.id);
 }
 
+type SourceAgg = {
+  total: number;
+  resolved: number;
+  correct: number;
+};
+
+function aggregateBySourceFromList(rows: Prediction[]): Map<string, SourceAgg> {
+  const m = new Map<string, SourceAgg>();
+  for (const p of rows) {
+    const cur = m.get(p.source) ?? { total: 0, resolved: 0, correct: 0 };
+    cur.total += 1;
+    if (p.outcome !== "pending") {
+      cur.resolved += 1;
+      if (p.outcome === "correct") cur.correct += 1;
+    }
+    m.set(p.source, cur);
+  }
+  return m;
+}
+
+type SourceSortKey = {
+  accuracyPercent: number | null;
+  resolved: number;
+  total: number;
+};
+
+function sourceSortKeyMap(filtered: Prediction[]): Map<string, SourceSortKey> {
+  const by = aggregateBySourceFromList(filtered);
+  const out = new Map<string, SourceSortKey>();
+  for (const [source, s] of by) {
+    out.set(source, {
+      accuracyPercent:
+        s.resolved === 0
+          ? null
+          : (Math.round((s.correct / s.resolved) * 1000) / 10) as number,
+      resolved: s.resolved,
+      total: s.total,
+    });
+  }
+  return out;
+}
+
+function compareBySourceAccuracy(
+  a: Prediction,
+  b: Prediction,
+  keys: Map<string, SourceSortKey>,
+): number {
+  const ka = keys.get(a.source)!;
+  const kb = keys.get(b.source)!;
+  const ar = ka.accuracyPercent ?? -1;
+  const br = kb.accuracyPercent ?? -1;
+  if (br !== ar) return br - ar;
+  if (kb.resolved !== ka.resolved) return kb.resolved - ka.resolved;
+  if (kb.total !== ka.total) return kb.total - ka.total;
+  return comparePredictionsNewestFirst(a, b);
+}
+
+function compareRecentlyResolved(a: Prediction, b: Prediction): number {
+  const aPending = a.outcome === "pending";
+  const bPending = b.outcome === "pending";
+  if (aPending !== bPending) return aPending ? 1 : -1;
+  if (!aPending && !bPending) {
+    const ra = a.resolved_at
+      ? new Date(a.resolved_at).getTime()
+      : Number.NEGATIVE_INFINITY;
+    const rb = b.resolved_at
+      ? new Date(b.resolved_at).getTime()
+      : Number.NEGATIVE_INFINITY;
+    const t = rb - ra;
+    if (t !== 0) return t;
+    return b.id.localeCompare(a.id);
+  }
+  return comparePredictionsNewestFirst(a, b);
+}
+
+function sortFiltered(
+  filtered: Prediction[],
+  sort: PredictionListSort,
+): Prediction[] {
+  const copy = [...filtered];
+  if (sort === "newest") {
+    return copy.sort(comparePredictionsNewestFirst);
+  }
+  if (sort === "source_accuracy") {
+    const keys = sourceSortKeyMap(filtered);
+    return copy.sort((a, b) => compareBySourceAccuracy(a, b, keys));
+  }
+  return copy.sort(compareRecentlyResolved);
+}
+
 /**
- * Filtered and sorted (newest `created_at` first) view of the store, without pagination.
- * Used by listPredictions and by leaderboard aggregation.
+ * Filtered and sorted view of the store, without pagination.
+ * Used by listPredictions and by leaderboard aggregation (default sort newest).
  */
 export function filterAndSortPredictions(
-  filter: Pick<ListPredictionsFilter, "source" | "status" | "category"> = {},
+  filter: Pick<
+    ListPredictionsFilter,
+    "source" | "status" | "category" | "sort"
+  > = {},
 ): Prediction[] {
   seed();
+  const sort = filter.sort ?? "newest";
   const filtered = predictions.filter((p) => {
     if (filter.source && !matchesSource(p, filter.source)) return false;
     if (filter.status && p.outcome !== filter.status) return false;
     if (filter.category && !matchesCategory(p, filter.category)) return false;
     return true;
   });
-  return filtered.sort(comparePredictionsNewestFirst);
+  return sortFiltered(filtered, sort);
 }
 
 /**
- * Read path for the in-memory store: filter, sort by `created_at` desc, then slice
+ * Read path for the in-memory store: filter, sort, then slice
  * for pagination (`limit` default 50 max 100, `offset` default 0).
  */
 export function listPredictions(filter: ListPredictionsFilter = {}): Prediction[] {
@@ -155,5 +255,6 @@ export function updatePredictionOutcome(
   const row = predictions.find((p) => p.id === id);
   if (!row) return null;
   row.outcome = outcome;
+  row.resolved_at = new Date().toISOString();
   return row;
 }

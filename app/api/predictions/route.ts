@@ -3,7 +3,11 @@ import {
   createPrediction as createRow,
   listPredictions as listRows,
 } from "@/lib/prediction-store";
-import type { CreatePredictionInput, Outcome } from "@/types/prediction";
+import type {
+  CreatePredictionInput,
+  Outcome,
+  PredictionListSort,
+} from "@/types/prediction";
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === "") return fallback;
@@ -31,12 +35,22 @@ export async function GET(request: Request) {
   }
   const limit = parseQueryInt(searchParams.get("limit"), 50);
   const offset = Math.max(0, parseQueryInt(searchParams.get("offset"), 0));
+  const sortParam = searchParams.get("sort");
+  let sort: PredictionListSort | undefined;
+  if (
+    sortParam === "newest" ||
+    sortParam === "source_accuracy" ||
+    sortParam === "recently_resolved"
+  ) {
+    sort = sortParam;
+  }
   const data = listRows({
     source,
     status,
     category: category?.trim() ? category.trim() : undefined,
     limit,
     offset,
+    sort,
   });
   return NextResponse.json(data);
 }

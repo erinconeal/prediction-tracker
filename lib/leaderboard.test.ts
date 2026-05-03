@@ -15,6 +15,7 @@ function row(
     text: "t",
     category: null,
     created_at,
+    resolved_at: outcome === "pending" ? null : `${created_at}`,
     target_date: null,
     outcome,
   };

@@ -123,10 +123,15 @@ describe("PATCH /api/predictions/[id] route", () => {
     const response = await PATCH(patchRequest, {
       params: Promise.resolve({ id: created.id }),
     });
-    const body = (await response.json()) as { id: string; outcome: string };
+    const body = (await response.json()) as {
+      id: string;
+      outcome: string;
+      resolved_at: string | null;
+    };
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
     expect(body.outcome).toBe("incorrect");
+    expect(typeof body.resolved_at).toBe("string");
   });
 });

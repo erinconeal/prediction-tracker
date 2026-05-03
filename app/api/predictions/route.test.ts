@@ -109,6 +109,43 @@ describe("GET /api/predictions route", () => {
     expect(b).toHaveLength(1);
     expect(a[0]!.id).not.toBe(b[0]!.id);
   });
+
+  test("given sort=recently_resolved, should list resolved rows before pending", async () => {
+    const { GET } = await loadRouteModule();
+    const response = await GET(
+      new Request("http://localhost/api/predictions?sort=recently_resolved"),
+    );
+    const body = (await response.json()) as Array<{
+      outcome: string;
+      resolved_at: string | null;
+    }>;
+
+    expect(response.status).toBe(200);
+    expect(body.length).toBeGreaterThanOrEqual(4);
+    const firstPendingIndex = body.findIndex((r) => r.outcome === "pending");
+    let lastResolvedIndex = -1;
+    for (let i = 0; i < body.length; i++) {
+      if (body[i]!.outcome !== "pending") lastResolvedIndex = i;
+    }
+    expect(firstPendingIndex).toBeGreaterThan(lastResolvedIndex);
+    expect(
+      body
+        .filter((r) => r.outcome !== "pending")
+        .every((r) => typeof r.resolved_at === "string"),
+    ).toBe(true);
+  });
+
+  test("given unknown sort param, should behave like default ordering", async () => {
+    const { GET } = await loadRouteModule();
+    const defaultReq = new Request("http://localhost/api/predictions");
+    const weirdSortReq = new Request(
+      "http://localhost/api/predictions?sort=not-a-sort",
+    );
+    const defaultBody = (await (await GET(defaultReq)).json()) as unknown[];
+    const weirdBody = (await (await GET(weirdSortReq)).json()) as unknown[];
+
+    expect(weirdBody).toEqual(defaultBody);
+  });
 });
 
 describe("POST /api/predictions route", () => {

@@ -1,3 +1,4 @@
+import { comparePredictionsNewestFirst } from "@/lib/prediction-store";
 import type { Prediction } from "@/types/prediction";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -19,8 +20,9 @@ export type PickFeaturedFromFeedResult = {
 };
 
 /**
- * Picks carousel slides: prefer items from the last 7 days (feed order), then
- * backfill from the rest of the feed so the carousel stays full.
+ * Picks carousel slides: prefer items from the last 7 days, then backfill.
+ * Candidate order is always `created_at` desc so the hero stays time-oriented
+ * even when the main feed uses a different sort.
  */
 export function pickFeaturedFromFeed(
   data: Prediction[],
@@ -31,7 +33,10 @@ export function pickFeaturedFromFeed(
     return { slides: [], spotlightTitle: SPOTLIGHT_TITLE_FALLBACK };
   }
 
-  const inWeek = data.filter((p) => isCreatedInRollingWeek(p.created_at, now));
+  const byNewest = [...data].sort(comparePredictionsNewestFirst);
+  const inWeek = byNewest.filter((p) =>
+    isCreatedInRollingWeek(p.created_at, now),
+  );
   const seen = new Set<string>();
   const slides: Prediction[] = [];
 
@@ -42,7 +47,7 @@ export function pickFeaturedFromFeed(
   }
 
   if (slides.length < max) {
-    for (const p of data) {
+    for (const p of byNewest) {
       if (slides.length >= max) break;
       if (seen.has(p.id)) continue;
       seen.add(p.id);

@@ -41,6 +41,7 @@ function row(i: number): Prediction {
     text: `Prediction ${i}`,
     category: null,
     created_at: "2024-01-01T00:00:00.000Z",
+    resolved_at: null,
     target_date: null,
     outcome: "pending",
   };
@@ -110,7 +111,10 @@ describe("DashboardView", () => {
     fireEvent.click(screen.getByRole("button", { name: /^load more$/i }));
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: /Prediction 99/ })).toBeInTheDocument();
+      const gridCard = document.querySelector(
+        'ul a[href="/predictions/id-99"]',
+      );
+      expect(gridCard).toBeTruthy();
     });
 
     expect(listPredictions).toHaveBeenCalledWith(

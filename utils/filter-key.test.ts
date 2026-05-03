@@ -30,4 +30,15 @@ describe("getFilterKey", () => {
     const keyB = getFilterKey({ source: "  Jane  " });
     expect(keyA).toBe(keyB);
   });
+
+  test("given sort newest or omitted, should omit sort from key", () => {
+    expect(getFilterKey({ sort: "newest" })).toBe("{}");
+    expect(getFilterKey({ status: "all", sort: "newest" })).toBe("{}");
+  });
+
+  test("given non-default sort, should include sort in key", () => {
+    expect(getFilterKey({ sort: "recently_resolved" })).toBe(
+      JSON.stringify({ sort: "recently_resolved" }),
+    );
+  });
 });

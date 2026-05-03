@@ -10,9 +10,17 @@ export type Prediction = {
   text: string;
   category: string | null;
   created_at: string;
+  /** Set when `outcome` is correct or incorrect; `null` while pending. */
+  resolved_at: string | null;
   target_date: string | null;
   outcome: Outcome;
 };
+
+/** List ordering for `/api/predictions`; default is `newest`. */
+export type PredictionListSort =
+  | "newest"
+  | "source_accuracy"
+  | "recently_resolved";
 
 export type PredictionFilters = {
   /** Matches `source` display name or `sourceSlug` (e.g. URL segment). */
@@ -24,6 +32,7 @@ export type PredictionFilters = {
   limit?: number;
   /** Offset into sorted filtered results (default 0). */
   offset?: number;
+  sort?: PredictionListSort;
 };
 
 export type CreatePredictionInput = {

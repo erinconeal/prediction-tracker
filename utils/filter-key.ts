@@ -10,6 +10,10 @@ export function getFilterKey(filters: PredictionFilters): string {
       filters.limit !== undefined ? String(filters.limit) : undefined,
     offset:
       filters.offset !== undefined ? String(filters.offset) : undefined,
+    sort:
+      filters.sort !== undefined && filters.sort !== "newest"
+        ? filters.sort
+        : undefined,
   };
   return JSON.stringify(
     Object.keys(normalized)

@@ -3,7 +3,10 @@ import { useMemo } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Prediction, PredictionFilters } from "@/types/prediction";
 import * as api from "@/services/api";
-import { usePredictionFeed } from "./usePredictionFeed";
+import {
+  usePredictionFeed,
+  type UsePredictionFeedResult,
+} from "./usePredictionFeed";
 
 vi.mock("@/services/api", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/services/api")>();
@@ -23,6 +26,7 @@ function sample(overrides: Partial<Prediction> = {}): Prediction {
     text: "It will rain",
     category: null,
     created_at: "2024-01-01T00:00:00.000Z",
+    resolved_at: null,
     target_date: null,
     outcome: "pending",
     ...overrides,
@@ -117,6 +121,41 @@ describe("usePredictionFeed", () => {
 
     expect(listPredictions).toHaveBeenLastCalledWith(
       { status: "all", category: "Tech", limit: 20, offset: 0 },
+      expect.any(AbortSignal),
+    );
+  });
+
+  test("given sort change, should reset to first page with new sort param", async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.sort === "source_accuracy") {
+        return [sample({ id: "acc" })];
+      }
+      return [sample({ id: "default" })];
+    });
+
+    const { result, rerender } = renderHook<
+      UsePredictionFeedResult,
+      { sort?: PredictionFilters["sort"] }
+    >(({ sort }) => {
+      const filters = useMemo(
+        () => ({
+          status: "all" as const,
+          ...(sort !== undefined && sort !== "newest" ? { sort } : {}),
+        }),
+        [sort],
+      );
+      return usePredictionFeed(filters, { pageSize: 20 });
+    }, { initialProps: { sort: "newest" } });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data[0]?.id).toBe("default");
+
+    rerender({ sort: "source_accuracy" });
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe("acc"));
+
+    expect(listPredictions).toHaveBeenLastCalledWith(
+      { status: "all", sort: "source_accuracy", limit: 20, offset: 0 },
       expect.any(AbortSignal),
     );
   });

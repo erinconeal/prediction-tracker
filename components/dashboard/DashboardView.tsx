@@ -2,6 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 import {
+  PredictionSortTabs,
+  sortSubtitle,
+} from "@/components/dashboard/PredictionSortTabs";
+import {
   CategoryTopicTabs,
   categoryFromTopicTab,
   type TopicTab,
@@ -11,6 +15,7 @@ import { HomeLayout } from "@/components/home/HomeLayout";
 import { TopPerformersPanel } from "@/components/home/TopPerformersPanel";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
+import type { PredictionListSort } from "@/types/prediction";
 import {
   DEFAULT_MAX_FEATURED_SLIDES,
   pickFeaturedFromFeed,
@@ -20,14 +25,16 @@ const PAGE_SIZE = 20;
 
 export function DashboardView() {
   const [topic, setTopic] = useState<TopicTab>("All");
+  const [listSort, setListSort] = useState<PredictionListSort>("newest");
   const category = useMemo(() => categoryFromTopicTab(topic), [topic]);
 
   const feedFilters = useMemo(
     () => ({
       status: "all" as const,
       ...(category !== undefined ? { category } : {}),
+      ...(listSort !== "newest" ? { sort: listSort } : {}),
     }),
-    [category],
+    [category, listSort],
   );
 
   const {
@@ -90,7 +97,7 @@ export function DashboardView() {
                   All predictions
                 </h2>
                 <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  Newest first. Open a card for timeline and source stats.
+                  {sortSubtitle(listSort)}
                 </p>
               </div>
               {loading && data.length > 0 ? (
@@ -107,6 +114,12 @@ export function DashboardView() {
             <CategoryTopicTabs
               active={topic}
               onChange={handleTopicChange}
+              disabled={loading && data.length === 0}
+            />
+
+            <PredictionSortTabs
+              value={listSort}
+              onChange={setListSort}
               disabled={loading && data.length === 0}
             />
 
