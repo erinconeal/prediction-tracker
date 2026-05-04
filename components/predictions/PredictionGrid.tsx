@@ -44,7 +44,7 @@ export const PredictionGrid = memo(function PredictionGrid({
   }
 
   return (
-    <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {predictions.map((p) => (
         <li key={p.id} className="min-w-0">
           <Link

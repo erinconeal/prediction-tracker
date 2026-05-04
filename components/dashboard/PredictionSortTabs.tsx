@@ -24,7 +24,7 @@ export const PredictionSortTabs = memo(function PredictionSortTabs({
 }: PredictionSortTabsProps) {
   return (
     <fieldset
-      className={`m-0 min-w-0 border-0 p-0 ${className}`.trim()}
+      className={`min-w-0 border-0 p-0 ${className}`.trim()}
     >
       <legend className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
         Sort by
