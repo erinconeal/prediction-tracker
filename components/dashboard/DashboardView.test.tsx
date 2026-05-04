@@ -27,11 +27,13 @@ vi.mock("@/services/api", async (importOriginal) => {
     ...mod,
     listPredictions: vi.fn(),
     listLeaderboard: vi.fn(),
+    getTopInsight: vi.fn(),
   };
 });
 
 const listPredictions = vi.mocked(api.listPredictions);
 const listLeaderboard = vi.mocked(api.listLeaderboard);
+const getTopInsight = vi.mocked(api.getTopInsight);
 
 function row(i: number): Prediction {
   return {
@@ -62,7 +64,9 @@ describe("DashboardView", () => {
   beforeEach(() => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
+    getTopInsight.mockReset();
     listLeaderboard.mockResolvedValue([leaderboardRow]);
+    getTopInsight.mockResolvedValue(null);
   });
 
   test("given list error then retry succeeds, should show error then recover", async () => {
@@ -121,5 +125,41 @@ describe("DashboardView", () => {
       expect.objectContaining({ limit: 20, offset: 20 }),
       expect.any(AbortSignal),
     );
+  });
+
+  test("given an insight is returned, should render the headline above the feed", async () => {
+    listPredictions.mockResolvedValue([row(0)]);
+    getTopInsight.mockResolvedValue({
+      kind: "top_accuracy",
+      headline: "Jane Analyst has been correct on 2/2 predictions.",
+      source: "Jane Analyst",
+      correct: 2,
+      resolved: 2,
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Jane Analyst has been correct on 2/2 predictions."),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole("complementary", { name: /insight/i }),
+    ).toBeInTheDocument();
+  });
+
+  test("given no insight, should not render the callout", async () => {
+    listPredictions.mockResolvedValue([row(0)]);
+    getTopInsight.mockResolvedValue(null);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Prediction 0").length).toBeGreaterThan(0);
+    });
+    expect(
+      screen.queryByRole("complementary", { name: /insight/i }),
+    ).not.toBeInTheDocument();
   });
 });

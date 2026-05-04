@@ -4,6 +4,7 @@ import {
   ApiError,
   createPrediction,
   getPrediction,
+  getTopInsight,
   listLeaderboard,
   listPredictions,
   updatePredictionOutcome,
@@ -199,6 +200,95 @@ describe("listLeaderboard", () => {
       expect.objectContaining({ method: "GET" }),
     );
     expect(result).toEqual([{ rank: 1, source: "A" }]);
+  });
+});
+
+describe("getTopInsight", () => {
+  const fetchMock = vi.fn<typeof fetch>();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("should GET /api/insights and return parsed insight object", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        kind: "top_accuracy",
+        headline: "A has been correct on 2/2 predictions.",
+        source: "A",
+        correct: 2,
+        resolved: 2,
+      }),
+    );
+
+    const result = await getTopInsight();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/insights",
+      expect.objectContaining({ method: "GET", cache: "no-store" }),
+    );
+    expect(result).toMatchObject({
+      kind: "top_accuracy",
+      source: "A",
+    });
+  });
+
+  test("should return null when API returns null", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(null));
+    const result = await getTopInsight();
+    expect(result).toBeNull();
+  });
+
+  test("should throw ApiError when response is an array", async () => {
+    fetchMock.mockResolvedValue(jsonResponse([]));
+    await expect(getTopInsight()).rejects.toBeInstanceOf(ApiError);
+  });
+
+  test("should throw ApiError when response is empty object", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    await expect(getTopInsight()).rejects.toMatchObject({
+      name: "ApiError",
+      message: "Insight response must include string kind and headline",
+    });
+  });
+
+  test("should throw ApiError when top_accuracy payload omits numeric fields", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        kind: "top_accuracy",
+        headline: "x",
+        source: "A",
+      }),
+    );
+    await expect(getTopInsight()).rejects.toMatchObject({
+      name: "ApiError",
+      message: "Invalid top_accuracy insight payload",
+    });
+  });
+
+  test("should throw ApiError on unknown insight kind", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ kind: "nope", headline: "x" }),
+    );
+    await expect(getTopInsight()).rejects.toMatchObject({
+      name: "ApiError",
+      message: "Unknown insight kind: nope",
+    });
+  });
+
+  test("should throw ApiError on non-2xx", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: "boom" }, { status: 500 }),
+    );
+    await expect(getTopInsight()).rejects.toMatchObject({
+      name: "ApiError",
+      status: 500,
+      message: "boom",
+    });
   });
 });
 

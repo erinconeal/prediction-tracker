@@ -12,9 +12,11 @@ import {
 } from "@/components/home/CategoryTopicTabs";
 import { FeaturedPredictionCarousel } from "@/components/home/FeaturedPredictionCarousel";
 import { HomeLayout } from "@/components/home/HomeLayout";
+import { InsightCallout } from "@/components/home/InsightCallout";
 import { TopPerformersPanel } from "@/components/home/TopPerformersPanel";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
+import { useTopInsight } from "@/hooks/useTopInsight";
 import type { PredictionListSort } from "@/types/prediction";
 import {
   DEFAULT_MAX_FEATURED_SLIDES,
@@ -46,6 +48,8 @@ export function DashboardView() {
     refetch,
     loadMore,
   } = usePredictionFeed(feedFilters, { pageSize: PAGE_SIZE });
+
+  const { insight, loading: insightLoading } = useTopInsight();
 
   const { slides: featuredSlides, spotlightTitle } = useMemo(
     () => pickFeaturedFromFeed(data, DEFAULT_MAX_FEATURED_SLIDES),
@@ -89,6 +93,8 @@ export function DashboardView() {
               </button>
             </div>
           ) : null}
+
+          <InsightCallout insight={insight} loading={insightLoading} />
 
           <section className="space-y-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

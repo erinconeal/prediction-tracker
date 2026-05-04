@@ -5,9 +5,11 @@ import type {
   PredictionFilters,
 } from "@/types/prediction";
 import type { LeaderboardRow } from "@/lib/leaderboard";
+import type { Insight } from "@/lib/insights";
 
 const BASE = "/api/predictions";
 const LEADERBOARD_BASE = "/api/leaderboard";
+const INSIGHTS_BASE = "/api/insights";
 
 export class ApiError extends Error {
   constructor(
@@ -161,6 +163,146 @@ export async function listLeaderboard(
     );
   }
   return result as LeaderboardRow[];
+}
+
+function parseInsightPayload(raw: unknown, status: number): Insight {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    throw new ApiError(
+      "Insight response must be a JSON object or null",
+      status,
+      raw,
+    );
+  }
+  const o = raw as Record<string, unknown>;
+  const kind = o.kind;
+  const headline = o.headline;
+  if (typeof kind !== "string" || typeof headline !== "string") {
+    throw new ApiError(
+      "Insight response must include string kind and headline",
+      status,
+      raw,
+    );
+  }
+  switch (kind) {
+    case "top_accuracy": {
+      if (
+        typeof o.source !== "string" ||
+        typeof o.correct !== "number" ||
+        typeof o.resolved !== "number" ||
+        !Number.isFinite(o.correct) ||
+        !Number.isFinite(o.resolved)
+      ) {
+        throw new ApiError(
+          "Invalid top_accuracy insight payload",
+          status,
+          raw,
+        );
+      }
+      return {
+        kind,
+        headline,
+        source: o.source,
+        correct: o.correct,
+        resolved: o.resolved,
+      };
+    }
+    case "hot_streak": {
+      if (
+        typeof o.source !== "string" ||
+        typeof o.length !== "number" ||
+        !Number.isFinite(o.length)
+      ) {
+        throw new ApiError("Invalid hot_streak insight payload", status, raw);
+      }
+      return {
+        kind: "hot_streak",
+        headline,
+        source: o.source,
+        length: o.length,
+      };
+    }
+    case "cold_streak": {
+      if (
+        typeof o.source !== "string" ||
+        typeof o.length !== "number" ||
+        !Number.isFinite(o.length)
+      ) {
+        throw new ApiError("Invalid cold_streak insight payload", status, raw);
+      }
+      return {
+        kind: "cold_streak",
+        headline,
+        source: o.source,
+        length: o.length,
+      };
+    }
+    case "category_gap": {
+      if (
+        typeof o.topCategory !== "string" ||
+        typeof o.bottomCategory !== "string" ||
+        typeof o.topPercent !== "number" ||
+        typeof o.bottomPercent !== "number" ||
+        !Number.isFinite(o.topPercent) ||
+        !Number.isFinite(o.bottomPercent)
+      ) {
+        throw new ApiError("Invalid category_gap insight payload", status, raw);
+      }
+      return {
+        kind,
+        headline,
+        topCategory: o.topCategory,
+        bottomCategory: o.bottomCategory,
+        topPercent: o.topPercent,
+        bottomPercent: o.bottomPercent,
+      };
+    }
+    case "unresolved_majority": {
+      if (
+        typeof o.pendingPercent !== "number" ||
+        !Number.isFinite(o.pendingPercent)
+      ) {
+        throw new ApiError(
+          "Invalid unresolved_majority insight payload",
+          status,
+          raw,
+        );
+      }
+      return {
+        kind,
+        headline,
+        pendingPercent: o.pendingPercent,
+      };
+    }
+    default:
+      throw new ApiError(`Unknown insight kind: ${kind}`, status, raw);
+  }
+}
+
+export async function getTopInsight(
+  signal?: AbortSignal,
+): Promise<Insight | null> {
+  const response = await fetch(INSIGHTS_BASE, {
+    method: "GET",
+    signal,
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    let body: object = {};
+    try {
+      body = await parseJson<{ message?: string }>(response);
+    } catch {
+      /* ignore */
+    }
+    throw new ApiError(
+      errorMessageFromBody(body, `Request failed with ${response.status}`),
+      response.status,
+      body,
+    );
+  }
+  const result = await parseJson<unknown>(response);
+  if (result === null) return null;
+  return parseInsightPayload(result, response.status);
 }
 
 export async function createPrediction(
