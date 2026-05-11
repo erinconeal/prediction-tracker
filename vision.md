@@ -6,6 +6,8 @@ Prediction Tracker is a web application that collects, tracks, and evaluates pre
 
 The goal is not to determine truth or intent, but to provide a transparent, data-driven view of how often predictions are correct, incorrect, or unresolved.
 
+Capture may use **ingestion and NLP** over a **bounded allowlist of sources** (on the order of 10–20); eligibility and scoring rules stay anchored in `constitution.md`.
+
 This project is primarily a frontend-focused application designed to demonstrate senior-level engineering practices, including scalable architecture, async data handling, and performance optimization.
 
 ---
@@ -24,12 +26,22 @@ This project is primarily a frontend-focused application designed to demonstrate
 
 ## Non-Goals (Out of Scope)
 
-* Fully automated extraction of predictions from unstructured text
+* Open-ended crawling or tracking an unlimited number of sources (scope is capped; see below)
 * Determining objective “truth” of complex or ambiguous predictions
 * Building a production-grade distributed backend system
 * Real-time streaming infrastructure (e.g., WebSockets at scale)
 * Social features (comments, likes, sharing)
 * Monetization or authentication systems (for MVP)
+
+---
+
+## Data Acquisition (In Scope)
+
+* **Source cap:** The product tracks a **small, explicit allowlist** of public figures or feeds — **on the order of 10–20 sources** at a time. This keeps ingestion, review, and methodology auditable.
+* **NLP and automation:** Ingestion (e.g., RSS, APIs, fetched pages) plus **NLP-assisted extraction** may propose candidate predictions from unstructured text.
+* **Human gate:** Candidates become official tracked predictions only after **human review** aligned with the scoring constitution (eligibility, timeframe, binary resolution). Automation reduces drudgery; it does not replace accountability.
+
+Details of capture, review, and anti-gaming rules live in `constitution.md`.
 
 ---
 
@@ -135,14 +147,14 @@ The project is successful if:
   * Add and view predictions
   * Filter predictions by source and status
   * See accuracy metrics per source
-  * Understand trends over time via charts
+  * Understand trends over time via charts (optional, as necessary)
 
 ---
 
 ## Future Extensions (Post-MVP)
 
-* API/RSS ingestion of real-world data
-* AI-assisted prediction extraction and summarization
+* Raising or refining the source cap beyond the initial 10–20 allowlist (with methodology updates)
+* Stronger automation (higher recall/precision, richer summarization) while keeping human review where the constitution requires it
 * Tagging and categorization improvements
 * Advanced filtering and search
 * Authentication and user-specific data
