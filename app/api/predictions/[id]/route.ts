@@ -3,6 +3,7 @@ import {
   getPredictionById,
   updatePredictionOutcome as patchRow,
 } from "@/lib/prediction-store";
+import { isTerminalOutcomeValue } from "@/types/prediction";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -27,9 +28,12 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ message: "Expected object body" }, { status: 400 });
   }
   const outcome = (body as { outcome?: unknown }).outcome;
-  if (outcome !== "correct" && outcome !== "incorrect") {
+  if (!isTerminalOutcomeValue(outcome)) {
     return NextResponse.json(
-      { message: "`outcome` must be \"correct\" or \"incorrect\"" },
+      {
+        message:
+          '`outcome` must be one of: "correct", "incorrect", "unresolved", "invalid"',
+      },
       { status: 400 },
     );
   }

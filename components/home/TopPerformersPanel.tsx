@@ -14,25 +14,18 @@ type TopPerformersPanelProps = {
 
 function AccuracyMiniBar({
   percent,
-  resolved,
-  total,
+  ariaLabel,
 }: {
   percent: number | null;
-  resolved: number;
-  total: number;
+  /** Set when `percent` is non-null for the progressbar. */
+  ariaLabel?: string;
 }) {
   const width = percent === null ? 0 : Math.min(100, Math.max(0, percent));
-  const ariaLabel =
-    percent === null
-      ? undefined
-      : resolved < total
-        ? `Accuracy ${percent}% (${resolved} of ${total} predictions resolved)`
-        : `Accuracy ${percent}% (${resolved} resolved)`;
   return (
     <div className="mt-1.5 flex items-center gap-2">
       <div
         className="h-2 min-w-0 flex-1 overflow-hidden rounded-sm bg-zinc-200 dark:bg-zinc-700"
-        {...(percent !== null
+        {...(percent !== null && ariaLabel
           ? {
               role: "progressbar" as const,
               "aria-valuenow": Math.round(percent),
@@ -134,7 +127,7 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
           Leaderboard
         </h2>
         <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-          Ranked by accuracy among resolved predictions.
+          Ranked by constitution accuracy: correct ÷ (correct + incorrect).
         </p>
       </div>
       <ol className="mt-4 min-h-0 flex-1 list-none space-y-4 overflow-y-auto p-0">
@@ -157,22 +150,36 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
                 </Link>
                 <AccuracyMiniBar
                   percent={r.accuracyPercent}
-                  resolved={r.resolved}
-                  total={r.total}
+                  ariaLabel={
+                    r.accuracyPercent === null
+                      ? undefined
+                      : `Accuracy ${r.accuracyPercent}%: ${r.correct} correct of ${r.scored} scored (correct + incorrect)`
+                  }
                 />
                 <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                   {r.total} prediction{r.total === 1 ? "" : "s"}
-                  {r.resolved === 0 ? (
+                  {r.scored > 0 ? (
                     <span className="text-zinc-500 dark:text-zinc-500">
                       {" "}
-                      · none resolved
+                      · {r.scored} scored
+                      {r.pending > 0 ? ` · ${r.pending} pending` : ""}
+                      {r.outcomeUnresolved > 0
+                        ? ` · ${r.outcomeUnresolved} unresolved`
+                        : ""}
+                      {r.invalid > 0 ? ` · ${r.invalid} invalid` : ""}
                     </span>
-                  ) : r.resolved < r.total ? (
+                  ) : r.resolved === 0 ? (
                     <span className="text-zinc-500 dark:text-zinc-500">
                       {" "}
-                      · {r.resolved} of {r.total} resolved
+                      · none with a terminal outcome
                     </span>
-                  ) : null}
+                  ) : (
+                    <span className="text-zinc-500 dark:text-zinc-500">
+                      {" "}
+                      · {r.resolved} closed, none scored for accuracy
+                      {r.pending > 0 ? ` · ${r.pending} pending` : ""}
+                    </span>
+                  )}
                 </p>
                 <StreakLine row={r} />
               </div>

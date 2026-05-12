@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import type { Outcome, Prediction } from "@/types/prediction";
+import type { Prediction, TerminalOutcome } from "@/types/prediction";
 import { truncateWithEllipsis } from "@/utils/truncate-text";
 import { PredictionCard } from "./PredictionCard";
 
@@ -10,7 +10,7 @@ type PredictionListProps = {
   loading: boolean;
   onOutcomeChange: (
     id: string,
-    outcome: Exclude<Outcome, "pending">,
+    outcome: TerminalOutcome,
   ) => Promise<void>;
   emptyMessage?: string;
 };
@@ -52,7 +52,7 @@ export const PredictionList = memo(function PredictionList({
             showCreatedAt
             footerSlot={
               p.outcome === "pending" ? (
-                <div className="flex flex-wrap justify-end gap-2">
+                <div className="flex max-w-md flex-wrap justify-end gap-2">
                   <button
                     type="button"
                     className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
@@ -68,6 +68,22 @@ export const PredictionList = memo(function PredictionList({
                     onClick={() => void onOutcomeChange(p.id, "incorrect")}
                   >
                     Mark incorrect
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    aria-label={`Mark as unresolved: ${truncateWithEllipsis(p.text, 80)}`}
+                    onClick={() => void onOutcomeChange(p.id, "unresolved")}
+                  >
+                    Mark unresolved
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    aria-label={`Mark as invalid: ${truncateWithEllipsis(p.text, 80)}`}
+                    onClick={() => void onOutcomeChange(p.id, "invalid")}
+                  >
+                    Mark invalid
                   </button>
                 </div>
               ) : null

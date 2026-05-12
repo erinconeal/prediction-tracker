@@ -86,7 +86,8 @@ A prediction includes:
 * category (optional)
 * created_at
 * target_date (optional)
-* outcome (pending | correct | incorrect)
+* outcome: `pending` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
+* resolved_at (set when a terminal outcome is assigned)
 
 ### Async Handling
 

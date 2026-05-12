@@ -3,8 +3,14 @@ import type {
   Outcome,
   Prediction,
   PredictionListSort,
+  TerminalOutcome,
 } from "@/types/prediction";
 import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
+import { isPendingOutcome } from "@/lib/prediction-outcome";
+import {
+  accuracyPercentFromRollup,
+  rollupBySource,
+} from "@/lib/source-outcome-rollup";
 import { slugify } from "@/utils/slugify";
 
 export type ListPredictionsFilter = {
@@ -58,6 +64,19 @@ function seed(): void {
   predictions[0]!.resolved_at = iso(new Date(now.getTime() - 1 * 3600000));
   predictions[1]!.resolved_at = iso(new Date(now.getTime() - 2 * 3600000));
   predictions[2]!.resolved_at = iso(new Date(now.getTime() - 3 * 3600000));
+  predictions[3]!.outcome = "unresolved";
+  predictions[3]!.resolved_at = iso(new Date(now.getTime() - 4 * 3600000));
+  predictions.push(
+    createInternal(
+      {
+        source: "Tech Blogger",
+        text: "Still open: a fifth seeded prediction for pending sorts.",
+        category: "Tech",
+        target_date: "2027-06-01",
+      },
+      iso(new Date(now.getTime() + 10_000)),
+    ),
+  );
 }
 
 function createInternal(
@@ -102,43 +121,20 @@ function matchesCategory(p: Prediction, category: string): boolean {
   return p.category !== null && p.category.toLowerCase() === c;
 }
 
-type SourceAgg = {
-  total: number;
-  resolved: number;
-  correct: number;
-};
-
-function aggregateBySourceFromList(rows: Prediction[]): Map<string, SourceAgg> {
-  const m = new Map<string, SourceAgg>();
-  for (const p of rows) {
-    const cur = m.get(p.source) ?? { total: 0, resolved: 0, correct: 0 };
-    cur.total += 1;
-    if (p.outcome !== "pending") {
-      cur.resolved += 1;
-      if (p.outcome === "correct") cur.correct += 1;
-    }
-    m.set(p.source, cur);
-  }
-  return m;
-}
-
 type SourceSortKey = {
   accuracyPercent: number | null;
-  resolved: number;
+  scored: number;
   total: number;
 };
 
 function sourceSortKeyMap(filtered: Prediction[]): Map<string, SourceSortKey> {
-  const by = aggregateBySourceFromList(filtered);
+  const by = rollupBySource(filtered);
   const out = new Map<string, SourceSortKey>();
-  for (const [source, s] of by) {
+  for (const [source, rollup] of by) {
     out.set(source, {
-      accuracyPercent:
-        s.resolved === 0
-          ? null
-          : (Math.round((s.correct / s.resolved) * 1000) / 10) as number,
-      resolved: s.resolved,
-      total: s.total,
+      accuracyPercent: accuracyPercentFromRollup(rollup),
+      scored: rollup.scored,
+      total: rollup.total,
     });
   }
   return out;
@@ -155,14 +151,14 @@ function compareBySourceAccuracy(
   const ar = ka.accuracyPercent ?? -1;
   const br = kb.accuracyPercent ?? -1;
   if (br !== ar) return br - ar;
-  if (kb.resolved !== ka.resolved) return kb.resolved - ka.resolved;
+  if (kb.scored !== ka.scored) return kb.scored - ka.scored;
   if (kb.total !== ka.total) return kb.total - ka.total;
   return comparePredictionsNewestFirst(a, b);
 }
 
 function compareRecentlyResolved(a: Prediction, b: Prediction): number {
-  const aPending = a.outcome === "pending";
-  const bPending = b.outcome === "pending";
+  const aPending = isPendingOutcome(a.outcome);
+  const bPending = isPendingOutcome(b.outcome);
   if (aPending !== bPending) return aPending ? 1 : -1;
   if (!aPending && !bPending) {
     const ra = a.resolved_at
@@ -240,7 +236,7 @@ export function createPrediction(input: CreatePredictionInput): Prediction {
 
 export function updatePredictionOutcome(
   id: string,
-  outcome: Exclude<Outcome, "pending">,
+  outcome: TerminalOutcome,
 ): Prediction | null {
   seed();
   const row = predictions.find((p) => p.id === id);

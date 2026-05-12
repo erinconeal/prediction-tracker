@@ -1,7 +1,32 @@
-/** Runtime list of outcome values; `Outcome` is derived so the type stays in sync. */
-export const OUTCOMES = ["pending", "correct", "incorrect"] as const;
+/**
+ * Lifecycle storage values aligned with `constitution.md` §5–§6:
+ * `pending` = pre-resolution; `correct`/`incorrect`/`unresolved`/`invalid` = terminal outcomes.
+ */
+export const OUTCOMES = [
+  "pending",
+  "correct",
+  "incorrect",
+  "unresolved",
+  "invalid",
+] as const;
 
 export type Outcome = (typeof OUTCOMES)[number];
+
+/** Terminal outcomes (PATCH body); excludes `pending`. */
+export type TerminalOutcome = Exclude<Outcome, "pending">;
+
+const TERMINAL_SET = new Set<string>([
+  "correct",
+  "incorrect",
+  "unresolved",
+  "invalid",
+]);
+
+export function isTerminalOutcomeValue(
+  value: unknown,
+): value is TerminalOutcome {
+  return typeof value === "string" && TERMINAL_SET.has(value);
+}
 
 export type Prediction = {
   id: string;
@@ -10,7 +35,7 @@ export type Prediction = {
   text: string;
   category: string | null;
   created_at: string;
-  /** Set when `outcome` is correct or incorrect; `null` while pending. */
+  /** Set when a terminal outcome is assigned; `null` while `pending`. */
   resolved_at: string | null;
   target_date: string | null;
   outcome: Outcome;
@@ -44,5 +69,5 @@ export type CreatePredictionInput = {
 };
 
 export type UpdatePredictionOutcomeInput = {
-  outcome: Exclude<Outcome, "pending">;
+  outcome: TerminalOutcome;
 };

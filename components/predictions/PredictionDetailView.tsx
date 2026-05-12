@@ -7,8 +7,9 @@ import { usePrediction } from "@/hooks/usePrediction";
 import { usePredictions } from "@/hooks/usePredictions";
 import { computeSourceAccuracyStats } from "@/lib/source-stats";
 import { updatePredictionOutcome } from "@/services/api";
-import type { Outcome } from "@/types/prediction";
+import type { TerminalOutcome } from "@/types/prediction";
 import { formatIsoDate, formatMonthYear } from "@/utils/format-date";
+import { truncateWithEllipsis } from "@/utils/truncate-text";
 
 const IDLE_SOURCE = "__no_match_for_stats_idle__";
 
@@ -45,7 +46,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
   );
 
   const handleOutcomeChange = useCallback(
-    async (outcome: Exclude<Outcome, "pending">) => {
+    async (outcome: TerminalOutcome) => {
       await updatePredictionOutcome(id, outcome);
       await refetchPrediction();
       await refetchSourceList();
@@ -143,10 +144,14 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               {p.outcome === "pending"
-                ? "Still open — mark correct or incorrect when the claim can be evaluated."
+                ? "Still open — choose an outcome when the claim can be evaluated."
                 : p.outcome === "correct"
                   ? "Recorded as correct against the evaluation criteria you apply for this tracker."
-                  : "Recorded as incorrect against the evaluation criteria you apply for this tracker."}
+                  : p.outcome === "incorrect"
+                    ? "Recorded as incorrect against the evaluation criteria you apply for this tracker."
+                    : p.outcome === "unresolved"
+                      ? "Outcome could not be determined with confidence (see constitution, section 6.3)."
+                      : "Excluded from scoring: failed inclusion or resolution criteria (see constitution, sections 6.3 and 7.3)."}
             </p>
           </li>
         </ol>
@@ -183,6 +188,14 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
               <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
                 {stats.accuracy === null ? "—" : `${stats.accuracy}%`}
               </p>
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                Based on {stats.scored} scored (correct + incorrect).
+                {stats.pending > 0 ? ` ${stats.pending} pending.` : ""}
+                {stats.outcomeUnresolved > 0
+                  ? ` ${stats.outcomeUnresolved} unresolved.`
+                  : ""}
+                {stats.invalid > 0 ? ` ${stats.invalid} invalid.` : ""}
+              </p>
             </div>
           </div>
         )}
@@ -203,6 +216,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           <button
             type="button"
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+            aria-label={`Mark as correct: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("correct")}
           >
             Mark correct
@@ -210,9 +224,26 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           <button
             type="button"
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+            aria-label={`Mark as incorrect: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("incorrect")}
           >
             Mark incorrect
+          </button>
+          <button
+            type="button"
+            className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-zinc-950"
+            aria-label={`Mark as unresolved: ${truncateWithEllipsis(p.text, 80)}`}
+            onClick={() => void handleOutcomeChange("unresolved")}
+          >
+            Mark unresolved
+          </button>
+          <button
+            type="button"
+            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+            aria-label={`Mark as invalid: ${truncateWithEllipsis(p.text, 80)}`}
+            onClick={() => void handleOutcomeChange("invalid")}
+          >
+            Mark invalid
           </button>
         </section>
       ) : null}

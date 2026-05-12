@@ -1,8 +1,8 @@
 import type {
   CreatePredictionInput,
-  Outcome,
   Prediction,
   PredictionFilters,
+  TerminalOutcome,
 } from "@/types/prediction";
 import type { LeaderboardRow } from "@/lib/leaderboard";
 import type { Insight } from "@/lib/insights";
@@ -188,9 +188,9 @@ function parseInsightPayload(raw: unknown, status: number): Insight {
       if (
         typeof o.source !== "string" ||
         typeof o.correct !== "number" ||
-        typeof o.resolved !== "number" ||
+        typeof o.scored !== "number" ||
         !Number.isFinite(o.correct) ||
-        !Number.isFinite(o.resolved)
+        !Number.isFinite(o.scored)
       ) {
         throw new ApiError(
           "Invalid top_accuracy insight payload",
@@ -203,7 +203,7 @@ function parseInsightPayload(raw: unknown, status: number): Insight {
         headline,
         source: o.source,
         correct: o.correct,
-        resolved: o.resolved,
+        scored: o.scored,
       };
     }
     case "hot_streak": {
@@ -336,7 +336,7 @@ export async function createPrediction(
 
 export async function updatePredictionOutcome(
   id: string,
-  outcome: Exclude<Outcome, "pending">,
+  outcome: TerminalOutcome,
   signal?: AbortSignal,
 ): Promise<Prediction> {
   const response = await fetch(`${BASE}/${encodeURIComponent(id)}`, {

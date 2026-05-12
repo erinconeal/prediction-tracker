@@ -218,10 +218,10 @@ describe("getTopInsight", () => {
     fetchMock.mockResolvedValue(
       jsonResponse({
         kind: "top_accuracy",
-        headline: "A has been correct on 2/2 predictions.",
+        headline: "A has been correct on 2/2 scored predictions.",
         source: "A",
         correct: 2,
-        resolved: 2,
+        scored: 2,
       }),
     );
 

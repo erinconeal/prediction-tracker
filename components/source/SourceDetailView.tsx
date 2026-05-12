@@ -6,7 +6,7 @@ import { PredictionList } from "@/components/predictions/PredictionList";
 import { usePredictions } from "@/hooks/usePredictions";
 import { computeSourceAccuracyStats } from "@/lib/source-stats";
 import { updatePredictionOutcome } from "@/services/api";
-import type { Outcome } from "@/types/prediction";
+import type { TerminalOutcome } from "@/types/prediction";
 
 type SourceDetailViewProps = {
   sourceSlug: string;
@@ -29,7 +29,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   );
 
   const handleOutcomeChange = useCallback(
-    async (id: string, outcome: Exclude<Outcome, "pending">) => {
+    async (id: string, outcome: TerminalOutcome) => {
       await updatePredictionOutcome(id, outcome);
       await refetch();
     },
@@ -79,6 +79,14 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
           </p>
           <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
             {stats.accuracy === null ? "—" : `${stats.accuracy}%`}
+          </p>
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Based on {stats.scored} scored (correct + incorrect).{" "}
+            {stats.pending > 0 ? `${stats.pending} pending. ` : null}
+            {stats.outcomeUnresolved > 0
+              ? `${stats.outcomeUnresolved} unresolved. `
+              : null}
+            {stats.invalid > 0 ? `${stats.invalid} invalid.` : null}
           </p>
         </div>
       </div>

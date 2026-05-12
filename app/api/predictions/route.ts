@@ -3,10 +3,11 @@ import {
   createPrediction as createRow,
   listPredictions as listRows,
 } from "@/lib/prediction-store";
-import type {
-  CreatePredictionInput,
-  Outcome,
-  PredictionListSort,
+import {
+  OUTCOMES,
+  type CreatePredictionInput,
+  type Outcome,
+  type PredictionListSort,
 } from "@/types/prediction";
 
 function parseQueryInt(value: string | null, fallback: number): number {
@@ -27,11 +28,11 @@ export async function GET(request: Request) {
   const statusParam = searchParams.get("status");
   let status: Outcome | undefined;
   if (
-    statusParam === "pending" ||
-    statusParam === "correct" ||
-    statusParam === "incorrect"
+    statusParam !== null &&
+    statusParam !== "" &&
+    (OUTCOMES as readonly string[]).includes(statusParam)
   ) {
-    status = statusParam;
+    status = statusParam as Outcome;
   }
   const limit = parseQueryInt(searchParams.get("limit"), 50);
   const offset = Math.max(0, parseQueryInt(searchParams.get("offset"), 0));

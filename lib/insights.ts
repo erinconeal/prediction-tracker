@@ -12,7 +12,8 @@ export type Insight =
       headline: string;
       source: string;
       correct: number;
-      resolved: number;
+      /** Correct + incorrect (constitution §7.2 denominator). */
+      scored: number;
     }
   | {
       kind: "hot_streak";
@@ -60,15 +61,15 @@ function pickBestStreakRow(candidates: LeaderboardRow[]): LeaderboardRow {
 function topAccuracyInsight(rows: LeaderboardRow[]): Insight | null {
   const top = rows.find(
     (r) =>
-      r.accuracyPercent === 100 && r.resolved >= TOP_ACCURACY_MIN_RESOLVED,
+      r.accuracyPercent === 100 && r.scored >= TOP_ACCURACY_MIN_RESOLVED,
   );
   if (!top) return null;
   return {
     kind: "top_accuracy",
-    headline: `${top.source} has been correct on ${top.correct}/${top.resolved} predictions.`,
+    headline: `${top.source} has been correct on ${top.correct}/${top.scored} scored predictions.`,
     source: top.source,
     correct: top.correct,
-    resolved: top.resolved,
+    scored: top.scored,
   };
 }
 
@@ -104,29 +105,29 @@ function coldStreakInsight(rows: LeaderboardRow[]): Insight | null {
 
 type CategoryAgg = {
   category: string;
-  resolved: number;
+  scored: number;
   correct: number;
   percent: number;
 };
 
 function categoryGapInsight(predictions: Prediction[]): Insight | null {
-  const bySlot = new Map<string, { resolved: number; correct: number }>();
+  const bySlot = new Map<string, { scored: number; correct: number }>();
   for (const p of predictions) {
     if (p.category === null) continue;
-    if (p.outcome === "pending") continue;
-    const cur = bySlot.get(p.category) ?? { resolved: 0, correct: 0 };
-    cur.resolved += 1;
+    if (p.outcome !== "correct" && p.outcome !== "incorrect") continue;
+    const cur = bySlot.get(p.category) ?? { scored: 0, correct: 0 };
+    cur.scored += 1;
     if (p.outcome === "correct") cur.correct += 1;
     bySlot.set(p.category, cur);
   }
   const eligible: CategoryAgg[] = [];
   for (const [category, agg] of bySlot) {
-    if (agg.resolved < CATEGORY_MIN_RESOLVED) continue;
+    if (agg.scored < CATEGORY_MIN_RESOLVED) continue;
     eligible.push({
       category,
-      resolved: agg.resolved,
+      scored: agg.scored,
       correct: agg.correct,
-      percent: Math.round((agg.correct / agg.resolved) * 100),
+      percent: Math.round((agg.correct / agg.scored) * 100),
     });
   }
   if (eligible.length < 2) return null;
@@ -154,7 +155,7 @@ function unresolvedMajorityInsight(
   const percent = Math.round(ratio * 100);
   return {
     kind: "unresolved_majority",
-    headline: `Most predictions (${percent}%) are still unresolved.`,
+    headline: `Most predictions (${percent}%) are still pending resolution.`,
     pendingPercent: percent,
   };
 }
@@ -167,7 +168,7 @@ function unresolvedMajorityInsight(
  * 2. `hot_streak`   — sustained correct run
  * 3. `cold_streak`  — sustained incorrect run
  * 4. `category_gap` — a meaningful accuracy spread across categories
- * 5. `unresolved_majority` — the bulk of the dataset is still pending
+ * 5. `unresolved_majority` — the bulk of the dataset is still `pending`
  */
 export function computeTopInsight(
   predictions: Prediction[],

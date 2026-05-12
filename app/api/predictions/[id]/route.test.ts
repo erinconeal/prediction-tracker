@@ -100,7 +100,42 @@ describe("PATCH /api/predictions/[id] route", () => {
     expect(body.message).toBe("Prediction not found");
   });
 
-  test("given existing id and valid outcome, should patch and return updated row", async () => {
+  test("given existing id and unresolved outcome, should patch and return updated row", async () => {
+    const { POST, PATCH } = await loadRoutes();
+    const createRequest = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: "Patch Source", text: "Update me" }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      outcome: string;
+    };
+
+    const patchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ outcome: "unresolved" }),
+      },
+    );
+    const response = await PATCH(patchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+    const body = (await response.json()) as {
+      id: string;
+      outcome: string;
+      resolved_at: string | null;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.id).toBe(created.id);
+    expect(body.outcome).toBe("unresolved");
+    expect(typeof body.resolved_at).toBe("string");
+  });
+
+  test("given existing id and incorrect outcome, should patch and return updated row", async () => {
     const { POST, PATCH } = await loadRoutes();
     const createRequest = new Request("http://localhost/api/predictions", {
       method: "POST",

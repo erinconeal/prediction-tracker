@@ -31,7 +31,9 @@ describe("GET /api/predictions route", () => {
           typeof row.id === "string" &&
           typeof row.source === "string" &&
           typeof row.text === "string" &&
-          ["pending", "correct", "incorrect"].includes(row.outcome),
+          ["pending", "correct", "incorrect", "unresolved", "invalid"].includes(
+            row.outcome,
+          ),
       ),
     ).toBe(true);
   });

@@ -108,6 +108,24 @@ describe("computeLeaderboard", () => {
     });
   });
 
+  test("given terminal outcomes without correct/incorrect, should have null accuracy", () => {
+    const rows = computeLeaderboard(
+      [
+        row("Ghost", "unresolved", "1"),
+        row("Ghost", "invalid", "2"),
+        row("Ghost", "pending", "3"),
+      ],
+      10,
+    );
+    expect(rows[0]).toMatchObject({
+      source: "Ghost",
+      accuracyPercent: null,
+      scored: 0,
+      resolved: 2,
+      pending: 1,
+    });
+  });
+
   test("given identical timestamps, streak head matches global newest-first order", () => {
     const t = "2026-06-01T12:00:00.000Z";
     const rows = computeLeaderboard(

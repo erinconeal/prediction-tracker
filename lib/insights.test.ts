@@ -42,10 +42,10 @@ describe("computeTopInsight", () => {
       kind: "top_accuracy",
       source: "Jane Analyst",
       correct: 2,
-      resolved: 2,
+      scored: 2,
     });
     expect(insight!.headline).toBe(
-      "Jane Analyst has been correct on 2/2 predictions.",
+      "Jane Analyst has been correct on 2/2 scored predictions.",
     );
   });
 
@@ -146,7 +146,7 @@ describe("computeTopInsight", () => {
       pendingPercent: 60,
     });
     expect(insight!.headline).toBe(
-      "Most predictions (60%) are still unresolved.",
+      "Most predictions (60%) are still pending resolution.",
     );
   });
 

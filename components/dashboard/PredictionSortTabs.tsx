@@ -68,7 +68,7 @@ export function sortSubtitle(sort: PredictionListSort): string {
     case "newest":
       return "Newest first. Open a card for timeline and source stats.";
     case "source_accuracy":
-      return "Higher resolved accuracy per source first. Open a card for details.";
+      return "Higher constitution accuracy per source first (correct ÷ scored). Open a card for details.";
     case "recently_resolved":
       return "Recently resolved first, then newest pending. Open a card for details.";
   }

@@ -54,8 +54,12 @@ const leaderboardRow = {
   source: "Source",
   total: 1,
   resolved: 0,
+  scored: 0,
   correct: 0,
   accuracyPercent: null as number | null,
+  pending: 1,
+  outcomeUnresolved: 0,
+  invalid: 0,
   streakKind: null as "correct" | "incorrect" | null,
   streakLength: 0,
 };
@@ -131,17 +135,20 @@ describe("DashboardView", () => {
     listPredictions.mockResolvedValue([row(0)]);
     getTopInsight.mockResolvedValue({
       kind: "top_accuracy",
-      headline: "Jane Analyst has been correct on 2/2 predictions.",
+      headline:
+        "Jane Analyst has been correct on 2/2 scored predictions.",
       source: "Jane Analyst",
       correct: 2,
-      resolved: 2,
+      scored: 2,
     });
 
     render(<DashboardView />);
 
     await waitFor(() => {
       expect(
-        screen.getByText("Jane Analyst has been correct on 2/2 predictions."),
+        screen.getByText(
+          "Jane Analyst has been correct on 2/2 scored predictions.",
+        ),
       ).toBeInTheDocument();
     });
     expect(

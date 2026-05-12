@@ -15,9 +15,12 @@ function credibilityAccuracyPhrase(stats: SourceAccuracyStats): string {
   const n = stats.total;
   const noun = n === 1 ? "prediction" : "predictions";
   if (stats.accuracy === null) {
-    return `— (${n} ${noun}, none resolved)`;
+    if (stats.scored === 0 && stats.resolved > 0) {
+      return `— (${n} ${noun}, none with correct/incorrect outcome yet)`;
+    }
+    return `— (${n} ${noun}, none scored for accuracy)`;
   }
-  return `${stats.accuracy}% accuracy (${n} ${noun})`;
+  return `${stats.accuracy}% accuracy (${n} ${noun}, ${stats.scored} scored)`;
 }
 
 type FeaturedPredictionCarouselProps = {

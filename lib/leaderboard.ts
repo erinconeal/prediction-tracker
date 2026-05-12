@@ -1,43 +1,35 @@
 import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
+import { isScoredOutcome } from "@/lib/prediction-outcome";
+import {
+  accuracyPercentFromRollup,
+  rollupBySource,
+  type SourceOutcomeRollup,
+} from "@/lib/source-outcome-rollup";
 import type { Prediction } from "@/types/prediction";
 
 export type LeaderboardRow = {
   rank: number;
   source: string;
   total: number;
+  /** Count with a terminal outcome (not `pending`). */
   resolved: number;
+  /** Correct + incorrect — denominator for constitution §7.2 accuracy. */
+  scored: number;
   correct: number;
-  /** One decimal; null when nothing resolved yet for that source. */
+  /** One decimal; null when `scored === 0`. */
   accuracyPercent: number | null;
+  pending: number;
+  /** Terminal `unresolved` outcome (§6.3), not pre-resolution `pending`. */
+  outcomeUnresolved: number;
+  invalid: number;
   /**
-   * Longest run of matching outcomes from the newest resolved prediction
+   * Longest run of correct/incorrect from the newest scored prediction backward
    * (same ordering as the main feed: `created_at` desc, then global rank when
-   * timestamps tie). Null when nothing is resolved for the source.
+   * timestamps tie). Null when nothing scored for the source.
    */
   streakKind: "correct" | "incorrect" | null;
   streakLength: number;
 };
-
-function aggregateBySource(predictions: Prediction[]) {
-  const bySource = new Map<
-    string,
-    { total: number; resolved: number; correct: number }
-  >();
-  for (const p of predictions) {
-    const cur = bySource.get(p.source) ?? {
-      total: 0,
-      resolved: 0,
-      correct: 0,
-    };
-    cur.total += 1;
-    if (p.outcome !== "pending") {
-      cur.resolved += 1;
-      if (p.outcome === "correct") cur.correct += 1;
-    }
-    bySource.set(p.source, cur);
-  }
-  return bySource;
-}
 
 function groupPredictionsBySource(predictions: Prediction[]) {
   const m = new Map<string, Prediction[]>();
@@ -49,33 +41,48 @@ function groupPredictionsBySource(predictions: Prediction[]) {
   return m;
 }
 
-/** Current streak from the most recent resolved prediction backward. */
-function resolvedOutcomeStreak(
+/** Streak across only definitive correct/incorrect rows; unresolved/invalid break the run. */
+function scoredOutcomeStreak(
   sourcePredictions: Prediction[],
   globalRankById: Map<string, number>,
 ): { kind: "correct" | "incorrect"; length: number } | null {
-  const resolved = sourcePredictions
-    .filter((p) => p.outcome !== "pending")
+  const scored = sourcePredictions
+    .filter((p) => isScoredOutcome(p.outcome))
     .sort((a, b) => {
       const t =
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (t !== 0) return t;
       return (globalRankById.get(a.id) ?? 0) - (globalRankById.get(b.id) ?? 0);
     });
-  if (resolved.length === 0) return null;
-  const head = resolved[0]!;
+  if (scored.length === 0) return null;
+  const head = scored[0]!;
   const kind = head.outcome as "correct" | "incorrect";
   let length = 0;
-  for (const p of resolved) {
+  for (const p of scored) {
     if (p.outcome !== kind) break;
     length += 1;
   }
   return { kind, length };
 }
 
+function rowFromRollup(source: string, r: SourceOutcomeRollup) {
+  const resolved = r.total - r.pending;
+  return {
+    source,
+    total: r.total,
+    resolved,
+    scored: r.scored,
+    correct: r.correct,
+    accuracyPercent: accuracyPercentFromRollup(r),
+    pending: r.pending,
+    outcomeUnresolved: r.outcomeUnresolved,
+    invalid: r.invalid,
+  };
+}
+
 /**
- * Ranks sources for a “top performers” rail: higher accuracy first, then more
- * predictions. Sources with no resolved rows sort last.
+ * Ranks sources for a “top performers” rail: higher accuracy (§7.2) first, then more
+ * scored predictions. Sources with no scored rows sort last.
  */
 export function computeLeaderboard(
   predictions: Prediction[],
@@ -86,28 +93,22 @@ export function computeLeaderboard(
     sortedGlobal.map((p, index) => [p.id, index]),
   );
 
-  const bySource = aggregateBySource(predictions);
+  const bySource = rollupBySource(predictions);
   const bySourcePredictions = groupPredictionsBySource(predictions);
-  const rows = [...bySource.entries()].map(([source, s]) => ({
-    source,
-    total: s.total,
-    resolved: s.resolved,
-    correct: s.correct,
-    accuracyPercent:
-      s.resolved === 0
-        ? null
-        : (Math.round((s.correct / s.resolved) * 1000) / 10) as number,
-  }));
+  const rows = [...bySource.entries()].map(([source, rollup]) =>
+    rowFromRollup(source, rollup),
+  );
 
   rows.sort((a, b) => {
     const ar = a.accuracyPercent ?? -1;
     const br = b.accuracyPercent ?? -1;
     if (br !== ar) return br - ar;
+    if (b.scored !== a.scored) return b.scored - a.scored;
     return b.total - a.total;
   });
 
   return rows.slice(0, limit).map((r, i) => {
-    const streak = resolvedOutcomeStreak(
+    const streak = scoredOutcomeStreak(
       bySourcePredictions.get(r.source) ?? [],
       globalRankById,
     );
@@ -116,8 +117,12 @@ export function computeLeaderboard(
       source: r.source,
       total: r.total,
       resolved: r.resolved,
+      scored: r.scored,
       correct: r.correct,
       accuracyPercent: r.accuracyPercent,
+      pending: r.pending,
+      outcomeUnresolved: r.outcomeUnresolved,
+      invalid: r.invalid,
       streakKind: streak?.kind ?? null,
       streakLength: streak?.length ?? 0,
     };

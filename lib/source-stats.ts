@@ -1,15 +1,28 @@
 import type { Prediction } from "@/types/prediction";
+import {
+  accuracyPercentFromRollup,
+  emptySourceOutcomeRollup,
+  addPredictionToRollup,
+} from "@/lib/source-outcome-rollup";
 
 export type SourceAccuracyStats = {
   name: string;
   total: number;
+  pending: number;
+  /** Correct + incorrect — constitution §7.2 denominator. */
+  scored: number;
+  correct: number;
+  /** Terminal `unresolved` (§6.3), not pre-resolution `pending`. */
+  outcomeUnresolved: number;
+  invalid: number;
+  /** Non-pending count (any terminal outcome). */
   resolved: number;
-  /** One decimal percent; null when nothing resolved yet. */
+  /** One decimal percent; null when `scored === 0`. */
   accuracy: number | null;
 };
 
 /**
- * Aggregates resolved/correct counts and accuracy for a list of predictions
+ * Aggregates counts and constitution-aligned accuracy for predictions
  * sharing one source (e.g. filtered `usePredictions` result).
  */
 export function computeSourceAccuracyStats(
@@ -22,25 +35,30 @@ export function computeSourceAccuracyStats(
   },
 ): SourceAccuracyStats {
   const name =
-    (options.primaryName != null && options.primaryName !== ""
+    (options.primaryName !== null &&
+    options.primaryName !== undefined &&
+    options.primaryName !== ""
       ? options.primaryName
       : undefined) ??
     predictions[0]?.source ??
     options.nameFallback;
 
-  let resolved = 0;
-  let correct = 0;
+  const rollup = emptySourceOutcomeRollup();
   for (const p of predictions) {
-    if (p.outcome === "pending") continue;
-    resolved += 1;
-    if (p.outcome === "correct") correct += 1;
+    addPredictionToRollup(rollup, p);
   }
-  const accuracy =
-    resolved === 0 ? null : Math.round((correct / resolved) * 1000) / 10;
+
+  const resolved = rollup.total - rollup.pending;
+  const accuracy = accuracyPercentFromRollup(rollup);
 
   return {
     name,
-    total: predictions.length,
+    total: rollup.total,
+    pending: rollup.pending,
+    scored: rollup.scored,
+    correct: rollup.correct,
+    outcomeUnresolved: rollup.outcomeUnresolved,
+    invalid: rollup.invalid,
     resolved,
     accuracy,
   };
