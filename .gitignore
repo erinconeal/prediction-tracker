@@ -43,3 +43,6 @@ next-env.d.ts
 # gstack
 ceo-plans/
 TODOs.md
+
+# testing
+__snapshots__/
