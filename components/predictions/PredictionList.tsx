@@ -15,6 +15,9 @@ type PredictionListProps = {
   emptyMessage?: string;
 };
 
+const secondaryBtn =
+  "rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 export const PredictionList = memo(function PredictionList({
   predictions,
   loading,
@@ -27,7 +30,7 @@ export const PredictionList = memo(function PredictionList({
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-28 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800"
+            className="h-28 animate-pulse rounded-xl bg-surface"
           />
         ))}
       </div>
@@ -36,7 +39,7 @@ export const PredictionList = memo(function PredictionList({
 
   if (!loading && predictions.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300">
+      <div className="rounded-xl border border-dashed border-border bg-surface px-6 py-12 text-center text-sm text-muted">
         {emptyMessage}
       </div>
     );
@@ -55,7 +58,7 @@ export const PredictionList = memo(function PredictionList({
                 <div className="flex max-w-md flex-wrap justify-end gap-2">
                   <button
                     type="button"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    className={secondaryBtn}
                     aria-label={`Mark as correct: ${truncateWithEllipsis(p.text, 80)}`}
                     onClick={() => void onOutcomeChange(p.id, "correct")}
                   >
@@ -63,7 +66,7 @@ export const PredictionList = memo(function PredictionList({
                   </button>
                   <button
                     type="button"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    className={secondaryBtn}
                     aria-label={`Mark as incorrect: ${truncateWithEllipsis(p.text, 80)}`}
                     onClick={() => void onOutcomeChange(p.id, "incorrect")}
                   >
@@ -71,7 +74,7 @@ export const PredictionList = memo(function PredictionList({
                   </button>
                   <button
                     type="button"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    className={secondaryBtn}
                     aria-label={`Mark as unresolved: ${truncateWithEllipsis(p.text, 80)}`}
                     onClick={() => void onOutcomeChange(p.id, "unresolved")}
                   >
@@ -79,7 +82,7 @@ export const PredictionList = memo(function PredictionList({
                   </button>
                   <button
                     type="button"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900"
+                    className={secondaryBtn}
                     aria-label={`Mark as invalid: ${truncateWithEllipsis(p.text, 80)}`}
                     onClick={() => void onOutcomeChange(p.id, "invalid")}
                   >

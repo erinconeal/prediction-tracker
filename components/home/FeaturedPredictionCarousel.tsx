@@ -71,12 +71,7 @@ export const FeaturedPredictionCarousel = memo(
           primaryName: current.source,
         },
       );
-    }, [
-      statsContext,
-      current?.id,
-      current?.sourceSlug,
-      current?.source,
-    ]);
+    }, [statsContext, current]);
 
     const accuracyPhrase = credibilityAccuracyPhrase(sourceStats);
 
@@ -84,20 +79,28 @@ export const FeaturedPredictionCarousel = memo(
       return null;
     }
 
+    const hasSlideControls = slides.length > 1;
+
     return (
       <section
-        className={`relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50/80 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60 ${className}`.trim()}
+        className={`relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm ${className}`.trim()}
         aria-roledescription="carousel"
         aria-label={`${spotlightTitle}. Featured predictions.`}
       >
-        <div className="flex min-h-[200px] flex-1 flex-col justify-between gap-6 p-6 sm:p-8 sm:pr-28">
+        <div
+          className={
+            hasSlideControls
+              ? "flex min-h-[200px] flex-1 flex-col justify-between gap-6 px-6 pt-6 pb-20 sm:px-8 sm:pt-8 sm:pr-28 sm:pb-24"
+              : "flex min-h-[200px] flex-1 flex-col justify-between gap-6 p-6 sm:p-8 sm:pr-28"
+          }
+        >
           <div className="min-w-0 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+            <p className="text-xs font-semibold uppercase tracking-wide text-interactive">
               {spotlightTitle}
             </p>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
               {current.category ? (
-                <span className="rounded-full bg-zinc-100/90 px-2.5 py-0.5 font-normal text-zinc-600 ring-1 ring-zinc-200/80 dark:bg-zinc-950/80 dark:text-zinc-500 dark:ring-zinc-700/80">
+                <span className="rounded-full bg-surface-elevated px-2.5 py-0.5 font-normal text-muted ring-1 ring-border">
                   {current.category}
                 </span>
               ) : null}
@@ -105,29 +108,29 @@ export const FeaturedPredictionCarousel = memo(
                 Added {formatIsoDate(current.created_at)}
               </span>
             </div>
-            <p className="text-lg font-semibold leading-snug tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-xl">
+            <p className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
               <Link
                 href={`/predictions/${encodeURIComponent(current.id)}`}
-                className="hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:hover:text-blue-300 dark:focus-visible:ring-offset-zinc-900"
+                className="hover:text-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {current.text}
               </Link>
             </p>
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
               <OutcomeBadge outcome={current.outcome} className="text-sm" />
-              <span aria-hidden className="text-zinc-400 dark:text-zinc-600">
+              <span aria-hidden className="text-muted">
                 ·
               </span>
               <Link
                 href={`/source/${encodeURIComponent(current.sourceSlug)}`}
-                className="font-normal text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="font-normal text-ink underline-offset-2 hover:text-foreground hover:underline"
               >
                 {current.source}
               </Link>
-              <span aria-hidden className="text-zinc-400 dark:text-zinc-600">
+              <span aria-hidden className="text-muted">
                 ·
               </span>
-              <span className="min-w-0 text-zinc-500 dark:text-zinc-500">
+              <span className="min-w-0 text-muted">
                 {accuracyPhrase}
               </span>
             </p>
@@ -135,46 +138,42 @@ export const FeaturedPredictionCarousel = memo(
           <div className="flex flex-wrap justify-end gap-4">
             <Link
               href={`/predictions/${encodeURIComponent(current.id)}`}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:focus-visible:ring-offset-zinc-900"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               View details
             </Link>
           </div>
         </div>
 
-        {slides.length > 1 ? (
+        {hasSlideControls ? (
           <>
             <div
-              className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 sm:left-auto sm:right-6 sm:translate-x-0"
-              role="tablist"
-              aria-label="Slide"
+              className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 sm:left-auto sm:right-6 sm:translate-x-0"
+              role="group"
+              aria-label="Slide indicators"
             >
-              {slides.map((p, i) => {
-                const tabId = `${baseId}-tab-${i}`;
-                const panelId = `${baseId}-panel-${i}`;
-                return (
-                  <button
-                    key={p.id}
-                    id={tabId}
-                    type="button"
-                    role="tab"
-                    aria-selected={i === safeIndex}
-                    aria-controls={panelId}
-                    className={`h-2 w-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                      i === index
-                        ? "bg-blue-600"
-                        : "bg-zinc-300 hover:bg-zinc-400 dark:bg-zinc-600 dark:hover:bg-zinc-500"
+              {slides.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  aria-label={`Show prediction ${i + 1} of ${slides.length}`}
+                  aria-current={i === safeIndex ? "true" : undefined}
+                  onClick={() => setIndex(i)}
+                >
+                  <span
+                    aria-hidden
+                    className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                      i === safeIndex ? "bg-primary" : "bg-muted hover:bg-border"
                     }`}
-                    onClick={() => setIndex(i)}
-                    aria-label={`Show prediction ${i + 1} of ${slides.length}`}
                   />
-                );
-              })}
+                </button>
+              ))}
             </div>
             <button
               type="button"
               aria-label="Previous slide"
-              className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full border border-zinc-200 bg-white/90 p-2 text-zinc-800 shadow-sm hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:flex dark:border-zinc-700 dark:bg-zinc-900/90 dark:text-zinc-100"
+              className="absolute left-2 top-1/2 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface-elevated/95 text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive sm:inline-flex"
               onClick={() => go(-1)}
             >
               <span aria-hidden className="text-lg leading-none">
@@ -184,7 +183,7 @@ export const FeaturedPredictionCarousel = memo(
             <button
               type="button"
               aria-label="Next slide"
-              className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full border border-zinc-200 bg-white/90 p-2 text-zinc-800 shadow-sm hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:flex dark:border-zinc-700 dark:bg-zinc-900/90 dark:text-zinc-100"
+              className="absolute right-2 top-1/2 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface-elevated/95 text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive sm:inline-flex"
               onClick={() => go(1)}
             >
               <span aria-hidden className="text-lg leading-none">
@@ -195,9 +194,10 @@ export const FeaturedPredictionCarousel = memo(
         ) : null}
 
         <div
-          id={`${baseId}-panel-${safeIndex}`}
-          role="tabpanel"
+          id={`${baseId}-live`}
+          role="status"
           aria-live="polite"
+          aria-atomic="true"
           className="sr-only"
         >
           {current.text}. {current.outcome}. {current.source}. {accuracyPhrase}

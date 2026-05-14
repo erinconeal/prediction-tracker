@@ -24,7 +24,7 @@ function AccuracyMiniBar({
   return (
     <div className="mt-1.5 flex items-center gap-2">
       <div
-        className="h-2 min-w-0 flex-1 overflow-hidden rounded-sm bg-zinc-200 dark:bg-zinc-700"
+        className="h-2 min-w-0 flex-1 overflow-hidden rounded-sm bg-surface"
         {...(percent !== null && ariaLabel
           ? {
               role: "progressbar" as const,
@@ -36,11 +36,11 @@ function AccuracyMiniBar({
           : { "aria-hidden": true as const })}
       >
         <div
-          className="h-full rounded-sm bg-emerald-600 transition-[width] duration-300 dark:bg-emerald-500"
+          className="h-full rounded-sm bg-success transition-[width] duration-300"
           style={{ width: `${width}%` }}
         />
       </div>
-      <span className="w-11 shrink-0 text-right text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+      <span className="w-11 shrink-0 text-right text-xs tabular-nums text-muted">
         {percent === null ? "—" : `${percent}%`}
       </span>
     </div>
@@ -51,7 +51,7 @@ function StreakLine({ row }: { row: LeaderboardRow }) {
   if (row.streakKind === null || row.streakLength < 1) return null;
   const hot = row.streakKind === "correct";
   return (
-    <p className="mt-1 text-xs text-zinc-700 dark:text-zinc-200">
+    <p className="mt-1 text-xs text-foreground">
       <span aria-hidden>{hot ? "🔥" : "❄️"}</span>{" "}
       <span className="font-medium tabular-nums">{row.streakLength}</span>
       {hot ? " correct" : " incorrect"} in a row
@@ -67,7 +67,7 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
 
   const shell = (body: ReactNode) => (
     <div
-      className={`flex h-full min-h-0 flex-col rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 ${className}`.trim()}
+      className={`flex h-full min-h-0 flex-col rounded-xl border border-border bg-surface-elevated p-5 shadow-sm ${className}`.trim()}
     >
       {body}
     </div>
@@ -76,11 +76,11 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
   if (loading && rows.length === 0) {
     return shell(
       <>
-        <h2 className="shrink-0 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+        <h2 className="shrink-0 text-base font-semibold text-foreground">
           Leaderboard
         </h2>
         <div className="mt-4 min-h-0 flex-1">
-          <div className="h-full min-h-[8rem] animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+          <div className="h-full min-h-[8rem] animate-pulse rounded-lg bg-surface" />
         </div>
       </>,
     );
@@ -89,15 +89,17 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
   if (error) {
     return (
       <div
-        className={`flex h-full min-h-0 flex-col rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100 ${className}`.trim()}
+        className={`flex h-full min-h-0 flex-col rounded-xl border border-error/35 bg-error/10 p-5 text-sm text-error ${className}`.trim()}
         role="alert"
       >
-        <h2 className="shrink-0 text-base font-semibold">Leaderboard</h2>
+        <h2 className="shrink-0 text-base font-semibold text-foreground">
+          Leaderboard
+        </h2>
         <p className="mt-2 shrink-0">{error}</p>
         <div className="mt-auto flex shrink-0 pt-4">
           <button
             type="button"
-            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             onClick={() => void refetch()}
           >
             Retry
@@ -110,12 +112,10 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
   if (rows.length === 0) {
     return shell(
       <>
-        <h2 className="shrink-0 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+        <h2 className="shrink-0 text-base font-semibold text-foreground">
           Leaderboard
         </h2>
-        <p className="mt-2 shrink-0 text-sm text-zinc-600 dark:text-zinc-300">
-          No sources yet.
-        </p>
+        <p className="mt-2 shrink-0 text-sm text-muted">No sources yet.</p>
       </>,
     );
   }
@@ -123,10 +123,8 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
   return shell(
     <>
       <div className="shrink-0">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Leaderboard
-        </h2>
-        <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+        <h2 className="text-base font-semibold text-foreground">Leaderboard</h2>
+        <p className="mt-1 text-xs text-muted">
           Ranked by constitution accuracy: correct ÷ (correct + incorrect).
         </p>
       </div>
@@ -136,7 +134,7 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
           return (
             <li key={r.source} className="flex gap-3 text-sm">
               <span
-                className="w-6 shrink-0 font-medium tabular-nums text-zinc-500 dark:text-zinc-400"
+                className="w-6 shrink-0 font-medium tabular-nums text-muted"
                 aria-hidden
               >
                 {r.rank}.
@@ -144,7 +142,7 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/source/${encodeURIComponent(slug)}`}
-                  className="font-medium text-zinc-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-50"
+                  className="font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   {r.source}
                 </Link>
@@ -156,10 +154,10 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
                       : `Accuracy ${r.accuracyPercent}%: ${r.correct} correct of ${r.scored} scored (correct + incorrect)`
                   }
                 />
-                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                <p className="mt-1 text-xs text-muted">
                   {r.total} prediction{r.total === 1 ? "" : "s"}
                   {r.scored > 0 ? (
-                    <span className="text-zinc-500 dark:text-zinc-500">
+                    <span className="text-muted">
                       {" "}
                       · {r.scored} scored
                       {r.pending > 0 ? ` · ${r.pending} pending` : ""}
@@ -169,12 +167,12 @@ export const TopPerformersPanel = memo(function TopPerformersPanel({
                       {r.invalid > 0 ? ` · ${r.invalid} invalid` : ""}
                     </span>
                   ) : r.resolved === 0 ? (
-                    <span className="text-zinc-500 dark:text-zinc-500">
+                    <span className="text-muted">
                       {" "}
                       · none with a terminal outcome
                     </span>
                   ) : (
-                    <span className="text-zinc-500 dark:text-zinc-500">
+                    <span className="text-muted">
                       {" "}
                       · {r.resolved} closed, none scored for accuracy
                       {r.pending > 0 ? ` · ${r.pending} pending` : ""}

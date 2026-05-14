@@ -36,7 +36,7 @@ const textClass: Record<PredictionCardSize, string> = {
 };
 
 const linkSourceClass =
-  "text-zinc-600 underline-offset-2 hover:text-zinc-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-zinc-400 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-900";
+  "text-muted underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export const PredictionCard = memo(function PredictionCard({
   prediction: p,
@@ -48,7 +48,7 @@ export const PredictionCard = memo(function PredictionCard({
   className = "",
 }: PredictionCardProps) {
   const pad = sizeClass[size];
-  const quoteClass = `font-semibold text-zinc-900 dark:text-zinc-50 ${textClass[size]}`;
+  const quoteClass = `font-semibold text-foreground ${textClass[size]}`;
 
   const sourceBody = linkSource ? (
     <Link
@@ -58,24 +58,24 @@ export const PredictionCard = memo(function PredictionCard({
       {p.source}
     </Link>
   ) : (
-    <span className="text-zinc-600 dark:text-zinc-400">{p.source}</span>
+    <span className="text-muted">{p.source}</span>
   );
 
   const dtClass =
-    "font-normal uppercase tracking-wide text-zinc-400 dark:text-zinc-500";
-  const ddClass = "text-zinc-600 dark:text-zinc-400";
-  const categoryDdClass = "text-zinc-500 dark:text-zinc-500";
+    "font-normal uppercase tracking-wide text-muted";
+  const ddClass = "text-muted";
+  const categoryDdClass = "text-muted";
 
   return (
     <article
-      className={`rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 ${pad} ${className}`.trim()}
+      className={`rounded-xl border border-border bg-surface-elevated shadow-sm ${pad} ${className}`.trim()}
     >
       <div className="min-w-0 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <p className={`min-w-0 flex-1 ${quoteClass}`}>{p.text}</p>
           <OutcomeBadge outcome={p.outcome} className="shrink-0" />
         </div>
-        <dl className="grid gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <dl className="grid gap-2 text-xs text-muted">
           <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
             <dt className={dtClass}>Source</dt>
             <dd className={`min-w-0 ${ddClass}`}>{sourceBody}</dd>
@@ -96,15 +96,11 @@ export const PredictionCard = memo(function PredictionCard({
           </div>
         </dl>
         {scoreSlot ? (
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">
-            {scoreSlot}
-          </div>
+          <div className="text-sm text-muted">{scoreSlot}</div>
         ) : null}
       </div>
       {footerSlot ? (
-        <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-          {footerSlot}
-        </div>
+        <div className="mt-4 border-t border-border pt-4">{footerSlot}</div>
       ) : null}
     </article>
   );

@@ -12,6 +12,12 @@ type SourceDetailViewProps = {
   sourceSlug: string;
 };
 
+const statCard =
+  "rounded-xl border border-border bg-surface-elevated p-4 shadow-sm";
+
+const backLink =
+  "inline-flex rounded text-sm font-medium text-interactive underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   const filters = useMemo(
     () => ({
@@ -39,48 +45,45 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   return (
     <div className="space-y-8">
       <div>
-        <Link
-          href="/"
-          className="inline-flex rounded text-sm font-medium text-indigo-700 underline-offset-2 hover:text-indigo-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:text-indigo-300 dark:hover:text-indigo-200 dark:focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-950"
-        >
+        <Link href="/" className={backLink}>
           ← Back to dashboard
         </Link>
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
           {stats.name}
         </h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+        <p className="mt-2 text-sm text-muted">
           Source slug:{" "}
-          <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
+          <code className="rounded bg-surface px-1.5 py-0.5 text-xs ring-1 ring-border">
             {sourceSlug}
           </code>
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+        <div className={statCard}>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Total predictions
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <p className="mt-1 text-2xl font-semibold text-foreground">
             {stats.total}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+        <div className={statCard}>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Resolved
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <p className="mt-1 text-2xl font-semibold text-foreground">
             {stats.resolved}
           </p>
         </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+        <div className={statCard}>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Accuracy
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <p className="mt-1 text-2xl font-semibold text-foreground">
             {stats.accuracy === null ? "—" : `${stats.accuracy}%`}
           </p>
-          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-xs text-muted">
             Based on {stats.scored} scored (correct + incorrect).{" "}
             {stats.pending > 0 ? `${stats.pending} pending. ` : null}
             {stats.outcomeUnresolved > 0
@@ -93,7 +96,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
 
       {error ? (
         <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-100"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/35 bg-error/10 px-4 py-3 text-sm text-error"
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
@@ -101,7 +104,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
           <span>{error}</span>
           <button
             type="button"
-            className="rounded-lg bg-red-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-red-50 dark:bg-red-200 dark:text-red-950 dark:hover:bg-white dark:focus-visible:ring-red-700 dark:focus-visible:ring-offset-red-950"
+            className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             onClick={() => void refetch()}
           >
             Retry
@@ -110,9 +113,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
       ) : null}
 
       <section>
-        <h2 className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Timeline
-        </h2>
+        <h2 className="mb-4 text-base font-semibold text-foreground">Timeline</h2>
         <PredictionList
           predictions={[...data].sort(
             (a, b) =>

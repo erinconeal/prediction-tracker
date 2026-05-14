@@ -1,1 +1,5 @@
 @AGENTS.md
+
+## Design System
+
+Always read `DESIGN.md` before making any visual or UI decisions. Font roles, colors, spacing, motion, and aesthetic direction are defined there. Do not deviate without explicit user approval. In QA, flag any UI that diverges from `DESIGN.md` without a documented exception.

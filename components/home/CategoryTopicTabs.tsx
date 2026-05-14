@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useId } from "react";
 
 /** Topic filters aligned with demo seed and common categories. */
 export const TOPIC_TAB_VALUES = [
@@ -27,33 +27,44 @@ export const CategoryTopicTabs = memo(function CategoryTopicTabs({
   disabled = false,
   className = "",
 }: CategoryTopicTabsProps) {
+  const name = `category-topic-${useId()}`;
+
   return (
-    <div
-      className={`flex flex-wrap gap-2 ${className}`.trim()}
-      role="tablist"
-      aria-label="Topics"
+    <fieldset
+      className={`min-w-0 border-0 p-0 ${className}`.trim()}
     >
-      {TOPIC_TAB_VALUES.map((tab) => {
-        const isActive = tab === active;
-        return (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            disabled={disabled}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-zinc-950 ${
-              isActive
-                ? "bg-blue-600 text-white shadow-sm dark:bg-blue-600"
-                : "border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-            }`}
-            onClick={() => onChange(tab)}
-          >
-            {tab}
-          </button>
-        );
-      })}
-    </div>
+      <legend className="text-xs font-medium text-muted">Topics</legend>
+      <div className="mt-1.5 flex flex-wrap gap-2">
+        {TOPIC_TAB_VALUES.map((tab) => {
+          const isActive = tab === active;
+          return (
+            <label
+              key={tab}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-interactive focus-within:ring-offset-2 focus-within:ring-offset-background ${
+                disabled
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
+              } ${
+                isActive
+                  ? "bg-primary text-white shadow-sm"
+                  : "border border-border bg-surface-elevated text-foreground hover:border-border hover:bg-surface"
+              }`}
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                name={name}
+                value={tab}
+                checked={isActive}
+                disabled={disabled}
+                onChange={() => onChange(tab)}
+              />
+              {tab}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 });
 

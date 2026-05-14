@@ -22,7 +22,7 @@ function createMarkdownComponents(
       return (
         <h2
           id={id}
-          className={`mt-10 border-b border-zinc-200 pb-2 text-xl font-semibold tracking-tight text-zinc-900 first:mt-0 dark:border-zinc-800 dark:text-zinc-50 ${scrollAnchor}`}
+          className={`mt-10 border-b border-border pb-2 font-serif text-xl font-normal tracking-tight text-foreground first:mt-0 ${scrollAnchor}`}
         >
           {children}
         </h2>
@@ -33,7 +33,7 @@ function createMarkdownComponents(
       return (
         <h3
           id={id}
-          className={`mt-8 text-lg font-semibold text-zinc-900 dark:text-zinc-50 ${scrollAnchor}`}
+          className={`mt-8 text-lg font-semibold text-foreground ${scrollAnchor}`}
         >
           {children}
         </h3>
@@ -44,7 +44,7 @@ function createMarkdownComponents(
       return (
         <h4
           id={id}
-          className={`mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-50 ${scrollAnchor}`}
+          className={`mt-6 text-base font-semibold text-foreground ${scrollAnchor}`}
         >
           {children}
         </h4>
@@ -55,7 +55,7 @@ function createMarkdownComponents(
       return (
         <h5
           id={id}
-          className={`mt-5 text-sm font-semibold text-zinc-900 dark:text-zinc-50 ${scrollAnchor}`}
+          className={`mt-5 text-sm font-semibold text-foreground ${scrollAnchor}`}
         >
           {children}
         </h5>
@@ -66,51 +66,47 @@ function createMarkdownComponents(
       return (
         <h6
           id={id}
-          className={`mt-4 text-sm font-semibold text-zinc-800 dark:text-zinc-200 ${scrollAnchor}`}
+          className={`mt-4 text-sm font-semibold text-foreground ${scrollAnchor}`}
         >
           {children}
         </h6>
       );
     },
     p: ({ children }) => (
-      <p className="mt-4 text-base leading-relaxed text-zinc-700 dark:text-zinc-300">
+      <p className="mt-4 text-base leading-relaxed text-foreground/90">
         {children}
       </p>
     ),
     ul: ({ children }) => (
-      <ul className="mt-4 list-disc space-y-2 ps-6 text-zinc-700 dark:text-zinc-300">
+      <ul className="mt-4 list-disc space-y-2 ps-6 text-foreground/90">
         {children}
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="mt-4 list-decimal space-y-2 ps-6 text-zinc-700 dark:text-zinc-300">
+      <ol className="mt-4 list-decimal space-y-2 ps-6 text-foreground/90">
         {children}
       </ol>
     ),
     li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-    hr: () => (
-      <hr className="my-10 border-zinc-200 dark:border-zinc-800" />
-    ),
+    hr: () => <hr className="my-10 border-border" />,
     blockquote: ({ children }) => (
-      <blockquote className="mt-4 border-s-4 border-zinc-300 ps-4 italic text-zinc-600 dark:border-zinc-600 dark:text-zinc-400">
+      <blockquote className="mt-4 border-s-4 border-border ps-4 italic text-muted">
         {children}
       </blockquote>
     ),
     strong: ({ children }) => (
-      <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
-        {children}
-      </strong>
+      <strong className="font-semibold text-foreground">{children}</strong>
     ),
     a: ({ children, href }) => (
       <a
         href={href}
-        className="font-medium text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition-colors hover:decoration-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:text-zinc-100 dark:decoration-zinc-500 dark:hover:decoration-zinc-300 dark:focus-visible:ring-zinc-500 dark:focus-visible:ring-offset-zinc-950"
+        className="font-medium text-ink underline decoration-border underline-offset-4 transition-colors hover:text-interactive hover:decoration-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         {children}
       </a>
     ),
     pre: ({ children }) => (
-      <pre className="mt-4 overflow-x-auto rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-zinc-700 dark:bg-zinc-950">
+      <pre className="mt-4 overflow-x-auto rounded-md border border-border bg-surface p-4 text-sm">
         {children}
       </pre>
     ),
@@ -118,13 +114,13 @@ function createMarkdownComponents(
       const isBlock = Boolean(className);
       if (isBlock) {
         return (
-          <code className="block font-mono text-sm text-zinc-800 dark:text-zinc-200">
+          <code className="block font-mono text-sm text-foreground">
             {children}
           </code>
         );
       }
       return (
-        <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.9em] text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
+        <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-[0.9em] text-foreground">
           {children}
         </code>
       );

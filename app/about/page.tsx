@@ -23,19 +23,15 @@ export default async function AboutPage() {
   return (
     <div className="space-y-8 scroll-smooth">
       <header className="max-w-3xl space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground">
           About
         </h1>
         {documentTitle ? (
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            {documentTitle}
-          </p>
+          <p className="text-sm font-medium text-muted">{documentTitle}</p>
         ) : null}
-        <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <p className="text-lg leading-relaxed text-muted">
           This page publishes the full{" "}
-          <span className="font-medium text-zinc-800 dark:text-zinc-200">
-            scoring constitution
-          </span>
+          <span className="font-medium text-foreground">scoring constitution</span>
           : the canonical methodology for what counts as a prediction, how
           outcomes are assigned, and how accuracy is reported. Metrics in the app
           follow these rules.
@@ -46,7 +42,7 @@ export default async function AboutPage() {
         <MethodologyTableOfContents entries={toc} />
         <section
           aria-label="Methodology"
-          className="min-w-0 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40 sm:p-8"
+          className="min-w-0 rounded-xl border border-border bg-surface-elevated p-6 shadow-sm sm:p-8"
         >
           <ConstitutionBody markdown={markdown} toc={toc} />
         </section>

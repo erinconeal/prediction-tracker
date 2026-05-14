@@ -22,13 +22,13 @@ export const InsightCallout = memo(function InsightCallout({
   if (loading && insight === null) {
     return (
       <div
-        className={`rounded-xl border border-blue-200/70 bg-blue-50/70 px-4 py-3 dark:border-blue-900/60 dark:bg-blue-950/30 ${className}`.trim()}
+        className={`rounded-xl border border-info/30 bg-info/10 px-4 py-3 ${className}`.trim()}
         role="status"
         aria-live="polite"
         aria-label="Loading insight"
       >
-        <div className="h-3 w-20 animate-pulse rounded bg-blue-200/80 dark:bg-blue-900/60" />
-        <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-blue-200/60 dark:bg-blue-900/50" />
+        <div className="h-3 w-20 animate-pulse rounded bg-info/30" />
+        <div className="mt-2 h-4 max-w-[75%] animate-pulse rounded bg-info/20" />
       </div>
     );
   }
@@ -40,12 +40,12 @@ export const InsightCallout = memo(function InsightCallout({
   return (
     <aside
       aria-label="Insight"
-      className={`rounded-xl border border-blue-200/70 bg-blue-50 px-4 py-3 shadow-sm dark:border-blue-900/60 dark:bg-blue-950/40 ${className}`.trim()}
+      className={`rounded-xl border border-info/35 bg-info/10 px-4 py-3 shadow-sm ${className}`.trim()}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">
+      <p className="text-xs font-semibold uppercase tracking-wide text-info">
         <span aria-hidden>💡</span> Insight
       </p>
-      <p className="mt-1 text-sm leading-relaxed text-zinc-900 dark:text-zinc-50">
+      <p className="mt-1 text-sm leading-relaxed text-foreground">
         {insight.headline}
       </p>
     </aside>

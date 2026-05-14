@@ -17,6 +17,12 @@ type PredictionDetailViewProps = {
   id: string;
 };
 
+const linkBack =
+  "inline-flex text-sm font-medium text-interactive underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const statCard =
+  "rounded-xl border border-border bg-surface-elevated p-4 shadow-sm";
+
 export function PredictionDetailView({ id }: PredictionDetailViewProps) {
   const { prediction, loading, error, refetch: refetchPrediction } =
     usePrediction(id);
@@ -57,22 +63,17 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
   if (loading && !prediction) {
     return (
       <div className="space-y-6" aria-busy="true">
-        <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-        <div className="h-40 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+        <div className="h-8 w-48 animate-pulse rounded bg-surface" />
+        <div className="h-40 animate-pulse rounded-xl bg-surface" />
       </div>
     );
   }
 
   if (error || !prediction) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          {error ?? "Prediction not found."}
-        </p>
-        <Link
-          href="/"
-          className="mt-4 inline-block text-sm font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
-        >
+      <div className="rounded-xl border border-border bg-surface-elevated p-8 text-center">
+        <p className="text-sm text-muted">{error ?? "Prediction not found."}</p>
+        <Link href="/" className={`mt-4 inline-block ${linkBack}`}>
           Back to home
         </Link>
       </div>
@@ -84,22 +85,19 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
   return (
     <div className="space-y-10">
       <div>
-        <Link
-          href="/"
-          className="inline-flex text-sm font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
-        >
+        <Link href="/" className={linkBack}>
           ← Back to home
         </Link>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
-          <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-foreground">
             {p.text}
           </h1>
           <OutcomeBadge outcome={p.outcome} className="text-sm" />
         </div>
-        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-3 text-sm text-muted">
           <Link
             href={`/source/${encodeURIComponent(p.sourceSlug)}`}
-            className="font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
           >
             {p.source}
           </Link>
@@ -113,36 +111,26 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Timeline
-        </h2>
-        <ol className="m-0 list-none space-y-0 border-l-2 border-zinc-200 pl-6 dark:border-zinc-700">
+        <h2 className="text-base font-semibold text-foreground">Timeline</h2>
+        <ol className="m-0 list-none space-y-0 border-l-2 border-border pl-6">
           <li className="relative pb-6">
-            <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-blue-600 ring-4 ring-white dark:ring-zinc-950" />
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              Added
-            </p>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {formatIsoDate(p.created_at)}
-            </p>
+            <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-background" />
+            <p className="text-sm font-medium text-foreground">Added</p>
+            <p className="text-sm text-muted">{formatIsoDate(p.created_at)}</p>
           </li>
           {p.target_date ? (
             <li className="relative pb-6">
-              <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-zinc-300 ring-4 ring-white dark:bg-zinc-600 dark:ring-zinc-950" />
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                Target
-              </p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-border ring-4 ring-background" />
+              <p className="text-sm font-medium text-foreground">Target</p>
+              <p className="text-sm text-muted">
                 {formatMonthYear(p.target_date)}
               </p>
             </li>
           ) : null}
           <li className="relative">
-            <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-zinc-300 ring-4 ring-white dark:bg-zinc-600 dark:ring-zinc-950" />
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              Outcome
-            </p>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-border ring-4 ring-background" />
+            <p className="text-sm font-medium text-foreground">Outcome</p>
+            <p className="text-sm text-muted">
               {p.outcome === "pending"
                 ? "Still open — choose an outcome when the claim can be evaluated."
                 : p.outcome === "correct"
@@ -158,37 +146,35 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Source stats
-        </h2>
+        <h2 className="text-base font-semibold text-foreground">Source stats</h2>
         {statsLoading && prediction ? (
-          <div className="h-24 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+          <div className="h-24 animate-pulse rounded-xl bg-surface" />
         ) : (
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+            <div className={statCard}>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Total predictions
               </p>
-              <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <p className="mt-1 text-2xl font-semibold text-foreground">
                 {stats.total}
               </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+            <div className={statCard}>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Resolved
               </p>
-              <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <p className="mt-1 text-2xl font-semibold text-foreground">
                 {stats.resolved}
               </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+            <div className={statCard}>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted">
                 Accuracy
               </p>
-              <p className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              <p className="mt-1 text-2xl font-semibold text-foreground">
                 {stats.accuracy === null ? "—" : `${stats.accuracy}%`}
               </p>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-2 text-xs text-muted">
                 Based on {stats.scored} scored (correct + incorrect).
                 {stats.pending > 0 ? ` ${stats.pending} pending.` : ""}
                 {stats.outcomeUnresolved > 0
@@ -199,11 +185,11 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
             </div>
           </div>
         )}
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-muted">
           All predictions by{" "}
           <Link
             href={`/source/${encodeURIComponent(p.sourceSlug)}`}
-            className="font-medium text-blue-700 underline-offset-2 hover:underline dark:text-blue-300"
+            className="font-medium text-interactive underline-offset-2 hover:underline"
           >
             {stats.name || p.source}
           </Link>
@@ -215,7 +201,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
         <section className="flex flex-wrap gap-3">
           <button
             type="button"
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label={`Mark as correct: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("correct")}
           >
@@ -223,7 +209,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           </button>
           <button
             type="button"
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label={`Mark as incorrect: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("incorrect")}
           >
@@ -231,7 +217,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           </button>
           <button
             type="button"
-            className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label={`Mark as unresolved: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("unresolved")}
           >
@@ -239,7 +225,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           </button>
           <button
             type="button"
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+            className="rounded-lg border border-border bg-surface-elevated px-4 py-2 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             aria-label={`Mark as invalid: ${truncateWithEllipsis(p.text, 80)}`}
             onClick={() => void handleOutcomeChange("invalid")}
           >
