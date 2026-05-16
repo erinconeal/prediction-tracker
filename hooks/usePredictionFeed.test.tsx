@@ -181,4 +181,16 @@ describe("usePredictionFeed", () => {
     );
     expect(result.current.data[0]?.id).toBe("refetched");
   });
+
+  test("given enabled false, should skip fetch and stay idle", async () => {
+    const { result } = renderHook(() =>
+      usePredictionFeed({ status: "all" }, { enabled: false }),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(listPredictions).not.toHaveBeenCalled();
+    expect(result.current.data).toEqual([]);
+    expect(result.current.hasMore).toBe(false);
+  });
 });

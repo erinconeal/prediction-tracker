@@ -10,6 +10,8 @@ import type { Prediction } from "@/types/prediction";
 export type LeaderboardRow = {
   rank: number;
   source: string;
+  /** Canonical route slug from the newest prediction for this source. */
+  sourceSlug: string;
   total: number;
   /** Count with a terminal outcome (not `pending`). */
   resolved: number;
@@ -65,10 +67,29 @@ function scoredOutcomeStreak(
   return { kind, length };
 }
 
-function rowFromRollup(source: string, r: SourceOutcomeRollup) {
+function sourceSlugForSource(
+  source: string,
+  sourcePredictions: Prediction[],
+  globalRankById: Map<string, number>,
+): string {
+  const sorted = [...sourcePredictions].sort((a, b) => {
+    const t =
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (t !== 0) return t;
+    return (globalRankById.get(a.id) ?? 0) - (globalRankById.get(b.id) ?? 0);
+  });
+  return sorted[0]?.sourceSlug ?? source;
+}
+
+function rowFromRollup(
+  source: string,
+  sourceSlug: string,
+  r: SourceOutcomeRollup,
+) {
   const resolved = r.total - r.pending;
   return {
     source,
+    sourceSlug,
     total: r.total,
     resolved,
     scored: r.scored,
@@ -96,7 +117,15 @@ export function computeLeaderboard(
   const bySource = rollupBySource(predictions);
   const bySourcePredictions = groupPredictionsBySource(predictions);
   const rows = [...bySource.entries()].map(([source, rollup]) =>
-    rowFromRollup(source, rollup),
+    rowFromRollup(
+      source,
+      sourceSlugForSource(
+        source,
+        bySourcePredictions.get(source) ?? [],
+        globalRankById,
+      ),
+      rollup,
+    ),
   );
 
   rows.sort((a, b) => {
@@ -115,6 +144,7 @@ export function computeLeaderboard(
     return {
       rank: i + 1,
       source: r.source,
+      sourceSlug: r.sourceSlug,
       total: r.total,
       resolved: r.resolved,
       scored: r.scored,

@@ -27,13 +27,11 @@ vi.mock("@/services/api", async (importOriginal) => {
     ...mod,
     listPredictions: vi.fn(),
     listLeaderboard: vi.fn(),
-    getTopInsight: vi.fn(),
   };
 });
 
 const listPredictions = vi.mocked(api.listPredictions);
 const listLeaderboard = vi.mocked(api.listLeaderboard);
-const getTopInsight = vi.mocked(api.getTopInsight);
 
 function row(i: number): Prediction {
   return {
@@ -52,6 +50,7 @@ function row(i: number): Prediction {
 const leaderboardRow = {
   rank: 1,
   source: "Source",
+  sourceSlug: "source",
   total: 1,
   resolved: 0,
   scored: 0,
@@ -68,9 +67,7 @@ describe("DashboardView", () => {
   beforeEach(() => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
-    getTopInsight.mockReset();
     listLeaderboard.mockResolvedValue([leaderboardRow]);
-    getTopInsight.mockResolvedValue(null);
   });
 
   test("given list error then retry succeeds, should show error then recover", async () => {
@@ -104,7 +101,7 @@ describe("DashboardView", () => {
   });
 
   test("given full first page, load more should request next offset", async () => {
-    const page1 = Array.from({ length: 20 }, (_, i) => row(i));
+    const page1 = Array.from({ length: 50 }, (_, i) => row(i));
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if ((filters?.offset ?? 0) === 0) return page1;
       return [row(99)];
@@ -126,47 +123,38 @@ describe("DashboardView", () => {
     });
 
     expect(listPredictions).toHaveBeenCalledWith(
-      expect.objectContaining({ limit: 20, offset: 20 }),
+      expect.objectContaining({ limit: 50, offset: 50 }),
       expect.any(AbortSignal),
     );
   });
 
-  test("given an insight is returned, should render the headline above the feed", async () => {
-    listPredictions.mockResolvedValue([row(0)]);
-    getTopInsight.mockResolvedValue({
-      kind: "top_accuracy",
-      headline:
-        "Jane Analyst has been correct on 2/2 scored predictions.",
-      source: "Jane Analyst",
-      correct: 2,
-      scored: 2,
+  test("selecting a trending topic should filter the feed", async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.category === "Tech") {
+        return [{ ...row(0), category: "Tech", text: "Tech only" }];
+      }
+      return [
+        { ...row(0), category: "Tech", created_at: "2026-06-01T00:00:00.000Z" },
+        { ...row(1), category: "Economics", created_at: "2026-01-01T00:00:00.000Z" },
+      ];
     });
 
     render(<DashboardView />);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(
-          "Jane Analyst has been correct on 2/2 scored predictions.",
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^tech$/i })).toBeInTheDocument();
     });
-    expect(
-      screen.getByRole("complementary", { name: /insight/i }),
-    ).toBeInTheDocument();
-  });
 
-  test("given no insight, should not render the callout", async () => {
-    listPredictions.mockResolvedValue([row(0)]);
-    getTopInsight.mockResolvedValue(null);
-
-    render(<DashboardView />);
+    fireEvent.click(screen.getByRole("button", { name: /^tech$/i }));
 
     await waitFor(() => {
-      expect(screen.getAllByText("Prediction 0").length).toBeGreaterThan(0);
+      expect(screen.getByText("Tech only")).toBeInTheDocument();
     });
-    expect(
-      screen.queryByRole("complementary", { name: /insight/i }),
-    ).not.toBeInTheDocument();
+
+    expect(listPredictions).toHaveBeenCalledWith(
+      expect.objectContaining({ category: "Tech", limit: 20, offset: 0 }),
+      expect.any(AbortSignal),
+    );
   });
+
 });

@@ -9,6 +9,8 @@ import { isAbortError } from "@/utils/is-abort-error";
 export type UsePredictionFeedOptions = {
   /** Page size for each request (default 20). */
   pageSize?: number;
+  /** When false, skips fetch and keeps an idle empty state (avoids duplicate list requests). */
+  enabled?: boolean;
 };
 
 export type UsePredictionFeedResult = {
@@ -33,6 +35,7 @@ export function usePredictionFeed(
   options: UsePredictionFeedOptions = {},
 ): UsePredictionFeedResult {
   const pageSize = options.pageSize ?? 20;
+  const enabled = options.enabled ?? true;
   const baseKey = useMemo(
     () => getFilterKey({ ...filters, limit: undefined, offset: undefined }),
     [filters],
@@ -62,6 +65,17 @@ export function usePredictionFeed(
   }, [data]);
 
   useEffect(() => {
+    if (!enabled) {
+      firstPageGenRef.current += 1;
+      loadMoreAbortRef.current?.abort();
+      setData([]);
+      setLoading(false);
+      setLoadingMore(false);
+      setError(null);
+      setHasMore(false);
+      return;
+    }
+
     const generation = ++firstPageGenRef.current;
     const controller = new AbortController();
     loadMoreAbortRef.current?.abort();
@@ -103,7 +117,7 @@ export function usePredictionFeed(
       loadMoreAbortRef.current?.abort();
       refetchAbortRef.current?.abort();
     };
-  }, [baseKey, pageSize]);
+  }, [baseKey, pageSize, enabled]);
 
   useEffect(() => {
     return () => {
@@ -115,6 +129,7 @@ export function usePredictionFeed(
   }, []);
 
   const refetch = useCallback(async (): Promise<void> => {
+    if (!enabled) return;
     const generation = ++firstPageGenRef.current;
     loadMoreAbortRef.current?.abort();
     loadMoreAbortRef.current = null;
@@ -149,10 +164,10 @@ export function usePredictionFeed(
         refetchAbortRef.current = null;
       }
     }
-  }, [pageSize]);
+  }, [pageSize, enabled]);
 
   const loadMore = useCallback(async (): Promise<void> => {
-    if (!hasMore || loading || loadingMore) return;
+    if (!enabled || !hasMore || loading || loadingMore) return;
 
     const seq = ++loadMoreSeqRef.current;
     loadMoreAbortRef.current?.abort();
@@ -196,7 +211,7 @@ export function usePredictionFeed(
         loadMoreAbortRef.current = null;
       }
     }
-  }, [hasMore, loading, loadingMore, pageSize]);
+  }, [enabled, hasMore, loading, loadingMore, pageSize]);
 
   return {
     data,

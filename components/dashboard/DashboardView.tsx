@@ -10,25 +10,32 @@ import {
   categoryFromTopicTab,
   type TopicTab,
 } from "@/components/home/CategoryTopicTabs";
-import { FeaturedPredictionCarousel } from "@/components/home/FeaturedPredictionCarousel";
-import { HomeLayout } from "@/components/home/HomeLayout";
-import { InsightCallout } from "@/components/home/InsightCallout";
-import { TopPerformersPanel } from "@/components/home/TopPerformersPanel";
+import {
+  FeaturedPredictionCarousel,
+  FeaturedPredictionCarouselShell,
+} from "@/components/home/FeaturedPredictionCarousel";
+import { HomeHeroBand } from "@/components/home/HomeHeroBand";
+import { LeaderboardSection } from "@/components/home/LeaderboardSection";
+import { TrendingTopicsStrip } from "@/components/home/TrendingTopicsStrip";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
-import { useTopInsight } from "@/hooks/useTopInsight";
 import type { PredictionListSort } from "@/types/prediction";
 import {
   DEFAULT_MAX_FEATURED_SLIDES,
   pickFeaturedFromFeed,
 } from "@/lib/featured-feed";
+import { rankTrendingTopics } from "@/lib/trending-topics";
 
 const PAGE_SIZE = 20;
+/** Unfiltered sample for hero, trending, and featured (also first page when filters are default). */
+const HOME_SAMPLE_SIZE = 50;
 
 export function DashboardView() {
   const [topic, setTopic] = useState<TopicTab>("All");
   const [listSort, setListSort] = useState<PredictionListSort>("newest");
   const category = useMemo(() => categoryFromTopicTab(topic), [topic]);
+
+  const isDefaultFeed = topic === "All" && listSort === "newest";
 
   const feedFilters = useMemo(
     () => ({
@@ -39,6 +46,16 @@ export function DashboardView() {
     [category, listSort],
   );
 
+  const homeSample = usePredictionFeed(
+    { status: "all" },
+    { pageSize: HOME_SAMPLE_SIZE },
+  );
+
+  const filteredFeed = usePredictionFeed(feedFilters, {
+    pageSize: PAGE_SIZE,
+    enabled: !isDefaultFeed,
+  });
+
   const {
     data,
     loading,
@@ -47,13 +64,16 @@ export function DashboardView() {
     hasMore,
     refetch,
     loadMore,
-  } = usePredictionFeed(feedFilters, { pageSize: PAGE_SIZE });
+  } = isDefaultFeed ? homeSample : filteredFeed;
 
-  const { insight, loading: insightLoading } = useTopInsight();
+  const trendingTopics = useMemo(
+    () => rankTrendingTopics(homeSample.data),
+    [homeSample.data],
+  );
 
   const { slides: featuredSlides, spotlightTitle } = useMemo(
-    () => pickFeaturedFromFeed(data, DEFAULT_MAX_FEATURED_SLIDES),
-    [data],
+    () => pickFeaturedFromFeed(homeSample.data, DEFAULT_MAX_FEATURED_SLIDES),
+    [homeSample.data],
   );
 
   const emptyMessage =
@@ -65,92 +85,119 @@ export function DashboardView() {
     setTopic(tab);
   }, []);
 
-  return (
-    <HomeLayout
-      hero={
-        <FeaturedPredictionCarousel
-          predictions={featuredSlides}
-          spotlightTitle={spotlightTitle}
-          statsContextPredictions={data}
-        />
-      }
-      main={
-        <div className="space-y-10">
-          {error ? (
-            <div
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/35 bg-error/10 px-4 py-3 text-sm text-error"
-              role="alert"
-              aria-live="assertive"
-              aria-atomic="true"
-            >
-              <span>{error}</span>
-              <button
-                type="button"
-                className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                onClick={() => void refetch()}
-              >
-                Retry
-              </button>
-            </div>
-          ) : null}
+  const showCategoryTabs =
+    !homeSample.loading && trendingTopics.length === 0;
 
-          <InsightCallout insight={insight} loading={insightLoading} />
-
-          <section className="space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="font-serif text-xl font-normal tracking-tight text-foreground">
-                  All predictions
-                </h2>
-                <p className="mt-1 text-sm text-muted">
-                  {sortSubtitle(listSort)}
-                </p>
-              </div>
-              {loading && data.length > 0 ? (
-                <span
-                  className="text-xs text-muted"
-                  role="status"
-                  aria-live="polite"
-                >
-                  Updating…
-                </span>
-              ) : null}
-            </div>
-
-            <CategoryTopicTabs
-              active={topic}
-              onChange={handleTopicChange}
-              disabled={loading && data.length === 0}
-            />
-
-            <PredictionSortTabs
-              value={listSort}
-              onChange={setListSort}
-              disabled={loading && data.length === 0}
-            />
-
-            <PredictionGrid
-              predictions={data}
-              loading={loading}
-              emptyMessage={emptyMessage}
-            />
-
-            {hasMore && data.length > 0 ? (
-              <div className="flex justify-center pt-2">
-                <button
-                  type="button"
-                  className="rounded-full border border-border bg-surface-elevated px-6 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
-                  disabled={loadingMore}
-                  onClick={() => void loadMore()}
-                >
-                  {loadingMore ? "Loading…" : "Load more"}
-                </button>
-              </div>
-            ) : null}
-          </section>
-        </div>
-      }
-      aside={<TopPerformersPanel limit={10} />}
+  const trendingTopicsHeader = (
+    <TrendingTopicsStrip
+      topics={trendingTopics}
+      active={topic}
+      onSelect={handleTopicChange}
+      loading={homeSample.loading && trendingTopics.length === 0}
+      embedded
+      showAllTopic
     />
+  );
+
+  return (
+    <div className="-mt-4 space-y-16 pb-4">
+      <HomeHeroBand
+        carousel={
+          featuredSlides.length > 0 ? (
+            <FeaturedPredictionCarousel
+              header={trendingTopicsHeader}
+              predictions={featuredSlides}
+              spotlightTitle={spotlightTitle}
+              statsContextPredictions={homeSample.data}
+            />
+          ) : homeSample.loading ? (
+            <FeaturedPredictionCarouselShell header={trendingTopicsHeader}>
+              <div
+                className="min-h-[14rem] animate-pulse bg-surface"
+                aria-busy="true"
+                aria-label="Loading featured prediction"
+              />
+            </FeaturedPredictionCarouselShell>
+          ) : null
+        }
+      />
+
+      <section className="space-y-6" aria-labelledby="forecasts-heading">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2
+              id="forecasts-heading"
+              className="font-serif text-2xl font-normal tracking-tight text-foreground sm:text-3xl"
+            >
+              Popular forecasts
+            </h2>
+            <p className="mt-2 text-sm text-muted">{sortSubtitle(listSort)}</p>
+          </div>
+          {loading && data.length > 0 ? (
+            <span
+              className="text-xs text-muted"
+              role="status"
+              aria-live="polite"
+            >
+              Updating…
+            </span>
+          ) : null}
+        </div>
+
+        {error ? (
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/35 bg-error/10 px-4 py-3 text-sm text-error"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            <span>{error}</span>
+            <button
+              type="button"
+              className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              onClick={() => void refetch()}
+            >
+              Retry
+            </button>
+          </div>
+        ) : null}
+
+        {showCategoryTabs ? (
+          <CategoryTopicTabs
+            active={topic}
+            onChange={handleTopicChange}
+            disabled={loading && data.length === 0}
+            showLegend={false}
+          />
+        ) : null}
+
+        <PredictionSortTabs
+          value={listSort}
+          onChange={setListSort}
+          disabled={loading && data.length === 0}
+        />
+
+        <PredictionGrid
+          predictions={data}
+          loading={loading}
+          emptyMessage={emptyMessage}
+        />
+
+        {hasMore && data.length > 0 ? (
+          <div className="flex justify-center pt-2">
+            <button
+              type="button"
+              className="rounded-full border border-border bg-surface-elevated px-6 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+              disabled={loadingMore}
+              onClick={() => void loadMore()}
+            >
+              {loadingMore ? "Loading…" : "Load more"}
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <LeaderboardSection limit={10} />
+    </div>
   );
 }

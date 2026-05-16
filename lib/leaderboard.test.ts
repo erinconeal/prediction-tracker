@@ -39,6 +39,7 @@ describe("computeLeaderboard", () => {
     expect(rows[0]).toMatchObject({
       rank: 1,
       source: "B",
+      sourceSlug: "b",
       accuracyPercent: 66.7,
       total: 3,
     });
@@ -124,6 +125,23 @@ describe("computeLeaderboard", () => {
       resolved: 2,
       pending: 1,
     });
+  });
+
+  test("given display name and slug differ, should use newest prediction sourceSlug", () => {
+    const rows = computeLeaderboard(
+      [
+        {
+          ...row("Jane Analyst", "correct", "old", "2026-01-01T00:00:00.000Z"),
+          sourceSlug: "legacy-slug",
+        },
+        {
+          ...row("Jane Analyst", "correct", "new", "2026-06-01T00:00:00.000Z"),
+          sourceSlug: "jane-analyst",
+        },
+      ],
+      10,
+    );
+    expect(rows[0]?.sourceSlug).toBe("jane-analyst");
   });
 
   test("given identical timestamps, streak head matches global newest-first order", () => {
