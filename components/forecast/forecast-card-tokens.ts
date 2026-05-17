@@ -1,0 +1,18 @@
+/** Shared discovery-card shell for Featured and Browse forecast grids. */
+export const forecastCardShellClass =
+  "flex min-h-full flex-col rounded-xl border border-border bg-surface-elevated p-5 shadow-[0_2px_12px_rgb(0_0_0/0.05)] transition-[box-shadow,border-color] hover:shadow-[0_8px_24px_rgb(0_0_0/0.08)]";
+
+export const forecastCardLinkClass =
+  "hover:text-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+export const forecastCardTitleClass =
+  "line-clamp-3 text-base font-semibold leading-snug text-foreground";
+
+export const forecastCardFooterDividerClass =
+  "mt-5 flex items-end justify-between gap-3 border-t border-border/80 pt-4";
+
+export const forecastCardHeaderClass =
+  "flex items-start justify-between gap-3";
+
+export const BROWSE_FORECAST_GRID_CLASS =
+  "grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3";

@@ -16,10 +16,13 @@ import { LeaderboardSection } from "@/components/home/LeaderboardSection";
 import { TrendingTopicsStrip } from "@/components/home/TrendingTopicsStrip";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
-import type { PredictionListSort } from "@/types/prediction";
+import { browseEmptyMessage } from "@/lib/browse-empty-message";
 import { pickPopularForecastsFromFeed } from "@/lib/popular-forecasts";
+import { scrollBrowseForecastsIntoView } from "@/lib/scroll-to-browse";
 import { rankTrendingTopics } from "@/lib/trending-topics";
 import { useFeaturedForecastSlotCount } from "@/hooks/useFeaturedForecastSlotCount";
+import { outcomeLabels } from "@/components/predictions/outcome-display";
+import type { Outcome, PredictionListSort } from "@/types/prediction";
 
 const PAGE_SIZE = 20;
 /** Unfiltered sample for hero, trending, and popular cards (also first page when filters are default). */
@@ -28,17 +31,19 @@ const HOME_SAMPLE_SIZE = 50;
 export function DashboardView() {
   const [topic, setTopic] = useState<TopicTab>("All");
   const [listSort, setListSort] = useState<PredictionListSort>("newest");
+  const [outcomeFilter, setOutcomeFilter] = useState<Outcome | "all">("all");
   const category = useMemo(() => categoryFromTopicTab(topic), [topic]);
 
-  const isDefaultFeed = topic === "All" && listSort === "newest";
+  const isDefaultFeed =
+    topic === "All" && listSort === "newest" && outcomeFilter === "all";
 
   const feedFilters = useMemo(
     () => ({
-      status: "all" as const,
+      status: outcomeFilter === "all" ? ("all" as const) : outcomeFilter,
       ...(category !== undefined ? { category } : {}),
       ...(listSort !== "newest" ? { sort: listSort } : {}),
     }),
-    [category, listSort],
+    [category, listSort, outcomeFilter],
   );
 
   const homeSample = usePredictionFeed(
@@ -76,13 +81,27 @@ export function DashboardView() {
     [homeSample.data, featuredSlotCount],
   );
 
-  const emptyMessage =
-    topic === "All"
-      ? "No predictions match these filters."
-      : `No predictions in “${topic}” yet.`;
+  const emptyMessage = browseEmptyMessage(topic, outcomeFilter);
 
   const handleTopicChange = useCallback((tab: TopicTab) => {
     setTopic(tab);
+    setOutcomeFilter("all");
+  }, []);
+
+  const handleCategorySelect = useCallback((tab: TopicTab) => {
+    setTopic(tab);
+    setOutcomeFilter("all");
+    scrollBrowseForecastsIntoView();
+  }, []);
+
+  const handleOutcomeFilter = useCallback((outcome: Outcome) => {
+    setOutcomeFilter((prev) => (prev === outcome ? "all" : outcome));
+    scrollBrowseForecastsIntoView();
+  }, []);
+
+  const clearOutcomeFilter = useCallback(() => {
+    setOutcomeFilter("all");
+    scrollBrowseForecastsIntoView();
   }, []);
 
   const showCategoryTabs =
@@ -109,6 +128,7 @@ export function DashboardView() {
           statsContext={homeSample.data}
           loading={homeSample.loading}
           slotCount={featuredSlotCount}
+          onCategorySelect={handleCategorySelect}
         />
       </HomeHeroBand>
 
@@ -122,6 +142,23 @@ export function DashboardView() {
               Browse forecasts
             </h2>
             <p className="mt-2 text-sm text-muted">{sortSubtitle(listSort)}</p>
+            {outcomeFilter !== "all" ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-sm text-muted">
+                  Showing:{" "}
+                  <span className="font-medium text-foreground">
+                    {outcomeLabels[outcomeFilter]}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  onClick={clearOutcomeFilter}
+                >
+                  Clear status filter
+                </button>
+              </div>
+            ) : null}
           </div>
           {loading && data.length > 0 ? (
             <span
@@ -171,6 +208,9 @@ export function DashboardView() {
           predictions={data}
           loading={loading}
           emptyMessage={emptyMessage}
+          outcomeFilter={outcomeFilter}
+          onOutcomeFilter={handleOutcomeFilter}
+          onCategorySelect={handleCategorySelect}
         />
 
         {hasMore && data.length > 0 ? (

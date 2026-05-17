@@ -116,10 +116,11 @@ describe("DashboardView", () => {
     fireEvent.click(screen.getByRole("button", { name: /^load more$/i }));
 
     await waitFor(() => {
-      const gridCard = document.querySelector(
-        'ul a[href="/predictions/id-99"]',
-      );
-      expect(gridCard).toBeTruthy();
+      const links = screen.getAllByRole("link", { name: /prediction 99/i });
+      expect(links.length).toBeGreaterThan(0);
+      expect(
+        links.some((el) => el.getAttribute("href") === "/predictions/id-99"),
+      ).toBe(true);
     });
 
     expect(listPredictions).toHaveBeenCalledWith(
@@ -144,6 +145,141 @@ describe("DashboardView", () => {
     expect(
       screen.queryByRole("heading", { name: "Popular forecasts" }),
     ).not.toBeInTheDocument();
+  });
+
+  test("clicking an outcome filter on a browse card should filter by status", async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.status === "incorrect") {
+        return [{ ...row(0), outcome: "incorrect", text: "Wrong take" }];
+      }
+      return [
+        { ...row(0), outcome: "incorrect", text: "Wrong take" },
+        { ...row(1), outcome: "correct", text: "Right take" },
+      ];
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("link", { name: /wrong take/i }).length)
+        .toBeGreaterThan(0);
+    });
+
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: /filter browse forecasts by incorrect/i,
+      })[0]!,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Showing:")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /clear status filter/i }),
+      ).toBeInTheDocument();
+    });
+
+    expect(listPredictions).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "incorrect", limit: 20, offset: 0 }),
+      expect.any(AbortSignal),
+    );
+  });
+
+  test("clicking active outcome filter again should clear status filter", async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.status === "incorrect") {
+        return [{ ...row(0), outcome: "incorrect", text: "Wrong take" }];
+      }
+      return [
+        { ...row(0), outcome: "incorrect", text: "Wrong take" },
+        { ...row(1), outcome: "correct", text: "Right take" },
+      ];
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", {
+          name: /filter browse forecasts by incorrect/i,
+        }).length,
+      ).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: /filter browse forecasts by incorrect/i,
+      })[0]!,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Showing:")).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /filter browse forecasts by incorrect/i,
+        pressed: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("Showing:")).not.toBeInTheDocument();
+    });
+
+    expect(listPredictions).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "all", limit: 50, offset: 0 }),
+      expect.any(AbortSignal),
+    );
+  });
+
+  test("changing topic while outcome filter is active should clear outcome filter", async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.status === "incorrect") {
+        return [{ ...row(0), outcome: "incorrect", text: "Wrong take" }];
+      }
+      if (filters?.category === "Finance") {
+        return [{ ...row(1), category: "Finance", text: "Finance only" }];
+      }
+      return [
+        { ...row(0), outcome: "incorrect", text: "Wrong take" },
+        { ...row(1), outcome: "correct", text: "Right take" },
+      ];
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", {
+          name: /filter browse forecasts by incorrect/i,
+        }).length,
+      ).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: /filter browse forecasts by incorrect/i,
+      })[0]!,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Showing:")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("radio", { name: /^finance$/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Showing:")).not.toBeInTheDocument();
+      expect(screen.getByText("Finance only")).toBeInTheDocument();
+    });
+
+    expect(listPredictions).toHaveBeenLastCalledWith(
+      expect.objectContaining({ category: "Finance", limit: 20, offset: 0 }),
+      expect.any(AbortSignal),
+    );
+    expect(listPredictions).toHaveBeenLastCalledWith(
+      expect.not.objectContaining({ status: "incorrect" }),
+      expect.any(AbortSignal),
+    );
   });
 
   test("selecting a trending topic should filter the feed", async () => {

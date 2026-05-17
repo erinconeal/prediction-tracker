@@ -62,4 +62,24 @@ describe("PopularForecastCard", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("Consensus source")).not.toBeInTheDocument();
   });
+
+  test("exposes title and source links; track record is not a button", () => {
+    render(
+      <PopularForecastCard
+        prediction={prediction()}
+        statsContext={[prediction()]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: /will rates fall/i }),
+    ).toHaveAttribute("href", "/predictions/p-1");
+    expect(screen.getByRole("link", { name: /jane analyst/i })).toHaveAttribute(
+      "href",
+      "/source/jane",
+    );
+    expect(
+      screen.queryByRole("button", { name: /filter browse/i }),
+    ).not.toBeInTheDocument();
+  });
 });

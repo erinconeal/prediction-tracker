@@ -2,6 +2,7 @@
 
 import { memo, type ReactNode } from "react";
 import { PopularForecastsSection } from "@/components/home/PopularForecastsSection";
+import type { TopicTab } from "@/lib/topic-tabs";
 import type { Prediction } from "@/types/prediction";
 
 const HERO_CARD_SHELL_CLASS =
@@ -13,6 +14,7 @@ type HomeHeroCardProps = {
   statsContext: Prediction[];
   slotCount: number;
   loading?: boolean;
+  onCategorySelect?: (tab: TopicTab) => void;
   className?: string;
 };
 
@@ -22,6 +24,7 @@ export const HomeHeroCard = memo(function HomeHeroCard({
   statsContext,
   slotCount,
   loading = false,
+  onCategorySelect,
   className = "",
 }: HomeHeroCardProps) {
   return (
@@ -35,6 +38,7 @@ export const HomeHeroCard = memo(function HomeHeroCard({
         statsContext={statsContext}
         slotCount={slotCount}
         loading={loading}
+        onCategorySelect={onCategorySelect}
       />
     </section>
   );
