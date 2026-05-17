@@ -19,7 +19,7 @@ type TrendingTopicsStripProps = {
 function TrendIcon({ className = "" }: { className?: string }) {
   return (
     <svg
-      className={`size-3.5 shrink-0 ${className}`.trim()}
+      className={`block size-3.5 shrink-0 ${className}`.trim()}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden
@@ -32,6 +32,40 @@ function TrendIcon({ className = "" }: { className?: string }) {
         strokeWidth="1.5"
       />
     </svg>
+  );
+}
+
+const topicButtonClass =
+  "relative inline-flex h-5 items-center whitespace-nowrap text-sm font-medium leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+function TopicButton({
+  isActive,
+  label,
+  onClick,
+}: {
+  isActive: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={isActive}
+      onClick={onClick}
+      className={`${topicButtonClass} ${
+        isActive ? "text-interactive" : "text-muted hover:text-foreground"
+      }`}
+    >
+      {isActive ? (
+        <span
+          className="pointer-events-none absolute right-[calc(100%+0.375rem)] top-1/2 inline-flex size-3.5 -translate-y-1/2 items-center justify-center"
+          aria-hidden
+        >
+          <TrendIcon />
+        </span>
+      ) : null}
+      {label}
+    </button>
   );
 }
 
@@ -57,7 +91,7 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
       } ${className}`.trim()}
       aria-labelledby="trending-topics-heading"
     >
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex h-5 shrink-0 items-center gap-2">
         <span
           className="size-2 shrink-0 rounded-full bg-error"
           aria-hidden
@@ -85,45 +119,32 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
         </ul>
       ) : (
         <ul
-          className="-mx-1 flex min-w-0 flex-1 list-none flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto px-1 pb-0.5 scroll-smooth [scrollbar-width:thin] sm:flex-nowrap"
+          className="-mx-1 flex min-w-0 flex-1 list-none flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto px-1 scroll-smooth [scrollbar-width:thin] sm:flex-nowrap"
         >
           {embedded && showAllTopic ? (
-            <li key="All" className="shrink-0">
-              <button
-                type="button"
-                aria-pressed={active === "All"}
+            <li
+              key="All"
+              className={`flex shrink-0 items-center ${active === "All" ? "pl-5" : ""}`}
+            >
+              <TopicButton
+                isActive={active === "All"}
+                label="All"
                 onClick={() => onSelect("All")}
-                className={`inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                  active === "All"
-                    ? "text-interactive"
-                    : "text-muted hover:text-foreground"
-                }`}
-              >
-                {active === "All" ? <TrendIcon /> : null}
-                All
-              </button>
+              />
             </li>
           ) : null}
-          {topics.map(({ topic }) => {
-            const isActive = active === topic;
-            return (
-              <li key={topic} className="shrink-0">
-                <button
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => onSelect(topic)}
-                  className={`inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                    isActive
-                      ? "text-interactive"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  {isActive ? <TrendIcon /> : null}
-                  {topic}
-                </button>
-              </li>
-            );
-          })}
+          {topics.map(({ topic }) => (
+            <li
+              key={topic}
+              className={`flex shrink-0 items-center ${active === topic ? "pl-5" : ""}`}
+            >
+              <TopicButton
+                isActive={active === topic}
+                label={topic}
+                onClick={() => onSelect(topic)}
+              />
+            </li>
+          ))}
         </ul>
       )}
     </nav>

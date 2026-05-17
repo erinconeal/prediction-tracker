@@ -10,24 +10,19 @@ import {
   categoryFromTopicTab,
   type TopicTab,
 } from "@/components/home/CategoryTopicTabs";
-import {
-  FeaturedPredictionCarousel,
-  FeaturedPredictionCarouselShell,
-} from "@/components/home/FeaturedPredictionCarousel";
 import { HomeHeroBand } from "@/components/home/HomeHeroBand";
+import { HomeHeroCard } from "@/components/home/HomeHeroCard";
 import { LeaderboardSection } from "@/components/home/LeaderboardSection";
 import { TrendingTopicsStrip } from "@/components/home/TrendingTopicsStrip";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
 import type { PredictionListSort } from "@/types/prediction";
-import {
-  DEFAULT_MAX_FEATURED_SLIDES,
-  pickFeaturedFromFeed,
-} from "@/lib/featured-feed";
+import { pickPopularForecastsFromFeed } from "@/lib/popular-forecasts";
 import { rankTrendingTopics } from "@/lib/trending-topics";
+import { useFeaturedForecastSlotCount } from "@/hooks/useFeaturedForecastSlotCount";
 
 const PAGE_SIZE = 20;
-/** Unfiltered sample for hero, trending, and featured (also first page when filters are default). */
+/** Unfiltered sample for hero, trending, and popular cards (also first page when filters are default). */
 const HOME_SAMPLE_SIZE = 50;
 
 export function DashboardView() {
@@ -71,9 +66,14 @@ export function DashboardView() {
     [homeSample.data],
   );
 
-  const { slides: featuredSlides, spotlightTitle } = useMemo(
-    () => pickFeaturedFromFeed(homeSample.data, DEFAULT_MAX_FEATURED_SLIDES),
-    [homeSample.data],
+  const featuredSlotCount = useFeaturedForecastSlotCount();
+
+  const popularForecasts = useMemo(
+    () =>
+      pickPopularForecastsFromFeed(homeSample.data, {
+        max: featuredSlotCount,
+      }),
+    [homeSample.data, featuredSlotCount],
   );
 
   const emptyMessage =
@@ -101,26 +101,16 @@ export function DashboardView() {
 
   return (
     <div className="-mt-4 space-y-16 pb-4">
-      <HomeHeroBand
-        carousel={
-          featuredSlides.length > 0 ? (
-            <FeaturedPredictionCarousel
-              header={trendingTopicsHeader}
-              predictions={featuredSlides}
-              spotlightTitle={spotlightTitle}
-              statsContextPredictions={homeSample.data}
-            />
-          ) : homeSample.loading ? (
-            <FeaturedPredictionCarouselShell header={trendingTopicsHeader}>
-              <div
-                className="min-h-[14rem] animate-pulse bg-surface"
-                aria-busy="true"
-                aria-label="Loading featured prediction"
-              />
-            </FeaturedPredictionCarouselShell>
-          ) : null
-        }
-      />
+      <h1 className="sr-only">Prediction Tracker</h1>
+      <HomeHeroBand>
+        <HomeHeroCard
+          header={trendingTopicsHeader}
+          popularForecasts={popularForecasts}
+          statsContext={homeSample.data}
+          loading={homeSample.loading}
+          slotCount={featuredSlotCount}
+        />
+      </HomeHeroBand>
 
       <section className="space-y-6" aria-labelledby="forecasts-heading">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -129,7 +119,7 @@ export function DashboardView() {
               id="forecasts-heading"
               className="font-serif text-2xl font-normal tracking-tight text-foreground sm:text-3xl"
             >
-              Popular forecasts
+              Browse forecasts
             </h2>
             <p className="mt-2 text-sm text-muted">{sortSubtitle(listSort)}</p>
           </div>

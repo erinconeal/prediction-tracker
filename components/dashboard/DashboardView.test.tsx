@@ -128,6 +128,24 @@ describe("DashboardView", () => {
     );
   });
 
+  test("given loaded dashboard, should use distinct hero and list section titles", async () => {
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { level: 2, name: "Featured forecasts" }),
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Browse forecasts" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Popular forecasts" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("selecting a trending topic should filter the feed", async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.category === "Tech") {

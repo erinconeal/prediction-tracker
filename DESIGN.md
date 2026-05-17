@@ -71,7 +71,7 @@
 
 ## Motion
 
-- **Approach:** **Minimal-functional**; slight **entrance** on featured cards and carousel slides is OK if it respects `prefers-reduced-motion`.
+- **Approach:** **Minimal-functional**; slight **entrance** on featured forecast cards is OK if it respects `prefers-reduced-motion`. The home hero uses a **static grid** (no auto-advancing carousel).
 - **Easing:** enter `ease-out`, exit `ease-in`, move `ease-in-out`.
 - **Duration:** micro 50–100ms, short 150–220ms, medium 250–400ms.
 
@@ -79,7 +79,7 @@
 
 - **Outcome badges:** **Text + icon + color** (never color alone). Plain language beside formal state when space allows (e.g. “Incorrect” + `incorrect`).
 - **Source rows / leaderboard:** Optional **avatar or initials** in a **40–44px** circle; **accuracy bar** with **numeric label** (`78 / 95`, `94%`). Bars are supplemental, not the only encoding.
-- **Featured forecasts:** Horizontal cards with **category**, **short question**, **sparkline or trend** when data exists, link to detail.
+- **Featured forecasts (home hero):** Responsive **single-row** card grid inside the elevated hero shell, with **trending topics** in the card header. **Slot count tracks viewport:** 1 card (&lt; `lg`), 3 (`lg`–`1279px`), 4 (`xl`+); never wrap a second row. Section title: **Featured forecasts** (distinct from the main list **Browse forecasts** below). Each card: **category** icon + label, **track-record** badge (source accuracy % + trend glyph — **not** market odds), **question** link, **source** row with avatar, and a **decorative sparkline** labeled *Not live market odds*. Pick logic favors **newest per category** then backfill; copy must not imply popularity or live prices.
 - **Recent resolutions:** Compact cards with outcome badge, pundit name, one-line prediction excerpt.
 - **Tables:** Sticky header optional; row hover; mono for IDs/dates; **44px** minimum hit targets for row actions (`A11Y.md`).
 - **Methodology / constitution:** **First-class nav** (e.g. **Methodology** → `/about`). Never bury as FAQ-only.
@@ -103,4 +103,5 @@
 | 2026-05-13 | **Approachable ledger** hybrid | User direction: gravitas + broader appeal; synthesize social dashboard + institutional trust without trading-market default UI. |
 | 2026-05-13 | Radius split (cards vs tables) | Visual warmth on discovery surfaces; precision on dense data. |
 | 2026-05-13 | `Interactive` blue `#2563EB` | Secondary navigation / chip affordance separate from teal primary CTA. |
-| 2026-05-13 | Featured carousel indicators | `role="group"` + `aria-current` on dots (not tab/tabpanel); 44px hit targets; live region `role="status"`. Topic filters use `fieldset` + radios like sort tabs. |
+| 2026-05-13 | Featured carousel indicators (superseded) | `role="group"` + `aria-current` on dots (not tab/tabpanel); 44px hit targets; live region `role="status"`. Replaced 2026-05-17 by static featured grid (see below). |
+| 2026-05-17 | Static featured forecast grid | Carousel removed: no moving content / pause control burden. Hero shows up to four cards with **Featured forecasts** heading; main feed uses **Browse forecasts**. Track-record metrics and sparkline disclaimers avoid order-book misread. Category icons use design tokens (`interactive`, `primary`, `ink`) — no ad-hoc violet. |

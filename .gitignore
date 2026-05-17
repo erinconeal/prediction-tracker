@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+__snapshots__/
 
 # next.js
 /.next/
@@ -40,10 +41,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# aidd
+tasks/
+
 # gstack
+.gstack/
 ceo-plans/
 TODOs.md
 
-# testing
-__snapshots__/
-.gstack/
