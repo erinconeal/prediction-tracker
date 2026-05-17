@@ -153,7 +153,7 @@ describe("DashboardView", () => {
       }
       return [
         { ...row(0), category: "Tech", created_at: "2026-06-01T00:00:00.000Z" },
-        { ...row(1), category: "Economics", created_at: "2026-01-01T00:00:00.000Z" },
+        { ...row(1), category: "Finance", created_at: "2026-01-01T00:00:00.000Z" },
       ];
     });
 

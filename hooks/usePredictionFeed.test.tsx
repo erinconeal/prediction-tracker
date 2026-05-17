@@ -89,8 +89,8 @@ describe("usePredictionFeed", () => {
 
   test("given filter key change, should reset to new first page not append", async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
-      if (filters?.category === "Economics") {
-        return [sample({ id: "econ", category: "Economics" })];
+      if (filters?.category === "Finance") {
+        return [sample({ id: "fin", category: "Finance" })];
       }
       if (filters?.category === "Tech") {
         return [sample({ id: "tech", category: "Tech" })];
@@ -109,11 +109,11 @@ describe("usePredictionFeed", () => {
         );
         return usePredictionFeed(filters, { pageSize: 20 });
       },
-      { initialProps: { category: "Economics" as string | undefined } },
+      { initialProps: { category: "Finance" as string | undefined } },
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.data[0]?.id).toBe("econ");
+    expect(result.current.data[0]?.id).toBe("fin");
 
     rerender({ category: "Tech" });
 

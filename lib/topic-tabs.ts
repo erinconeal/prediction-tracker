@@ -1,7 +1,6 @@
 /** Topic filters aligned with demo seed and common categories. */
 export const TOPIC_TAB_VALUES = [
   "All",
-  "Economics",
   "Tech",
   "Sports",
   "Politics",

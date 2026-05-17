@@ -33,7 +33,7 @@ function seed(): void {
     {
       source: "Jane Analyst",
       text: "Inflation will stay above 2% through Q4.",
-      category: "Economics",
+      category: "Finance",
       target_date: "2026-12-31",
     },
     {
@@ -45,12 +45,12 @@ function seed(): void {
     {
       source: "Jane Analyst",
       text: "Unemployment dips below 4% this year.",
-      category: "Economics",
+      category: "Finance",
     },
     {
       source: "Jane Analyst",
       text: "The Fed cuts rates at least twice before year-end.",
-      category: "Economics",
+      category: "Finance",
     },
   ];
   samples.forEach((input, i) => {

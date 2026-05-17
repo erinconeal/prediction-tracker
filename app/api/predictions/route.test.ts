@@ -83,7 +83,7 @@ describe("GET /api/predictions route", () => {
   test("given category query, should return only matching category case-insensitive", async () => {
     const { GET } = await loadRouteModule();
     const request = new Request(
-      "http://localhost/api/predictions?category=economics",
+      "http://localhost/api/predictions?category=finance",
     );
 
     const response = await GET(request);
@@ -91,7 +91,7 @@ describe("GET /api/predictions route", () => {
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
-    expect(body.every((row) => row.category === "Economics")).toBe(true);
+    expect(body.every((row) => row.category === "Finance")).toBe(true);
   });
 
   test("given limit and offset, should return stable page slices", async () => {

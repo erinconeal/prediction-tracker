@@ -11,12 +11,12 @@ describe("CategoryTopicTabs", () => {
     expect(fieldset.tagName).toBe("FIELDSET");
 
     const radios = within(fieldset).getAllByRole("radio");
-    expect(radios.length).toBeGreaterThanOrEqual(6);
+    expect(radios.length).toBeGreaterThanOrEqual(5);
     expect(
       within(fieldset).getByRole("radio", { name: "All", checked: true }),
     ).toBeInTheDocument();
     expect(
-      within(fieldset).getByRole("radio", { name: "Economics", checked: false }),
+      within(fieldset).getByRole("radio", { name: "Finance", checked: false }),
     ).toBeInTheDocument();
   });
 

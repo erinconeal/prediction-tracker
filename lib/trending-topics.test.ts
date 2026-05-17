@@ -21,7 +21,7 @@ function row(
 
 describe("topicTabFromCategory", () => {
   test("maps known categories case-insensitively", () => {
-    expect(topicTabFromCategory("economics")).toBe("Economics");
+    expect(topicTabFromCategory("finance")).toBe("Finance");
     expect(topicTabFromCategory("TECH")).toBe("Tech");
   });
 
@@ -38,16 +38,16 @@ describe("rankTrendingTopics", () => {
     const predictions = [
       row("Tech", "2024-06-14T00:00:00.000Z"),
       row("Tech", "2024-06-13T00:00:00.000Z"),
-      row("Economics", "2024-06-14T00:00:00.000Z"),
-      row("Economics", "2024-01-01T00:00:00.000Z"),
-      row("Economics", "2024-01-02T00:00:00.000Z"),
-      row("Economics", "2024-01-03T00:00:00.000Z"),
+      row("Finance", "2024-06-14T00:00:00.000Z"),
+      row("Finance", "2024-01-01T00:00:00.000Z"),
+      row("Finance", "2024-01-02T00:00:00.000Z"),
+      row("Finance", "2024-01-03T00:00:00.000Z"),
     ];
 
     const ranked = rankTrendingTopics(predictions, { now });
     expect(ranked[0]?.topic).toBe("Tech");
     expect(ranked[0]?.recentCount).toBe(2);
-    expect(ranked[1]?.topic).toBe("Economics");
+    expect(ranked[1]?.topic).toBe("Finance");
     expect(ranked[1]?.recentCount).toBe(1);
     expect(ranked[1]?.count).toBe(4);
   });

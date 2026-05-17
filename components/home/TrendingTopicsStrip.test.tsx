@@ -9,7 +9,7 @@ describe("TrendingTopicsStrip", () => {
       <TrendingTopicsStrip
         topics={[
           { topic: "Tech", count: 5, recentCount: 2 },
-          { topic: "Economics", count: 3, recentCount: 1 },
+          { topic: "Finance", count: 3, recentCount: 1 },
         ]}
         active="All"
         onSelect={onSelect}
