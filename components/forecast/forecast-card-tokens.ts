@@ -12,7 +12,7 @@ export const forecastCardFooterDividerClass =
   "mt-5 flex items-end justify-between gap-3 border-t border-border/80 pt-4";
 
 export const forecastCardHeaderClass =
-  "flex items-start justify-between gap-3";
+  "flex items-center justify-between gap-3";
 
 export const BROWSE_FORECAST_GRID_CLASS =
   "grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2 lg:grid-cols-3";
