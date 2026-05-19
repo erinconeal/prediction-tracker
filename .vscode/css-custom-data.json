@@ -1,0 +1,29 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@theme",
+      "description": "Tailwind CSS v4 theme configuration (see tailwindcss.com/docs/theme)."
+    },
+    {
+      "name": "@utility",
+      "description": "Tailwind CSS v4 custom utility."
+    },
+    {
+      "name": "@variant",
+      "description": "Tailwind CSS v4 custom variant."
+    },
+    {
+      "name": "@source",
+      "description": "Tailwind CSS v4 content source paths."
+    },
+    {
+      "name": "@apply",
+      "description": "Tailwind CSS utility composition."
+    },
+    {
+      "name": "@config",
+      "description": "Tailwind CSS legacy config file reference."
+    }
+  ]
+}
