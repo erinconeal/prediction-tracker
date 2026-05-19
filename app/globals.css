@@ -60,6 +60,18 @@
     serif;
   --font-mono: var(--font-pt-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
+  --animate-trending-live-dot: trending-live-dot-pulse 1.2s ease-in-out 5 forwards;
+}
+
+@keyframes trending-live-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--error) 75%, transparent);
+  }
+
+  70%,
+  100% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--error) 0%, transparent);
+  }
 }
 
 body {

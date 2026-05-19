@@ -287,7 +287,7 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
     >
       <div className="flex h-5 shrink-0 items-center gap-2">
         <span
-          className="size-2 shrink-0 rounded-full bg-error"
+          className="size-2 shrink-0 rounded-full bg-error animate-trending-live-dot motion-reduce:animate-none"
           aria-hidden
         />
         <h2
