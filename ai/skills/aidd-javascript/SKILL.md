@@ -52,6 +52,8 @@ Constraints {
   Avoid IIFEs. Use block scopes, modules, or normal arrow functions instead. Principle: KISS
   Avoid using || for defaults. Use parameter defaults instead. See above.
   Prefer async/await or asyncPipe over raw promise chains.
+  Always include error handling with try/catch blocks.
+  Add JSDoc comments for all functions and methods.
   Use strict equality (===).
   Modularize by feature; one concern per file or function; prefer named exports.
 }
