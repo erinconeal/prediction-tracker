@@ -3,6 +3,7 @@ import {
   createPrediction as createRow,
   listPredictions as listRows,
 } from "@/lib/prediction-store";
+import { findUnknownTopicIds } from "@/lib/validate-topic-ids";
 import {
   OUTCOMES,
   type CreatePredictionInput,
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const source = searchParams.get("source") ?? undefined;
   const category = searchParams.get("category") ?? undefined;
+  const topic = searchParams.get("topic") ?? undefined;
   const statusParam = searchParams.get("status");
   let status: Outcome | undefined;
   if (
@@ -49,6 +51,7 @@ export async function GET(request: Request) {
     source,
     status,
     category: category?.trim() ? category.trim() : undefined,
+    topic: topic?.trim() ? topic.trim() : undefined,
     limit,
     offset,
     sort,
@@ -80,10 +83,23 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  const topicIds = Array.isArray(b.topicIds)
+    ? b.topicIds.filter((id): id is string => typeof id === "string")
+    : undefined;
+  if (topicIds && topicIds.length > 0) {
+    const unknown = findUnknownTopicIds(topicIds);
+    if (unknown.length > 0) {
+      return NextResponse.json(
+        { message: `Unknown topicIds: ${unknown.join(", ")}` },
+        { status: 400 },
+      );
+    }
+  }
   const input: CreatePredictionInput = {
     source,
     text,
     category: typeof b.category === "string" ? b.category : undefined,
+    topicIds,
     target_date: typeof b.target_date === "string" ? b.target_date : undefined,
   };
   const created = createRow(input);

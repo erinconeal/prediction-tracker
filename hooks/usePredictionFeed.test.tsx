@@ -25,6 +25,7 @@ function sample(overrides: Partial<Prediction> = {}): Prediction {
     sourceSlug: "alice",
     text: "It will rain",
     category: null,
+    topicIds: [],
     created_at: "2024-01-01T00:00:00.000Z",
     resolved_at: null,
     target_date: null,

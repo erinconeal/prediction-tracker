@@ -6,6 +6,12 @@ import * as api from "@/services/api";
 import type { PredictionFilters } from "@/types/prediction";
 import { DashboardView } from "./DashboardView";
 
+const mockPush = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     children,
@@ -27,8 +33,11 @@ vi.mock("@/services/api", async (importOriginal) => {
     ...mod,
     listPredictions: vi.fn(),
     listLeaderboard: vi.fn(),
+    listTopics: vi.fn(),
   };
 });
+
+const listTopics = vi.mocked(api.listTopics);
 
 const listPredictions = vi.mocked(api.listPredictions);
 const listLeaderboard = vi.mocked(api.listLeaderboard);
@@ -40,6 +49,7 @@ function row(i: number): Prediction {
     sourceSlug: "source",
     text: `Prediction ${i}`,
     category: null,
+    topicIds: [],
     created_at: "2024-01-01T00:00:00.000Z",
     resolved_at: null,
     target_date: null,
@@ -67,7 +77,10 @@ describe("DashboardView", () => {
   beforeEach(() => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
+    listTopics.mockReset();
+    mockPush.mockReset();
     listLeaderboard.mockResolvedValue([leaderboardRow]);
+    listTopics.mockResolvedValue([]);
   });
 
   test("given list error then retry succeeds, should show error then recover", async () => {
@@ -231,7 +244,7 @@ describe("DashboardView", () => {
     );
   });
 
-  test("changing topic while outcome filter is active should clear outcome filter", async () => {
+  test("changing category while outcome filter is active should clear outcome filter", async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === "incorrect") {
         return [{ ...row(0), outcome: "incorrect", text: "Wrong take" }];
@@ -268,47 +281,58 @@ describe("DashboardView", () => {
     fireEvent.click(screen.getByRole("radio", { name: /^finance$/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText("Showing:")).not.toBeInTheDocument();
-      expect(screen.getByText("Finance only")).toBeInTheDocument();
+      expect(mockPush).toHaveBeenCalledWith("/category/finance");
     });
-
-    expect(listPredictions).toHaveBeenLastCalledWith(
-      expect.objectContaining({ category: "Finance", limit: 20, offset: 0 }),
-      expect.any(AbortSignal),
-    );
-    expect(listPredictions).toHaveBeenLastCalledWith(
-      expect.not.objectContaining({ status: "incorrect" }),
-      expect.any(AbortSignal),
-    );
   });
 
-  test("selecting a trending topic should filter the feed", async () => {
-    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
-      if (filters?.category === "Tech") {
-        return [{ ...row(0), category: "Tech", text: "Tech only" }];
-      }
-      return [
-        { ...row(0), category: "Tech", created_at: "2026-06-01T00:00:00.000Z" },
-        { ...row(1), category: "Finance", created_at: "2026-01-01T00:00:00.000Z" },
-      ];
-    });
+  test("given trending topics loaded, should still show browse category tabs", async () => {
+    listTopics.mockResolvedValue([
+      {
+        id: "topic-ai",
+        slug: "ai-regulation-2026",
+        name: "AI regulation 2026",
+        categories: ["Tech", "Politics"],
+        count: 3,
+        recentCount: 2,
+      },
+    ]);
+    listPredictions.mockResolvedValue([row(0)]);
 
     render(<DashboardView />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /^tech$/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /ai regulation 2026/i }),
+      ).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /^tech$/i }));
+    expect(screen.getByRole("radio", { name: /^all$/i })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /^finance$/i })).toBeInTheDocument();
+  });
+
+  test("trending topic link navigates to topic page", async () => {
+    listTopics.mockResolvedValue([
+      {
+        id: "topic-ai",
+        slug: "ai-regulation-2026",
+        name: "AI regulation 2026",
+        categories: ["Tech", "Politics"],
+        count: 3,
+        recentCount: 2,
+      },
+    ]);
+
+    render(<DashboardView />);
 
     await waitFor(() => {
-      expect(screen.getByText("Tech only")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /ai regulation 2026/i }),
+      ).toBeInTheDocument();
     });
 
-    expect(listPredictions).toHaveBeenCalledWith(
-      expect.objectContaining({ category: "Tech", limit: 20, offset: 0 }),
-      expect.any(AbortSignal),
-    );
+    expect(
+      screen.getByRole("link", { name: /ai regulation 2026/i }),
+    ).toHaveAttribute("href", "/topics/ai-regulation-2026");
   });
 
 });

@@ -1,19 +1,19 @@
 import { outcomeLabels } from "@/components/predictions/outcome-display";
-import type { TopicTab } from "@/lib/topic-tabs";
+import type { CategoryTab } from "@/lib/category-tabs";
 import type { Outcome } from "@/types/prediction";
 
 export function browseEmptyMessage(
-  topic: TopicTab,
+  categoryTab: CategoryTab,
   outcomeFilter: Outcome | "all",
 ): string {
-  if (topic === "All" && outcomeFilter === "all") {
+  if (categoryTab === "All" && outcomeFilter === "all") {
     return "No predictions match these filters.";
   }
-  if (outcomeFilter !== "all" && topic !== "All") {
-    return `No ${outcomeLabels[outcomeFilter].toLowerCase()} forecasts in “${topic}” yet.`;
+  if (outcomeFilter !== "all" && categoryTab !== "All") {
+    return `No ${outcomeLabels[outcomeFilter].toLowerCase()} forecasts in “${categoryTab}” yet.`;
   }
   if (outcomeFilter !== "all") {
     return `No ${outcomeLabels[outcomeFilter].toLowerCase()} forecasts in this view yet.`;
   }
-  return `No predictions in “${topic}” yet.`;
+  return `No predictions in “${categoryTab}” yet.`;
 }

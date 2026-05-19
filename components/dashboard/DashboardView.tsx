@@ -1,41 +1,48 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   PredictionSortTabs,
   sortSubtitle,
 } from "@/components/dashboard/PredictionSortTabs";
 import {
-  CategoryTopicTabs,
-  categoryFromTopicTab,
-  type TopicTab,
-} from "@/components/home/CategoryTopicTabs";
+  CategoryTabs,
+  categoryFromCategoryTab,
+  type CategoryTab,
+} from "@/components/home/CategoryTabs";
 import { HomeHeroBand } from "@/components/home/HomeHeroBand";
 import { HomeHeroCard } from "@/components/home/HomeHeroCard";
 import { LeaderboardSection } from "@/components/home/LeaderboardSection";
 import { TrendingTopicsStrip } from "@/components/home/TrendingTopicsStrip";
 import { PredictionGrid } from "@/components/predictions/PredictionGrid";
 import { usePredictionFeed } from "@/hooks/usePredictionFeed";
+import { useTrendingTopics } from "@/hooks/useTrendingTopics";
 import { browseEmptyMessage } from "@/lib/browse-empty-message";
 import { pickPopularForecastsFromFeed } from "@/lib/popular-forecasts";
 import { scrollBrowseForecastsIntoView } from "@/lib/scroll-to-browse";
+import { listTopics } from "@/services/api";
 import { rankTrendingTopics } from "@/lib/trending-topics";
+import type { Topic } from "@/types/topic";
 import { useFeaturedForecastSlotCount } from "@/hooks/useFeaturedForecastSlotCount";
 import { outcomeLabels } from "@/components/predictions/outcome-display";
 import type { Outcome, PredictionListSort } from "@/types/prediction";
 
 const PAGE_SIZE = 20;
-/** Unfiltered sample for hero, trending, and popular cards (also first page when filters are default). */
 const HOME_SAMPLE_SIZE = 50;
 
 export function DashboardView() {
-  const [topic, setTopic] = useState<TopicTab>("All");
+  const router = useRouter();
+  const [categoryTab, setCategoryTab] = useState<CategoryTab>("All");
   const [listSort, setListSort] = useState<PredictionListSort>("newest");
   const [outcomeFilter, setOutcomeFilter] = useState<Outcome | "all">("all");
-  const category = useMemo(() => categoryFromTopicTab(topic), [topic]);
+  const category = useMemo(
+    () => categoryFromCategoryTab(categoryTab),
+    [categoryTab],
+  );
 
   const isDefaultFeed =
-    topic === "All" && listSort === "newest" && outcomeFilter === "all";
+    categoryTab === "All" && listSort === "newest" && outcomeFilter === "all";
 
   const feedFilters = useMemo(
     () => ({
@@ -66,10 +73,37 @@ export function DashboardView() {
     loadMore,
   } = isDefaultFeed ? homeSample : filteredFeed;
 
-  const trendingTopics = useMemo(
-    () => rankTrendingTopics(homeSample.data),
-    [homeSample.data],
-  );
+  const trendingApi = useTrendingTopics({ limit: 6 });
+  const [catalogTopics, setCatalogTopics] = useState<Topic[]>([]);
+
+  useEffect(() => {
+    if (trendingApi.data.length > 0 || trendingApi.loading) return;
+
+    const controller = new AbortController();
+    void listTopics({ signal: controller.signal })
+      .then((rows) => {
+        if (!controller.signal.aborted) {
+          setCatalogTopics(rows as Topic[]);
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setCatalogTopics([]);
+      });
+
+    return () => controller.abort();
+  }, [trendingApi.data.length, trendingApi.loading]);
+
+  const trendingEntries = useMemo(() => {
+    if (trendingApi.data.length > 0) {
+      return trendingApi.data.map((t) => ({
+        topic: t,
+        count: t.count,
+        recentCount: t.recentCount,
+      }));
+    }
+    if (catalogTopics.length === 0) return [];
+    return rankTrendingTopics(catalogTopics, homeSample.data, { limit: 6 });
+  }, [trendingApi.data, catalogTopics, homeSample.data]);
 
   const featuredSlotCount = useFeaturedForecastSlotCount();
 
@@ -81,18 +115,38 @@ export function DashboardView() {
     [homeSample.data, featuredSlotCount],
   );
 
-  const emptyMessage = browseEmptyMessage(topic, outcomeFilter);
+  const emptyMessage = browseEmptyMessage(categoryTab, outcomeFilter);
 
-  const handleTopicChange = useCallback((tab: TopicTab) => {
-    setTopic(tab);
-    setOutcomeFilter("all");
-  }, []);
+  const handleCategoryTabChange = useCallback(
+    (tab: CategoryTab) => {
+      if (tab !== "All") {
+        const cat = categoryFromCategoryTab(tab);
+        if (cat) {
+          router.push(`/category/${cat.toLowerCase()}`);
+          return;
+        }
+      }
+      setCategoryTab(tab);
+      setOutcomeFilter("all");
+    },
+    [router],
+  );
 
-  const handleCategorySelect = useCallback((tab: TopicTab) => {
-    setTopic(tab);
-    setOutcomeFilter("all");
-    scrollBrowseForecastsIntoView();
-  }, []);
+  const handleCategorySelect = useCallback(
+    (tab: CategoryTab) => {
+      if (tab !== "All") {
+        const cat = categoryFromCategoryTab(tab);
+        if (cat) {
+          router.push(`/category/${cat.toLowerCase()}`);
+          return;
+        }
+      }
+      setCategoryTab(tab);
+      setOutcomeFilter("all");
+      scrollBrowseForecastsIntoView();
+    },
+    [router],
+  );
 
   const handleOutcomeFilter = useCallback((outcome: Outcome) => {
     setOutcomeFilter((prev) => (prev === outcome ? "all" : outcome));
@@ -104,17 +158,11 @@ export function DashboardView() {
     scrollBrowseForecastsIntoView();
   }, []);
 
-  const showCategoryTabs =
-    !homeSample.loading && trendingTopics.length === 0;
-
   const trendingTopicsHeader = (
     <TrendingTopicsStrip
-      topics={trendingTopics}
-      active={topic}
-      onSelect={handleTopicChange}
-      loading={homeSample.loading && trendingTopics.length === 0}
+      topics={trendingEntries}
+      loading={homeSample.loading && trendingEntries.length === 0}
       embedded
-      showAllTopic
     />
   );
 
@@ -189,14 +237,12 @@ export function DashboardView() {
           </div>
         ) : null}
 
-        {showCategoryTabs ? (
-          <CategoryTopicTabs
-            active={topic}
-            onChange={handleTopicChange}
-            disabled={loading && data.length === 0}
-            showLegend={false}
-          />
-        ) : null}
+        <CategoryTabs
+          active={categoryTab}
+          onChange={handleCategoryTabChange}
+          disabled={loading && data.length === 0}
+          showLegend={false}
+        />
 
         <PredictionSortTabs
           value={listSort}

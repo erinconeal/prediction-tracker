@@ -1,9 +1,19 @@
 import { describe, expect, test } from "vitest";
+import type { Category } from "@/types/category";
 import type { Prediction } from "@/types/prediction";
-import { rankTrendingTopics, topicTabFromCategory } from "./trending-topics";
+import type { Topic } from "@/types/topic";
+import { rankTrendingTopics } from "./trending-topics";
+
+function topic(
+  id: string,
+  slug: string,
+  categories: Category[] = ["Tech"],
+): Topic {
+  return { id, slug, name: slug, categories };
+}
 
 function row(
-  category: string | null,
+  topicIds: string[],
   created_at: string,
 ): Prediction {
   return {
@@ -11,7 +21,8 @@ function row(
     source: "S",
     sourceSlug: "s",
     text: "t",
-    category,
+    category: "Tech",
+    topicIds,
     created_at,
     resolved_at: null,
     target_date: null,
@@ -19,42 +30,33 @@ function row(
   };
 }
 
-describe("topicTabFromCategory", () => {
-  test("maps known categories case-insensitively", () => {
-    expect(topicTabFromCategory("finance")).toBe("Finance");
-    expect(topicTabFromCategory("TECH")).toBe("Tech");
-  });
-
-  test("returns null for unknown or empty", () => {
-    expect(topicTabFromCategory("Weather")).toBeNull();
-    expect(topicTabFromCategory(null)).toBeNull();
-  });
-});
-
 describe("rankTrendingTopics", () => {
   const now = Date.parse("2024-06-15T12:00:00.000Z");
+  const tA = topic("t-a", "topic-a");
+  const tB = topic("t-b", "topic-b", ["Finance"]);
 
   test("ranks by recent count then total count", () => {
     const predictions = [
-      row("Tech", "2024-06-14T00:00:00.000Z"),
-      row("Tech", "2024-06-13T00:00:00.000Z"),
-      row("Finance", "2024-06-14T00:00:00.000Z"),
-      row("Finance", "2024-01-01T00:00:00.000Z"),
-      row("Finance", "2024-01-02T00:00:00.000Z"),
-      row("Finance", "2024-01-03T00:00:00.000Z"),
+      row(["t-a"], "2024-06-14T00:00:00.000Z"),
+      row(["t-a"], "2024-06-13T00:00:00.000Z"),
+      row(["t-b"], "2024-06-14T00:00:00.000Z"),
+      row(["t-b"], "2024-01-01T00:00:00.000Z"),
+      row(["t-b"], "2024-01-02T00:00:00.000Z"),
+      row(["t-b"], "2024-01-03T00:00:00.000Z"),
     ];
 
-    const ranked = rankTrendingTopics(predictions, { now });
-    expect(ranked[0]?.topic).toBe("Tech");
+    const ranked = rankTrendingTopics([tA, tB], predictions, { now });
+    expect(ranked[0]?.topic.id).toBe("t-a");
     expect(ranked[0]?.recentCount).toBe(2);
-    expect(ranked[1]?.topic).toBe("Finance");
+    expect(ranked[1]?.topic.id).toBe("t-b");
     expect(ranked[1]?.recentCount).toBe(1);
     expect(ranked[1]?.count).toBe(4);
   });
 
-  test("ignores null and unknown categories", () => {
+  test("ignores unknown topic ids", () => {
     const ranked = rankTrendingTopics(
-      [row(null, "2024-06-14T00:00:00.000Z"), row("Mystery", "2024-06-14T00:00:00.000Z")],
+      [tA],
+      [row(["unknown"], "2024-06-14T00:00:00.000Z")],
       { now },
     );
     expect(ranked).toHaveLength(0);

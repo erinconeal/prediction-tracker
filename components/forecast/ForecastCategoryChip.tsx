@@ -1,29 +1,35 @@
 "use client";
 
+import Link from "next/link";
 import { memo } from "react";
 import { categoryDisplayFromName } from "@/lib/category-display";
-import { topicTabFromCategory } from "@/lib/topic-tabs";
-import type { TopicTab } from "@/lib/topic-tabs";
+import { categoryTabFromName } from "@/lib/category-tabs";
+import { categoryToSlug } from "@/types/category";
 import { forecastCardLinkClass } from "./forecast-card-tokens";
 
 type ForecastCategoryChipProps = {
   category: string | null | undefined;
-  onCategorySelect?: (tab: TopicTab) => void;
+  /** When set, uses button + callback instead of category page link. */
+  onCategoryNavigate?: () => void;
   className?: string;
 };
 
 const chipButtonClass = `inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left ${forecastCardLinkClass}`;
 
+const chipLinkClass =
+  "inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 const chipStaticClass = "inline-flex min-w-0 max-w-full items-center gap-2.5";
 
 export const ForecastCategoryChip = memo(function ForecastCategoryChip({
   category,
-  onCategorySelect,
+  onCategoryNavigate,
   className = "",
 }: ForecastCategoryChipProps) {
   const display = categoryDisplayFromName(category);
-  const topicTab = topicTabFromCategory(category);
-  const canFilter = topicTab !== undefined && onCategorySelect !== undefined;
+  const tab = categoryTabFromName(category);
+  const href =
+    tab && tab !== "All" ? `/category/${categoryToSlug(tab)}` : undefined;
 
   const icon = (
     <span
@@ -40,17 +46,30 @@ export const ForecastCategoryChip = memo(function ForecastCategoryChip({
     </span>
   );
 
-  if (canFilter) {
+  if (onCategoryNavigate) {
     return (
       <button
         type="button"
         className={`${chipButtonClass} ${className}`.trim()}
-        onClick={() => onCategorySelect(topicTab)}
-        aria-label={`Browse ${topicTab} forecasts`}
+        onClick={onCategoryNavigate}
+        aria-label={`Browse ${tab ?? category} forecasts`}
       >
         {icon}
         {label}
       </button>
+    );
+  }
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={`${chipLinkClass} ${className}`.trim()}
+        aria-label={`Browse ${tab} forecasts`}
+      >
+        {icon}
+        {label}
+      </Link>
     );
   }
 

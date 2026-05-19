@@ -34,6 +34,8 @@ export type Prediction = {
   sourceSlug: string;
   text: string;
   category: string | null;
+  /** Linked curated topics (many-to-many). */
+  topicIds: string[];
   created_at: string;
   /** Set when a terminal outcome is assigned; `null` while `pending`. */
   resolved_at: string | null;
@@ -51,8 +53,10 @@ export type PredictionFilters = {
   /** Matches `source` display name or `sourceSlug` (e.g. URL segment). */
   source?: string;
   status?: Outcome | "all";
-  /** Case-insensitive exact match on stored `category`; omit for all topics. */
+  /** Case-insensitive match on `category` or linked topic categories; omit for all. */
   category?: string;
+  /** Filter by topic slug (exact match). */
+  topic?: string;
   /** Page size for list API (default 50, max 100). */
   limit?: number;
   /** Offset into sorted filtered results (default 0). */
@@ -64,6 +68,7 @@ export type CreatePredictionInput = {
   source: string;
   text: string;
   category?: string;
+  topicIds?: string[];
   /** ISO date string (YYYY-MM-DD) or full ISO datetime */
   target_date?: string;
 };

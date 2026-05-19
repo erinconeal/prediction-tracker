@@ -5,9 +5,16 @@ import type {
   TerminalOutcome,
 } from "@/types/prediction";
 import type { LeaderboardRow } from "@/lib/leaderboard";
+import type { Topic } from "@/types/topic";
 
 const BASE = "/api/predictions";
 const LEADERBOARD_BASE = "/api/leaderboard";
+const TOPICS_BASE = "/api/topics";
+
+export type TrendingTopicDto = Topic & {
+  count: number;
+  recentCount: number;
+};
 
 export class ApiError extends Error {
   constructor(
@@ -51,6 +58,9 @@ function buildListUrl(filters: PredictionFilters): string {
   }
   if (filters.category?.trim()) {
     params.set("category", filters.category.trim());
+  }
+  if (filters.topic?.trim()) {
+    params.set("topic", filters.topic.trim());
   }
   if (filters.limit !== undefined) {
     params.set("limit", String(filters.limit));
@@ -123,6 +133,50 @@ export async function getPrediction(
     );
   }
   return body as Prediction;
+}
+
+export async function listTopics(
+  options: {
+    trending?: boolean;
+    category?: string;
+    limit?: number;
+    signal?: AbortSignal;
+  } = {},
+): Promise<Topic[] | TrendingTopicDto[]> {
+  const params = new URLSearchParams();
+  if (options.trending) params.set("trending", "true");
+  if (options.category?.trim()) params.set("category", options.category.trim());
+  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  const q = params.toString();
+  const url = q ? `${TOPICS_BASE}?${q}` : TOPICS_BASE;
+  const response = await fetch(url, {
+    method: "GET",
+    signal: options.signal,
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    let body: object = {};
+    try {
+      body = await parseJson<{ message?: string }>(response);
+    } catch {
+      /* ignore */
+    }
+    throw new ApiError(
+      errorMessageFromBody(body, `Request failed with ${response.status}`),
+      response.status,
+      body,
+    );
+  }
+  const result = await parseJson<unknown>(response);
+  if (!Array.isArray(result)) {
+    throw new ApiError(
+      "Topics response must be a JSON array",
+      response.status,
+      result,
+    );
+  }
+  return result as Topic[] | TrendingTopicDto[];
 }
 
 export async function listLeaderboard(

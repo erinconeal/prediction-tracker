@@ -4,7 +4,7 @@ import { memo } from "react";
 import { BROWSE_FORECAST_GRID_CLASS } from "@/components/forecast/forecast-card-tokens";
 import { BrowseForecastCard } from "@/components/predictions/BrowseForecastCard";
 import type { Outcome, Prediction } from "@/types/prediction";
-import type { TopicTab } from "@/lib/topic-tabs";
+import type { CategoryTab } from "@/lib/category-tabs";
 
 type PredictionGridProps = {
   predictions: Prediction[];
@@ -12,7 +12,7 @@ type PredictionGridProps = {
   emptyMessage?: string;
   outcomeFilter: Outcome | "all";
   onOutcomeFilter: (outcome: Outcome) => void;
-  onCategorySelect?: (tab: TopicTab) => void;
+  onCategorySelect?: (tab: CategoryTab) => void;
 };
 
 export const PredictionGrid = memo(function PredictionGrid({

@@ -78,16 +78,41 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 
 ### Data Model
 
-A prediction includes:
+**Category** (browse taxonomy):
+
+* Fixed allowlist: Tech, Sports, Politics, Finance, Weather, Historical
+* Used for home category tabs, `/category/[slug]` feeds, and filter rails
+* URL slug: lowercase category name (e.g. `politics`)
+
+**Topic** (curated discovery entity):
+
+* `id`, `slug`, `name`, `categories[]` (one or more categories for cross-listing)
+* Seeded in MVP via in-memory store; not user-generated
+* Drives trending rankings and `/topics/[slug]` feeds
+
+**Prediction** includes:
 
 * id
 * source (person or account)
 * text (prediction content)
-* category (optional)
+* category (optional) — primary display category for cards and browse
+* topicIds (array) — many-to-many links to curated topics; category filters also match predictions whose linked topics span that category
 * created_at
 * target_date (optional)
 * outcome: `pending` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
 * resolved_at (set when a terminal outcome is assigned)
+
+**Discovery APIs (MVP):**
+
+* `GET /api/topics` — list topics; optional `trending`, `limit`, `category`
+* `GET /api/topics/[slug]` — topic detail + prediction count
+* `GET /api/predictions` — supports `category`, `topic` (slug), `status`, `source`, and related filters
+
+### Discovery Routes
+
+* `/` — home: featured forecasts, trending topics, category tabs, browse list
+* `/category/[slug]` — predictions matching category (directly or via linked topics)
+* `/topics/[slug]` — predictions linked to that topic
 
 ### Async Handling
 
@@ -146,7 +171,8 @@ The project is successful if:
 * Users can:
 
   * Add and view predictions
-  * Filter predictions by source and status
+  * Filter predictions by source, status, category, and topic
+  * Browse category and topic feed pages with sidebar context (trending, recent resolutions)
   * See accuracy metrics per source
   * Understand trends over time via charts (optional, as necessary)
 
@@ -156,7 +182,8 @@ The project is successful if:
 
 * Raising or refining the source cap beyond the initial 10–20 allowlist (with methodology updates)
 * Stronger automation (higher recall/precision, richer summarization) while keeping human review where the constitution requires it
-* Tagging and categorization improvements
+* Admin UI and persistence for topics (MVP uses seeded in-memory topics)
+* NLP-assisted topic tagging on ingest (MVP links topics manually in seed data)
 * Advanced filtering and search
 * Authentication and user-specific data
 * More advanced analytics (confidence scoring, categories)

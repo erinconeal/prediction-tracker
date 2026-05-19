@@ -80,18 +80,44 @@ describe("GET /api/predictions route", () => {
     expect(body.every((row) => row.source === "Jane Analyst")).toBe(true);
   });
 
+  test("given topic query, should return only predictions linked to that topic", async () => {
+    const { predictionMatchesTopicSlug } = await import(
+      "@/lib/prediction-topic-match"
+    );
+    const { GET } = await loadRouteModule();
+    const request = new Request(
+      "http://localhost/api/predictions?topic=ai-regulation-2026",
+    );
+
+    const response = await GET(request);
+    const body = (await response.json()) as import("@/types/prediction").Prediction[];
+
+    expect(response.status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+    expect(
+      body.every((row) =>
+        predictionMatchesTopicSlug(row, "ai-regulation-2026"),
+      ),
+    ).toBe(true);
+  });
+
   test("given category query, should return only matching category case-insensitive", async () => {
+    const { predictionMatchesCategory } = await import(
+      "@/lib/prediction-topic-match"
+    );
     const { GET } = await loadRouteModule();
     const request = new Request(
       "http://localhost/api/predictions?category=finance",
     );
 
     const response = await GET(request);
-    const body = (await response.json()) as Array<{ category: string | null }>;
+    const body = (await response.json()) as import("@/types/prediction").Prediction[];
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
-    expect(body.every((row) => row.category === "Finance")).toBe(true);
+    expect(
+      body.every((row) => predictionMatchesCategory(row, "finance")),
+    ).toBe(true);
   });
 
   test("given limit and offset, should return stable page slices", async () => {
@@ -183,6 +209,52 @@ describe("POST /api/predictions route", () => {
 
     expect(response.status).toBe(400);
     expect(body.message).toContain("required strings");
+  });
+
+  test("given unknown topicIds, should return 400", async () => {
+    const { POST } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "New Source",
+        text: "New prediction text",
+        topicIds: ["not-a-real-topic-id"],
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Unknown topicIds");
+  });
+
+  test("given valid topicIds, should create row and return 201", async () => {
+    const { listTopics } = await import("@/lib/topic-store");
+    const topic = listTopics().find((t) => t.slug === "ai-regulation-2026");
+    expect(topic).toBeDefined();
+
+    const { POST } = await loadRouteModule();
+    const request = new Request("http://localhost/api/predictions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        source: "New Source",
+        text: "Linked to AI regulation topic",
+        topicIds: [topic!.id],
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as {
+      topicIds: string[];
+      outcome: string;
+    };
+
+    expect(response.status).toBe(201);
+    expect(body.topicIds).toEqual([topic!.id]);
+    expect(body.outcome).toBe("pending");
   });
 
   test("given valid payload, should create row and return 201", async () => {

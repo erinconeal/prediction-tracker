@@ -11,13 +11,13 @@ import {
   trendAriaLabel,
 } from "@/lib/forecast-display-metric";
 import { computeSourceAccuracyStats } from "@/lib/source-stats";
-import type { TopicTab } from "@/lib/topic-tabs";
+import { categoryTabFromName, type CategoryTab } from "@/lib/category-tabs";
 import type { Prediction } from "@/types/prediction";
 
 type PopularForecastCardProps = {
   prediction: Prediction;
   statsContext: Prediction[];
-  onCategorySelect?: (tab: TopicTab) => void;
+  onCategorySelect?: (tab: CategoryTab) => void;
   className?: string;
 };
 
@@ -51,6 +51,7 @@ export const PopularForecastCard = memo(function PopularForecastCard({
     [statsContext, prediction.sourceSlug, prediction.source],
   );
 
+  const categoryTab = categoryTabFromName(prediction.category);
   const metric = forecastDisplayMetricFromStats(stats);
   const badgeClass = BADGE_CLASS[metric.trend];
   const badgeText =
@@ -92,7 +93,11 @@ export const PopularForecastCard = memo(function PopularForecastCard({
       headerStart={
         <ForecastCategoryChip
           category={prediction.category}
-          onCategorySelect={onCategorySelect}
+          onCategoryNavigate={
+            onCategorySelect && categoryTab
+              ? () => onCategorySelect(categoryTab)
+              : undefined
+          }
         />
       }
       headerEnd={trackRecordCorner}

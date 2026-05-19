@@ -2,7 +2,7 @@
 
 import { memo, type ReactNode } from "react";
 import { PopularForecastsSection } from "@/components/home/PopularForecastsSection";
-import type { TopicTab } from "@/lib/topic-tabs";
+import type { CategoryTab } from "@/lib/category-tabs";
 import type { Prediction } from "@/types/prediction";
 
 const HERO_CARD_SHELL_CLASS =
@@ -14,7 +14,7 @@ type HomeHeroCardProps = {
   statsContext: Prediction[];
   slotCount: number;
   loading?: boolean;
-  onCategorySelect?: (tab: TopicTab) => void;
+  onCategorySelect?: (tab: CategoryTab) => void;
   className?: string;
 };
 

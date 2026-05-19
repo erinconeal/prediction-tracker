@@ -4,7 +4,7 @@ import Link from "next/link";
 import { memo } from "react";
 import { PopularForecastCard } from "@/components/home/PopularForecastCard";
 import { FEATURED_FORECAST_GRID_CLASS } from "@/lib/featured-forecast-columns";
-import type { TopicTab } from "@/lib/topic-tabs";
+import type { CategoryTab } from "@/lib/category-tabs";
 import type { Prediction } from "@/types/prediction";
 
 type PopularForecastsSectionProps = {
@@ -13,7 +13,7 @@ type PopularForecastsSectionProps = {
   slotCount: number;
   seeAllHref?: string;
   loading?: boolean;
-  onCategorySelect?: (tab: TopicTab) => void;
+  onCategorySelect?: (tab: CategoryTab) => void;
   className?: string;
 };
 

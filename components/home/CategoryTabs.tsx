@@ -2,33 +2,33 @@
 
 import { memo, useId } from "react";
 import {
-  TOPIC_TAB_VALUES,
-  type TopicTab,
-} from "@/lib/topic-tabs";
+  CATEGORY_TAB_VALUES,
+  type CategoryTab,
+} from "@/lib/category-tabs";
 
-export { TOPIC_TAB_VALUES, type TopicTab };
+export { CATEGORY_TAB_VALUES, type CategoryTab };
 
-type CategoryTopicTabsProps = {
-  active: TopicTab;
-  onChange: (tab: TopicTab) => void;
+type CategoryTabsProps = {
+  active: CategoryTab;
+  onChange: (tab: CategoryTab) => void;
   disabled?: boolean;
-  /** When false, topic chips sit inline under a section title without a fieldset legend. */
+  /** When false, chips sit inline without a fieldset legend. */
   showLegend?: boolean;
   className?: string;
 };
 
-export const CategoryTopicTabs = memo(function CategoryTopicTabs({
+export const CategoryTabs = memo(function CategoryTabs({
   active,
   onChange,
   disabled = false,
   showLegend = true,
   className = "",
-}: CategoryTopicTabsProps) {
-  const name = `category-topic-${useId()}`;
+}: CategoryTabsProps) {
+  const name = `category-tabs-${useId()}`;
 
   const chips = (
     <div className={`flex flex-wrap gap-2 ${showLegend ? "mt-1.5" : ""}`.trim()}>
-      {TOPIC_TAB_VALUES.map((tab) => {
+      {CATEGORY_TAB_VALUES.map((tab) => {
         const isActive = tab === active;
         return (
           <label
@@ -63,10 +63,10 @@ export const CategoryTopicTabs = memo(function CategoryTopicTabs({
 
   return (
     <fieldset className={`min-w-0 border-0 p-0 ${className}`.trim()}>
-      <legend className="text-xs font-medium text-muted">Topics</legend>
+      <legend className="text-xs font-medium text-muted">Categories</legend>
       {chips}
     </fieldset>
   );
 });
 
-export { categoryFromTopicTab } from "@/lib/topic-tabs";
+export { categoryFromCategoryTab } from "@/lib/category-tabs";

@@ -13,6 +13,7 @@ function prediction(
     sourceSlug: "source",
     text: `Prediction ${id}`,
     category,
+    topicIds: [],
     created_at: createdAt,
     resolved_at: null,
     target_date: null,

@@ -1,18 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { memo } from "react";
-import type { TopicTab } from "@/components/home/CategoryTopicTabs";
-import type { TrendingTopic } from "@/lib/trending-topics";
+import type { TrendingTopicEntry } from "@/lib/trending-topics";
 
 type TrendingTopicsStripProps = {
-  topics: TrendingTopic[];
-  active: TopicTab;
-  onSelect: (tab: TopicTab) => void;
+  topics: TrendingTopicEntry[];
+  activeSlug?: string | null;
   loading?: boolean;
   /** When true, styles for the top row inside the hero marketing card. */
   embedded?: boolean;
-  /** When true with `embedded`, prepends an “All” topic control. */
-  showAllTopic?: boolean;
   className?: string;
 };
 
@@ -35,50 +32,17 @@ function TrendIcon({ className = "" }: { className?: string }) {
   );
 }
 
-const topicButtonClass =
+const topicLinkClass =
   "relative inline-flex h-5 items-center whitespace-nowrap text-sm font-medium leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
-
-function TopicButton({
-  isActive,
-  label,
-  onClick,
-}: {
-  isActive: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={isActive}
-      onClick={onClick}
-      className={`${topicButtonClass} ${
-        isActive ? "text-interactive" : "text-muted hover:text-foreground"
-      }`}
-    >
-      {isActive ? (
-        <span
-          className="pointer-events-none absolute right-[calc(100%+0.375rem)] top-1/2 inline-flex size-3.5 -translate-y-1/2 items-center justify-center"
-          aria-hidden
-        >
-          <TrendIcon />
-        </span>
-      ) : null}
-      {label}
-    </button>
-  );
-}
 
 export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
   topics,
-  active,
-  onSelect,
+  activeSlug = null,
   loading = false,
   embedded = false,
-  showAllTopic = false,
   className = "",
 }: TrendingTopicsStripProps) {
-  if (!loading && topics.length === 0 && !(embedded && showAllTopic)) {
+  if (!loading && topics.length === 0) {
     return null;
   }
 
@@ -121,30 +85,36 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
         <ul
           className="-mx-1 flex min-w-0 flex-1 list-none flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto px-1 scroll-smooth [scrollbar-width:thin] sm:flex-nowrap"
         >
-          {embedded && showAllTopic ? (
-            <li
-              key="All"
-              className={`flex shrink-0 items-center ${active === "All" ? "pl-5" : ""}`}
-            >
-              <TopicButton
-                isActive={active === "All"}
-                label="All"
-                onClick={() => onSelect("All")}
-              />
-            </li>
-          ) : null}
-          {topics.map(({ topic }) => (
-            <li
-              key={topic}
-              className={`flex shrink-0 items-center ${active === topic ? "pl-5" : ""}`}
-            >
-              <TopicButton
-                isActive={active === topic}
-                label={topic}
-                onClick={() => onSelect(topic)}
-              />
-            </li>
-          ))}
+          {topics.map(({ topic, count }) => {
+            const isActive = activeSlug === topic.slug;
+            return (
+              <li
+                key={topic.id}
+                className={`flex shrink-0 items-center ${isActive ? "pl-5" : ""}`}
+              >
+                <Link
+                  href={`/topics/${topic.slug}`}
+                  className={`${topicLinkClass} ${
+                    isActive
+                      ? "text-interactive"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {isActive ? (
+                    <span
+                      className="pointer-events-none absolute right-[calc(100%+0.375rem)] top-1/2 inline-flex size-3.5 -translate-y-1/2 items-center justify-center"
+                      aria-hidden
+                    >
+                      <TrendIcon />
+                    </span>
+                  ) : null}
+                  {topic.name}
+                  <span className="sr-only"> ({count} predictions)</span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </nav>
