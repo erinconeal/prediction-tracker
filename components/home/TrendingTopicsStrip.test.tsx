@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 import type { Topic } from "@/types/topic";
 import { TrendingTopicsStrip } from "./TrendingTopicsStrip";
@@ -30,5 +30,37 @@ describe("TrendingTopicsStrip", () => {
   test("hides when empty and not loading", () => {
     const { container } = render(<TrendingTopicsStrip topics={[]} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  test("shows scroll affordance when topics overflow", async () => {
+    const manyTopics = Array.from({ length: 12 }, (_, i) => ({
+      topic: topic(`topic-${i}`, `Topic ${i}`),
+      count: 1,
+      recentCount: 0,
+    }));
+
+    const { container } = render(
+      <TrendingTopicsStrip topics={manyTopics} embedded />,
+    );
+
+    const list = container.querySelector("ul");
+    expect(list).toBeTruthy();
+    if (!list) return;
+
+    Object.defineProperty(list, "clientWidth", { value: 200, configurable: true });
+    Object.defineProperty(list, "scrollWidth", { value: 800, configurable: true });
+    Object.defineProperty(list, "scrollLeft", {
+      value: 0,
+      writable: true,
+      configurable: true,
+    });
+
+    fireEvent.scroll(list);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /show more trending topics/i }),
+      ).toBeInTheDocument();
+    });
   });
 });
