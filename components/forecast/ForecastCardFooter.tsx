@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo, type ReactNode } from "react";
-import { SourceAvatar } from "@/components/ui/SourceAvatar";
-import { forecastCardFooterDividerClass, forecastCardLinkClass } from "./forecast-card-tokens";
+import Link from 'next/link';
+import { memo, type ReactNode } from 'react';
+import { SourceAvatar } from '@/components/ui/SourceAvatar';
+import { forecastCardFooterDividerClass, forecastCardLinkClass } from './forecast-card-tokens';
 
 type ForecastCardFooterProps = {
   sourceName: string;
@@ -18,7 +18,7 @@ export const ForecastCardFooter = memo(function ForecastCardFooter({
   sourceSlug,
   secondaryLine,
   endSlot,
-  className = "",
+  className = '',
 }: ForecastCardFooterProps) {
   return (
     <div className={`${forecastCardFooterDividerClass} ${className}`.trim()}>
@@ -35,11 +35,13 @@ export const ForecastCardFooter = memo(function ForecastCardFooter({
             {sourceName}
           </Link>
         </div>
-        {secondaryLine ? (
-          <div className="mt-0.5 text-xs tabular-nums text-muted">
-            {secondaryLine}
-          </div>
-        ) : null}
+        {secondaryLine
+          ? (
+              <div className="mt-0.5 text-xs tabular-nums text-muted">
+                {secondaryLine}
+              </div>
+            )
+          : null}
       </div>
       {endSlot ? <div className="shrink-0">{endSlot}</div> : null}
     </div>

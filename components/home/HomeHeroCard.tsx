@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { memo, type ReactNode } from "react";
-import { PopularForecastsSection } from "@/components/home/PopularForecastsSection";
-import type { CategoryTab } from "@/lib/category-tabs";
-import type { Prediction } from "@/types/prediction";
+import { memo, type ReactNode } from 'react';
+import { PopularForecastsSection } from '@/components/home/PopularForecastsSection';
+import type { CategoryTab } from '@/lib/category-tabs';
+import type { Prediction } from '@/types/prediction';
 
-const HERO_CARD_SHELL_CLASS =
-  "flex flex-col overflow-hidden rounded-xl border border-border bg-surface-elevated shadow-[0_4px_24px_rgb(0_0_0/0.07)]";
+const HERO_CARD_SHELL_CLASS
+  = 'flex flex-col overflow-hidden rounded-xl border border-border bg-surface-elevated shadow-[0_4px_24px_rgb(0_0_0/0.07)]';
 
 type HomeHeroCardProps = {
   header?: ReactNode;
@@ -25,7 +25,7 @@ export const HomeHeroCard = memo(function HomeHeroCard({
   slotCount,
   loading = false,
   onCategorySelect,
-  className = "",
+  className = '',
 }: HomeHeroCardProps) {
   return (
     <section

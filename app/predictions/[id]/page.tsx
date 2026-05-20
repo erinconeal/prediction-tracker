@@ -1,4 +1,4 @@
-import { PredictionDetailView } from "@/components/predictions/PredictionDetailView";
+import { PredictionDetailView } from '@/components/predictions/PredictionDetailView';
 
 type PageProps = {
   params: Promise<{ id: string }>;

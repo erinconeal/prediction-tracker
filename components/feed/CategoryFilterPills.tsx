@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
-import { CATEGORIES, categoryToSlug, type Category } from "@/types/category";
+import Link from 'next/link';
+import { memo } from 'react';
+import { CATEGORIES, categoryToSlug, type Category } from '@/types/category';
 
 type CategoryFilterPillsProps = {
   activeCategory: Category;
@@ -11,7 +11,7 @@ type CategoryFilterPillsProps = {
 
 export const CategoryFilterPills = memo(function CategoryFilterPills({
   activeCategory,
-  className = "",
+  className = '',
 }: CategoryFilterPillsProps) {
   return (
     <section
@@ -36,10 +36,10 @@ export const CategoryFilterPills = memo(function CategoryFilterPills({
                 href={`/category/${categoryToSlug(cat)}`}
                 className={`inline-flex min-h-11 items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   isActive
-                    ? "bg-interactive text-white shadow-sm"
-                    : "border border-border bg-surface text-foreground hover:bg-surface-elevated"
+                    ? 'bg-interactive text-white shadow-sm'
+                    : 'border border-border bg-surface text-foreground hover:bg-surface-elevated'
                 }`}
-                aria-current={isActive ? "page" : undefined}
+                aria-current={isActive ? 'page' : undefined}
               >
                 {cat}
               </Link>

@@ -1,7 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-const emphasisLinkClassName =
-  "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-3 text-sm font-semibold text-ink underline-offset-4 transition-colors hover:text-interactive hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const emphasisLinkClassName
+  = 'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md px-3 text-sm font-semibold text-ink underline-offset-4 transition-colors hover:text-interactive hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 export function SiteHeader() {
   return (

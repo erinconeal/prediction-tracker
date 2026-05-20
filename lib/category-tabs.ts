@@ -2,17 +2,17 @@ import {
   CATEGORIES,
   type Category,
   categoryFromSlug,
-} from "@/types/category";
+} from '@/types/category';
 
 /** Category filters for home chips and browse (excludes "All"). */
-export const CATEGORY_TAB_VALUES = ["All", ...CATEGORIES] as const;
+export const CATEGORY_TAB_VALUES = ['All', ...CATEGORIES] as const;
 
 export type CategoryTab = (typeof CATEGORY_TAB_VALUES)[number];
 
 export function categoryFromCategoryTab(
   tab: CategoryTab,
 ): Category | undefined {
-  return tab === "All" ? undefined : tab;
+  return tab === 'All' ? undefined : tab;
 }
 
 /** Maps a stored category string to a tab when it matches the allowlist. */
@@ -23,7 +23,7 @@ export function categoryTabFromName(
   if (!raw) return undefined;
   const lower = raw.toLowerCase();
   for (const tab of CATEGORY_TAB_VALUES) {
-    if (tab === "All") continue;
+    if (tab === 'All') continue;
     if (tab.toLowerCase() === lower) return tab;
   }
   return undefined;

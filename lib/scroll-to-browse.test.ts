@@ -1,12 +1,12 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { scrollBrowseForecastsIntoView } from "./scroll-to-browse";
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { scrollBrowseForecastsIntoView } from './scroll-to-browse';
 
-describe("scrollBrowseForecastsIntoView", () => {
+describe('scrollBrowseForecastsIntoView', () => {
   const scrollIntoView = vi.fn();
 
   beforeEach(() => {
     scrollIntoView.mockReset();
-    vi.spyOn(document, "getElementById").mockReturnValue({
+    vi.spyOn(document, 'getElementById').mockReturnValue({
       scrollIntoView,
     } as unknown as HTMLElement);
   });
@@ -15,8 +15,8 @@ describe("scrollBrowseForecastsIntoView", () => {
     vi.restoreAllMocks();
   });
 
-  test("given default motion preference, should smooth-scroll to browse heading", () => {
-    vi.stubGlobal("matchMedia", (query: string) => ({
+  test('given default motion preference, should smooth-scroll to browse heading', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
       matches: false,
       media: query,
       addEventListener: vi.fn(),
@@ -26,14 +26,14 @@ describe("scrollBrowseForecastsIntoView", () => {
     scrollBrowseForecastsIntoView();
 
     expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: "smooth",
-      block: "start",
+      behavior: 'smooth',
+      block: 'start',
     });
   });
 
-  test("given prefers-reduced-motion, should instant-scroll to browse heading", () => {
-    vi.stubGlobal("matchMedia", (query: string) => ({
-      matches: query.includes("prefers-reduced-motion"),
+  test('given prefers-reduced-motion, should instant-scroll to browse heading', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('prefers-reduced-motion'),
       media: query,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
@@ -42,8 +42,8 @@ describe("scrollBrowseForecastsIntoView", () => {
     scrollBrowseForecastsIntoView();
 
     expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: "auto",
-      block: "start",
+      behavior: 'auto',
+      block: 'start',
     });
   });
 });

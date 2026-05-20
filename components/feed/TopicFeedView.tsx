@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useMemo } from "react";
+import Link from 'next/link';
+import { useMemo } from 'react';
 import {
   breadcrumbLinkClass,
   DiscoveryFeedLayout,
-} from "@/components/feed/DiscoveryFeedLayout";
-import { FeedSidebar } from "@/components/feed/FeedSidebar";
-import { outcomeLabels } from "@/components/predictions/outcome-display";
-import { useDiscoveryFeedPage } from "@/hooks/useDiscoveryFeedPage";
-import { useTrendingTopics } from "@/hooks/useTrendingTopics";
-import { categoryToSlug } from "@/types/category";
-import type { Topic } from "@/types/topic";
-import type { Outcome } from "@/types/prediction";
+} from '@/components/feed/DiscoveryFeedLayout';
+import { FeedSidebar } from '@/components/feed/FeedSidebar';
+import { outcomeLabels } from '@/components/predictions/outcome-display';
+import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
+import { useTrendingTopics } from '@/hooks/useTrendingTopics';
+import { categoryToSlug } from '@/types/category';
+import type { Topic } from '@/types/topic';
+import type { Outcome } from '@/types/prediction';
 
 type TopicFeedViewProps = {
   topic: Topic;
 };
 
 export function TopicFeedView({ topic }: TopicFeedViewProps) {
-  const feed = useDiscoveryFeedPage({ kind: "topic", topicSlug: topic.slug });
+  const feed = useDiscoveryFeedPage({ kind: 'topic', topicSlug: topic.slug });
   const trending = useTrendingTopics({ limit: 5 });
 
   const emptyMessage = useMemo(() => {
-    if (feed.outcomeFilter !== "all") {
+    if (feed.outcomeFilter !== 'all') {
       return `No ${outcomeLabels[feed.outcomeFilter as Outcome].toLowerCase()} forecasts for this topic yet.`;
     }
-    return "No predictions for this topic yet.";
+    return 'No predictions for this topic yet.';
   }, [feed.outcomeFilter]);
 
   return (
     <DiscoveryFeedLayout
-      header={
+      header={(
         <>
           <p className="text-sm text-muted">
             <Link href="/" className={breadcrumbLinkClass}>
@@ -47,7 +47,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
             className="flex list-none flex-wrap gap-2"
             aria-label="Topic categories"
           >
-            {topic.categories.map((cat) => (
+            {topic.categories.map(cat => (
               <li key={cat}>
                 <Link
                   href={`/category/${categoryToSlug(cat)}`}
@@ -59,7 +59,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
             ))}
           </ul>
         </>
-      }
+      )}
       emptyMessage={emptyMessage}
       listSort={feed.listSort}
       onListSortChange={feed.setListSort}
@@ -73,7 +73,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
       hasMore={feed.hasMore}
       onRetry={() => void feed.refetch()}
       onLoadMore={() => void feed.loadMore()}
-      sidebar={
+      sidebar={(
         <FeedSidebar
           trendingTopics={trending.data}
           trendingLoading={trending.loading}
@@ -81,7 +81,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
           platformStats={feed.platformStats}
           showCategoryFilters={false}
         />
-      }
+      )}
     />
   );
 }

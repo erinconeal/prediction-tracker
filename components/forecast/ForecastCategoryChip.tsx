@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
-import { categoryDisplayFromName } from "@/lib/category-display";
-import { categoryTabFromName } from "@/lib/category-tabs";
-import { categoryToSlug } from "@/types/category";
-import { forecastCardLinkClass } from "./forecast-card-tokens";
+import Link from 'next/link';
+import { memo } from 'react';
+import { categoryDisplayFromName } from '@/lib/category-display';
+import { categoryTabFromName } from '@/lib/category-tabs';
+import { categoryToSlug } from '@/types/category';
+import { forecastCardLinkClass } from './forecast-card-tokens';
 
 type ForecastCategoryChipProps = {
   category: string | null | undefined;
@@ -16,20 +16,20 @@ type ForecastCategoryChipProps = {
 
 const chipButtonClass = `inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left ${forecastCardLinkClass}`;
 
-const chipLinkClass =
-  "inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const chipLinkClass
+  = 'inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
-const chipStaticClass = "inline-flex min-w-0 max-w-full items-center gap-2.5";
+const chipStaticClass = 'inline-flex min-w-0 max-w-full items-center gap-2.5';
 
 export const ForecastCategoryChip = memo(function ForecastCategoryChip({
   category,
   onCategoryNavigate,
-  className = "",
+  className = '',
 }: ForecastCategoryChipProps) {
   const display = categoryDisplayFromName(category);
   const tab = categoryTabFromName(category);
-  const href =
-    tab && tab !== "All" ? `/category/${categoryToSlug(tab)}` : undefined;
+  const href
+    = tab && tab !== 'All' ? `/category/${categoryToSlug(tab)}` : undefined;
 
   const icon = (
     <span

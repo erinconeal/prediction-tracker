@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { memo, useMemo } from "react";
-import { ForecastCardFooter } from "@/components/forecast/ForecastCardFooter";
-import { ForecastCardShell } from "@/components/forecast/ForecastCardShell";
-import { ForecastCardTitle } from "@/components/forecast/ForecastCardTitle";
-import { ForecastCategoryChip } from "@/components/forecast/ForecastCategoryChip";
-import { ForecastSparkline } from "@/components/ui/ForecastSparkline";
+import { memo, useMemo } from 'react';
+import { ForecastCardFooter } from '@/components/forecast/ForecastCardFooter';
+import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
+import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
+import { ForecastCategoryChip } from '@/components/forecast/ForecastCategoryChip';
+import { ForecastSparkline } from '@/components/ui/ForecastSparkline';
 import {
   forecastDisplayMetricFromStats,
   trendAriaLabel,
-} from "@/lib/forecast-display-metric";
-import { computeSourceAccuracyStats } from "@/lib/source-stats";
-import { categoryTabFromName, type CategoryTab } from "@/lib/category-tabs";
-import type { Prediction } from "@/types/prediction";
+} from '@/lib/forecast-display-metric';
+import { computeSourceAccuracyStats } from '@/lib/source-stats';
+import { categoryTabFromName, type CategoryTab } from '@/lib/category-tabs';
+import type { Prediction } from '@/types/prediction';
 
 type PopularForecastCardProps = {
   prediction: Prediction;
@@ -22,27 +22,27 @@ type PopularForecastCardProps = {
 };
 
 const BADGE_CLASS = {
-  up: "bg-success/12 text-success",
-  down: "bg-error/12 text-error",
-  flat: "bg-warning/15 text-warning",
+  up: 'bg-success/12 text-success',
+  down: 'bg-error/12 text-error',
+  flat: 'bg-warning/15 text-warning',
 } as const;
 
 const TREND_SYMBOL = {
-  up: "↑",
-  down: "↓",
-  flat: "—",
+  up: '↑',
+  down: '↓',
+  flat: '—',
 } as const;
 
 export const PopularForecastCard = memo(function PopularForecastCard({
   prediction,
   statsContext,
   onCategorySelect,
-  className = "",
+  className = '',
 }: PopularForecastCardProps) {
   const stats = useMemo(
     () =>
       computeSourceAccuracyStats(
-        statsContext.filter((p) => p.sourceSlug === prediction.sourceSlug),
+        statsContext.filter(p => p.sourceSlug === prediction.sourceSlug),
         {
           nameFallback: prediction.sourceSlug,
           primaryName: prediction.source,
@@ -54,13 +54,13 @@ export const PopularForecastCard = memo(function PopularForecastCard({
   const categoryTab = categoryTabFromName(prediction.category);
   const metric = forecastDisplayMetricFromStats(stats);
   const badgeClass = BADGE_CLASS[metric.trend];
-  const badgeText =
-    metric.percent === null
+  const badgeText
+    = metric.percent === null
       ? `— ${TREND_SYMBOL[metric.trend]}`
       : `${metric.percent}% ${TREND_SYMBOL[metric.trend]}`;
 
-  const metricAria =
-    metric.percent === null
+  const metricAria
+    = metric.percent === null
       ? `Source accuracy unavailable, ${trendAriaLabel(metric.trend)}`
       : `Source accuracy ${metric.percent} percent, ${trendAriaLabel(metric.trend)}`;
 
@@ -90,7 +90,7 @@ export const PopularForecastCard = memo(function PopularForecastCard({
   return (
     <ForecastCardShell
       className={className}
-      headerStart={
+      headerStart={(
         <ForecastCategoryChip
           category={prediction.category}
           onCategoryNavigate={
@@ -99,21 +99,21 @@ export const PopularForecastCard = memo(function PopularForecastCard({
               : undefined
           }
         />
-      }
+      )}
       headerEnd={trackRecordCorner}
-      title={
+      title={(
         <ForecastCardTitle
           predictionId={prediction.id}
           text={prediction.text}
         />
-      }
-      footer={
+      )}
+      footer={(
         <ForecastCardFooter
           sourceName={prediction.source}
           sourceSlug={prediction.sourceSlug}
           endSlot={sparklineEnd}
         />
-      }
+      )}
     />
   );
 });

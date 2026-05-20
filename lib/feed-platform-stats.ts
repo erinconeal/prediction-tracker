@@ -2,8 +2,8 @@ import {
   accuracyPercentFromRollup,
   addPredictionToRollup,
   emptySourceOutcomeRollup,
-} from "@/lib/source-outcome-rollup";
-import type { Prediction } from "@/types/prediction";
+} from '@/lib/source-outcome-rollup';
+import type { Prediction } from '@/types/prediction';
 
 export type FeedPlatformStats = {
   trackedCount: number;
@@ -32,6 +32,6 @@ export function formatTrackedCount(n: number): string {
 }
 
 export function formatAccuracyPercent(value: number | null): string {
-  if (value === null) return "—";
+  if (value === null) return '—';
   return `${Math.round(value)}%`;
 }

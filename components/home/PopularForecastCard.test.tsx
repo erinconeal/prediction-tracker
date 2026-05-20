@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
-import type { Prediction } from "@/types/prediction";
-import { PopularForecastCard } from "./PopularForecastCard";
+import type { ReactNode } from 'react';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, test, vi } from 'vitest';
+import type { Prediction } from '@/types/prediction';
+import { PopularForecastCard } from './PopularForecastCard';
 
-vi.mock("next/link", () => ({
+vi.mock('next/link', () => ({
   default: ({
     children,
     href,
@@ -21,32 +21,32 @@ vi.mock("next/link", () => ({
 
 function prediction(overrides: Partial<Prediction> = {}): Prediction {
   return {
-    id: "p-1",
-    source: "Jane Analyst",
-    sourceSlug: "jane",
-    text: "Will rates fall this year?",
-    category: "Finance",
+    id: 'p-1',
+    source: 'Jane Analyst',
+    sourceSlug: 'jane',
+    text: 'Will rates fall this year?',
+    category: 'Finance',
     topicIds: [],
-    created_at: "2024-06-01T00:00:00.000Z",
+    created_at: '2024-06-01T00:00:00.000Z',
     resolved_at: null,
     target_date: null,
-    outcome: "pending",
+    outcome: 'pending',
     ...overrides,
   };
 }
 
-describe("PopularForecastCard", () => {
-  test("given a forecast, should label metrics as source track record not market odds", () => {
+describe('PopularForecastCard', () => {
+  test('given a forecast, should label metrics as source track record not market odds', () => {
     const statsContext = [
       prediction({
-        id: "p-1",
-        outcome: "correct",
-        resolved_at: "2024-07-01T00:00:00.000Z",
+        id: 'p-1',
+        outcome: 'correct',
+        resolved_at: '2024-07-01T00:00:00.000Z',
       }),
       prediction({
-        id: "p-2",
-        outcome: "incorrect",
-        resolved_at: "2024-07-02T00:00:00.000Z",
+        id: 'p-2',
+        outcome: 'incorrect',
+        resolved_at: '2024-07-02T00:00:00.000Z',
       }),
     ];
 
@@ -57,14 +57,14 @@ describe("PopularForecastCard", () => {
       />,
     );
 
-    expect(screen.getByText("Track record")).toBeInTheDocument();
+    expect(screen.getByText('Track record')).toBeInTheDocument();
     expect(
       screen.getByText(/not live market odds/i),
     ).toBeInTheDocument();
-    expect(screen.queryByText("Consensus source")).not.toBeInTheDocument();
+    expect(screen.queryByText('Consensus source')).not.toBeInTheDocument();
   });
 
-  test("exposes title and source links; track record is not a button", () => {
+  test('exposes title and source links; track record is not a button', () => {
     render(
       <PopularForecastCard
         prediction={prediction()}
@@ -73,14 +73,14 @@ describe("PopularForecastCard", () => {
     );
 
     expect(
-      screen.getByRole("link", { name: /will rates fall/i }),
-    ).toHaveAttribute("href", "/predictions/p-1");
-    expect(screen.getByRole("link", { name: /jane analyst/i })).toHaveAttribute(
-      "href",
-      "/source/jane",
+      screen.getByRole('link', { name: /will rates fall/i }),
+    ).toHaveAttribute('href', '/predictions/p-1');
+    expect(screen.getByRole('link', { name: /jane analyst/i })).toHaveAttribute(
+      'href',
+      '/source/jane',
     );
     expect(
-      screen.queryByRole("button", { name: /filter browse/i }),
+      screen.queryByRole('button', { name: /filter browse/i }),
     ).not.toBeInTheDocument();
   });
 });

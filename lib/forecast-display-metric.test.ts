@@ -1,10 +1,10 @@
-import { describe, expect, test } from "vitest";
-import { forecastDisplayMetricFromStats } from "./forecast-display-metric";
-import type { SourceAccuracyStats } from "./source-stats";
+import { describe, expect, test } from 'vitest';
+import { forecastDisplayMetricFromStats } from './forecast-display-metric';
+import type { SourceAccuracyStats } from './source-stats';
 
 function stats(accuracy: number | null): SourceAccuracyStats {
   return {
-    name: "Test",
+    name: 'Test',
     total: 10,
     pending: 0,
     scored: accuracy === null ? 0 : 8,
@@ -16,32 +16,32 @@ function stats(accuracy: number | null): SourceAccuracyStats {
   };
 }
 
-describe("forecastDisplayMetricFromStats", () => {
-  test("maps high accuracy to up trend", () => {
+describe('forecastDisplayMetricFromStats', () => {
+  test('maps high accuracy to up trend', () => {
     expect(forecastDisplayMetricFromStats(stats(82))).toEqual({
       percent: 82,
-      trend: "up",
+      trend: 'up',
     });
   });
 
-  test("maps low accuracy to down trend", () => {
+  test('maps low accuracy to down trend', () => {
     expect(forecastDisplayMetricFromStats(stats(14))).toEqual({
       percent: 14,
-      trend: "down",
+      trend: 'down',
     });
   });
 
-  test("maps mid accuracy to flat trend", () => {
+  test('maps mid accuracy to flat trend', () => {
     expect(forecastDisplayMetricFromStats(stats(49))).toEqual({
       percent: 49,
-      trend: "flat",
+      trend: 'flat',
     });
   });
 
-  test("given no scored accuracy, should use flat trend without percent", () => {
+  test('given no scored accuracy, should use flat trend without percent', () => {
     expect(forecastDisplayMetricFromStats(stats(null))).toEqual({
       percent: null,
-      trend: "flat",
+      trend: 'flat',
     });
   });
 });

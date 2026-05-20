@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { memo, type ReactNode } from "react";
-import Link from "next/link";
-import { SourceAvatar } from "@/components/ui/SourceAvatar";
-import { useLeaderboard } from "@/hooks/useLeaderboard";
-import type { LeaderboardRow } from "@/lib/leaderboard";
+import { memo, type ReactNode } from 'react';
+import Link from 'next/link';
+import { SourceAvatar } from '@/components/ui/SourceAvatar';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
+import type { LeaderboardRow } from '@/lib/leaderboard';
 type LeaderboardSectionProps = {
   limit?: number;
   className?: string;
@@ -24,13 +24,13 @@ function AccuracyBar({
         className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-surface"
         {...(percent !== null && ariaLabel
           ? {
-              role: "progressbar" as const,
-              "aria-valuenow": Math.round(percent),
-              "aria-valuemin": 0,
-              "aria-valuemax": 100,
-              "aria-label": ariaLabel,
+              'role': 'progressbar' as const,
+              'aria-valuenow': Math.round(percent),
+              'aria-valuemin': 0,
+              'aria-valuemax': 100,
+              'aria-label': ariaLabel,
             }
-          : { "aria-hidden": true as const })}
+          : { 'aria-hidden': true as const })}
       >
         <div
           className="h-full rounded-full bg-success transition-[width] duration-300"
@@ -38,15 +38,15 @@ function AccuracyBar({
         />
       </div>
       <span className="w-12 shrink-0 text-right font-mono text-sm tabular-nums text-foreground">
-        {percent === null ? "—" : `${percent}%`}
+        {percent === null ? '—' : `${percent}%`}
       </span>
     </div>
   );
 }
 
 function FeaturedLeaderCard({ row }: { row: LeaderboardRow }) {
-  const accuracy =
-    row.accuracyPercent === null ? "—" : `${row.accuracyPercent}%`;
+  const accuracy
+    = row.accuracyPercent === null ? '—' : `${row.accuracyPercent}%`;
 
   return (
     <article className="rounded-xl border border-border bg-surface-elevated p-6 shadow-[0_4px_24px_rgb(0_0_0/0.06)]">
@@ -58,9 +58,14 @@ function FeaturedLeaderCard({ row }: { row: LeaderboardRow }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-success/15 px-2 py-0.5 font-mono text-sm font-semibold tabular-nums text-success">
-              {accuracy} accuracy
+              {accuracy}
+              {' '}
+              accuracy
             </span>
-            <span className="font-mono text-xs text-muted">#{row.rank}</span>
+            <span className="font-mono text-xs text-muted">
+              #
+              {row.rank}
+            </span>
           </div>
           <h3 className="mt-2 font-serif text-2xl font-normal tracking-tight text-foreground">
             <Link
@@ -71,9 +76,16 @@ function FeaturedLeaderCard({ row }: { row: LeaderboardRow }) {
             </Link>
           </h3>
           <p className="mt-2 text-sm text-muted">
-            {row.total} prediction{row.total === 1 ? "" : "s"} · {row.scored}{" "}
+            {row.total}
+            {' '}
+            prediction
+            {row.total === 1 ? '' : 's'}
+            {' '}
+            ·
+            {row.scored}
+            {' '}
             scored
-            {row.pending > 0 ? ` · ${row.pending} pending` : ""}
+            {row.pending > 0 ? ` · ${row.pending} pending` : ''}
           </p>
           <AccuracyBar
             percent={row.accuracyPercent}
@@ -99,8 +111,12 @@ function RunnerUpCard({ row }: { row: LeaderboardRow }) {
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-foreground">{row.source}</p>
         <p className="text-xs text-muted">
-          #{row.rank} ·{" "}
-          {row.accuracyPercent === null ? "—" : `${row.accuracyPercent}%`}
+          #
+          {row.rank}
+          {' '}
+          ·
+          {' '}
+          {row.accuracyPercent === null ? '—' : `${row.accuracyPercent}%`}
         </p>
       </div>
     </Link>
@@ -108,13 +124,13 @@ function RunnerUpCard({ row }: { row: LeaderboardRow }) {
 }
 
 function LedgerRow({ row }: { row: LeaderboardRow }) {
-  const fraction =
-    row.scored > 0 ? `${row.correct}/${row.scored}` : null;
+  const fraction
+    = row.scored > 0 ? `${row.correct}/${row.scored}` : null;
 
   return (
     <li className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border px-1 py-3 last:border-b-0 sm:grid-cols-[2rem_1fr_5rem_4rem]">
       <span className="font-mono text-sm tabular-nums text-muted">
-        {String(row.rank).padStart(2, "0")}
+        {String(row.rank).padStart(2, '0')}
       </span>
       <div className="col-span-2 flex min-w-0 items-center gap-3 sm:col-span-1">
         <SourceAvatar name={row.source} size="sm" />
@@ -136,7 +152,7 @@ function LedgerRow({ row }: { row: LeaderboardRow }) {
         </div>
       </div>
       <span className="hidden text-right font-mono text-xs tabular-nums text-muted sm:block">
-        {fraction ?? "—"}
+        {fraction ?? '—'}
       </span>
     </li>
   );
@@ -144,7 +160,7 @@ function LedgerRow({ row }: { row: LeaderboardRow }) {
 
 export const LeaderboardSection = memo(function LeaderboardSection({
   limit = 10,
-  className = "",
+  className = '',
 }: LeaderboardSectionProps) {
   const { rows, loading, error, refetch } = useLeaderboard(limit);
 
@@ -209,20 +225,22 @@ export const LeaderboardSection = memo(function LeaderboardSection({
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
       <div className="space-y-4">
         <FeaturedLeaderCard row={featured} />
-        {runnerUps.length > 0 ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {runnerUps.map((r) => (
-              <RunnerUpCard key={r.source} row={r} />
-            ))}
-          </div>
-        ) : null}
+        {runnerUps.length > 0
+          ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {runnerUps.map(r => (
+                  <RunnerUpCard key={r.source} row={r} />
+                ))}
+              </div>
+            )
+          : null}
       </div>
       <div className="rounded-xl border border-border bg-surface-elevated px-4 py-2 shadow-sm">
         <h3 className="px-1 py-3 text-sm font-semibold text-foreground">
           Accuracy ledger
         </h3>
         <ol className="list-none p-0">
-          {ledgerRows.map((r) => (
+          {ledgerRows.map(r => (
             <LedgerRow key={r.source} row={r} />
           ))}
         </ol>

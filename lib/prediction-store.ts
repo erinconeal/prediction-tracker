@@ -4,22 +4,22 @@ import type {
   Prediction,
   PredictionListSort,
   TerminalOutcome,
-} from "@/types/prediction";
-import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
-import { isPendingOutcome } from "@/lib/prediction-outcome";
+} from '@/types/prediction';
+import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
+import { isPendingOutcome } from '@/lib/prediction-outcome';
 import {
   predictionMatchesCategory,
   predictionMatchesTopicSlug,
-} from "@/lib/prediction-topic-match";
+} from '@/lib/prediction-topic-match';
 import {
   accuracyPercentFromRollup,
   rollupBySource,
-} from "@/lib/source-outcome-rollup";
+} from '@/lib/source-outcome-rollup';
 import {
   getTopicBySlug,
   primaryCategoryFromTopics,
-} from "@/lib/topic-store";
-import { slugify } from "@/utils/slugify";
+} from '@/lib/topic-store';
+import { slugify } from '@/utils/slugify';
 
 export type ListPredictionsFilter = {
   source?: string;
@@ -48,63 +48,63 @@ function seed(): void {
 
   const samples: CreatePredictionInput[] = [
     {
-      source: "Jane Analyst",
-      text: "Inflation will stay above 2% through Q4.",
-      category: "Finance",
-      topicIds: [tid("sp-hits-8000"), tid("housing-market-2026")],
-      target_date: "2026-12-31",
+      source: 'Jane Analyst',
+      text: 'Inflation will stay above 2% through Q4.',
+      category: 'Finance',
+      topicIds: [tid('sp-hits-8000'), tid('housing-market-2026')],
+      target_date: '2026-12-31',
     },
     {
-      source: "Tech Blogger",
-      text: "Vendor X ships the new chip before June.",
-      category: "Tech",
-      topicIds: [tid("ai-regulation-2026")],
-      target_date: "2026-06-01",
+      source: 'Tech Blogger',
+      text: 'Vendor X ships the new chip before June.',
+      category: 'Tech',
+      topicIds: [tid('ai-regulation-2026')],
+      target_date: '2026-06-01',
     },
     {
-      source: "Jane Analyst",
-      text: "Unemployment dips below 4% this year.",
-      category: "Finance",
-      topicIds: [tid("housing-market-2026")],
+      source: 'Jane Analyst',
+      text: 'Unemployment dips below 4% this year.',
+      category: 'Finance',
+      topicIds: [tid('housing-market-2026')],
     },
     {
-      source: "Jane Analyst",
-      text: "The Fed cuts rates at least twice before year-end.",
-      category: "Finance",
-      topicIds: [tid("fed-independence-2027")],
+      source: 'Jane Analyst',
+      text: 'The Fed cuts rates at least twice before year-end.',
+      category: 'Finance',
+      topicIds: [tid('fed-independence-2027')],
     },
     {
-      source: "Political Pundit",
-      text: "Democrats hold the Senate in 2026 midterms.",
-      category: "Politics",
-      topicIds: [tid("midterm-elections-2026")],
-      target_date: "2026-11-01",
+      source: 'Political Pundit',
+      text: 'Democrats hold the Senate in 2026 midterms.',
+      category: 'Politics',
+      topicIds: [tid('midterm-elections-2026')],
+      target_date: '2026-11-01',
     },
     {
-      source: "Sports Analyst",
-      text: "Brazil wins the 2026 World Cup.",
-      category: "Sports",
-      topicIds: [tid("world-cup-2026-winner")],
-      target_date: "2026-07-01",
+      source: 'Sports Analyst',
+      text: 'Brazil wins the 2026 World Cup.',
+      category: 'Sports',
+      topicIds: [tid('world-cup-2026-winner')],
+      target_date: '2026-07-01',
     },
     {
-      source: "Climate Writer",
-      text: "At least four Atlantic hurricanes reach Category 3 in 2026.",
-      category: "Weather",
-      topicIds: [tid("atlantic-hurricane-season-2026")],
+      source: 'Climate Writer',
+      text: 'At least four Atlantic hurricanes reach Category 3 in 2026.',
+      category: 'Weather',
+      topicIds: [tid('atlantic-hurricane-season-2026')],
     },
     {
-      source: "History Buff",
-      text: "A 1930s-style depression begins before 2028.",
-      category: "Historical",
-      topicIds: [tid("great-depression-analog")],
+      source: 'History Buff',
+      text: 'A 1930s-style depression begins before 2028.',
+      category: 'Historical',
+      topicIds: [tid('great-depression-analog')],
     },
     {
-      source: "Tech Blogger",
-      text: "Still open: EV share of new US sales exceeds 25% by 2027.",
-      category: "Tech",
-      topicIds: [tid("ev-adoption-2030")],
-      target_date: "2027-06-01",
+      source: 'Tech Blogger',
+      text: 'Still open: EV share of new US sales exceeds 25% by 2027.',
+      category: 'Tech',
+      topicIds: [tid('ev-adoption-2030')],
+      target_date: '2027-06-01',
     },
   ];
 
@@ -114,13 +114,13 @@ function seed(): void {
     );
   });
 
-  predictions[0]!.outcome = "correct";
-  predictions[1]!.outcome = "incorrect";
-  predictions[2]!.outcome = "correct";
+  predictions[0]!.outcome = 'correct';
+  predictions[1]!.outcome = 'incorrect';
+  predictions[2]!.outcome = 'correct';
   predictions[0]!.resolved_at = iso(new Date(now.getTime() - 1 * 3600000));
   predictions[1]!.resolved_at = iso(new Date(now.getTime() - 2 * 3600000));
   predictions[2]!.resolved_at = iso(new Date(now.getTime() - 3 * 3600000));
-  predictions[3]!.outcome = "unresolved";
+  predictions[3]!.outcome = 'unresolved';
   predictions[3]!.resolved_at = iso(new Date(now.getTime() - 4 * 3600000));
 }
 
@@ -130,9 +130,9 @@ function createInternal(
 ): Prediction {
   const sourceSlug = slugify(input.source);
   const topicIds = input.topicIds ?? [];
-  const category =
-    primaryCategoryFromTopics(topicIds, input.category) ??
-    (input.category?.trim() ? input.category.trim() : null);
+  const category
+    = primaryCategoryFromTopics(topicIds, input.category)
+      ?? (input.category?.trim() ? input.category.trim() : null);
 
   return {
     id: crypto.randomUUID(),
@@ -146,7 +146,7 @@ function createInternal(
     target_date: input.target_date?.trim()
       ? normalizeTargetDate(input.target_date.trim())
       : null,
-    outcome: "pending",
+    outcome: 'pending',
   };
 }
 
@@ -160,9 +160,9 @@ function normalizeTargetDate(value: string): string {
 function matchesSource(p: Prediction, source: string): boolean {
   const s = source.trim().toLowerCase();
   return (
-    p.source.toLowerCase() === s ||
-    p.sourceSlug === s ||
-    p.sourceSlug === slugify(source)
+    p.source.toLowerCase() === s
+    || p.sourceSlug === s
+    || p.sourceSlug === slugify(source)
   );
 }
 
@@ -224,10 +224,10 @@ function sortFiltered(
   sort: PredictionListSort,
 ): Prediction[] {
   const copy = [...filtered];
-  if (sort === "newest") {
+  if (sort === 'newest') {
     return copy.sort(comparePredictionsNewestFirst);
   }
-  if (sort === "source_accuracy") {
+  if (sort === 'source_accuracy') {
     const keys = sourceSortKeyMap(filtered);
     return copy.sort((a, b) => compareBySourceAccuracy(a, b, keys));
   }
@@ -241,11 +241,11 @@ function sortFiltered(
 export function filterAndSortPredictions(
   filter: Pick<
     ListPredictionsFilter,
-    "source" | "status" | "category" | "topic" | "sort"
+    'source' | 'status' | 'category' | 'topic' | 'sort'
   > = {},
 ): Prediction[] {
   seed();
-  const sort = filter.sort ?? "newest";
+  const sort = filter.sort ?? 'newest';
   const filtered = predictions.filter((p) => {
     if (filter.source && !matchesSource(p, filter.source)) return false;
     if (filter.status && p.outcome !== filter.status) return false;
@@ -274,7 +274,7 @@ export function listPredictions(filter: ListPredictionsFilter = {}): Prediction[
 
 export function getPredictionById(id: string): Prediction | null {
   seed();
-  return predictions.find((p) => p.id === id) ?? null;
+  return predictions.find(p => p.id === id) ?? null;
 }
 
 export function createPrediction(input: CreatePredictionInput): Prediction {
@@ -289,7 +289,7 @@ export function updatePredictionOutcome(
   outcome: TerminalOutcome,
 ): Prediction | null {
   seed();
-  const row = predictions.find((p) => p.id === id);
+  const row = predictions.find(p => p.id === id);
   if (!row) return null;
   if (row.outcome === outcome) return row;
   row.outcome = outcome;

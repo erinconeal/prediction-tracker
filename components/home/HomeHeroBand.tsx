@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { FullBleed } from "@/components/ui/FullBleed";
+import type { ReactNode } from 'react';
+import { FullBleed } from '@/components/ui/FullBleed';
 
 type HomeHeroBandProps = {
   children: ReactNode;

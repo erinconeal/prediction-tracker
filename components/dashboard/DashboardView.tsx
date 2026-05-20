@@ -1,60 +1,60 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   PredictionSortTabs,
   sortSubtitle,
-} from "@/components/dashboard/PredictionSortTabs";
+} from '@/components/dashboard/PredictionSortTabs';
 import {
   CategoryTabs,
   categoryFromCategoryTab,
   type CategoryTab,
-} from "@/components/home/CategoryTabs";
-import { HomeHeroBand } from "@/components/home/HomeHeroBand";
-import { HomeHeroCard } from "@/components/home/HomeHeroCard";
-import { LeaderboardSection } from "@/components/home/LeaderboardSection";
-import { TrendingTopicsStrip } from "@/components/home/TrendingTopicsStrip";
-import { PredictionGrid } from "@/components/predictions/PredictionGrid";
-import { usePredictionFeed } from "@/hooks/usePredictionFeed";
-import { useTrendingTopics } from "@/hooks/useTrendingTopics";
-import { browseEmptyMessage } from "@/lib/browse-empty-message";
-import { pickPopularForecastsFromFeed } from "@/lib/popular-forecasts";
-import { scrollBrowseForecastsIntoView } from "@/lib/scroll-to-browse";
-import { listTopics } from "@/services/api";
-import { rankTrendingTopics } from "@/lib/trending-topics";
-import type { Topic } from "@/types/topic";
-import { useFeaturedForecastSlotCount } from "@/hooks/useFeaturedForecastSlotCount";
-import { outcomeLabels } from "@/components/predictions/outcome-display";
-import type { Outcome, PredictionListSort } from "@/types/prediction";
+} from '@/components/home/CategoryTabs';
+import { HomeHeroBand } from '@/components/home/HomeHeroBand';
+import { HomeHeroCard } from '@/components/home/HomeHeroCard';
+import { LeaderboardSection } from '@/components/home/LeaderboardSection';
+import { TrendingTopicsStrip } from '@/components/home/TrendingTopicsStrip';
+import { PredictionGrid } from '@/components/predictions/PredictionGrid';
+import { usePredictionFeed } from '@/hooks/usePredictionFeed';
+import { useTrendingTopics } from '@/hooks/useTrendingTopics';
+import { browseEmptyMessage } from '@/lib/browse-empty-message';
+import { pickPopularForecastsFromFeed } from '@/lib/popular-forecasts';
+import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
+import { listTopics } from '@/services/api';
+import { rankTrendingTopics } from '@/lib/trending-topics';
+import type { Topic } from '@/types/topic';
+import { useFeaturedForecastSlotCount } from '@/hooks/useFeaturedForecastSlotCount';
+import { outcomeLabels } from '@/components/predictions/outcome-display';
+import type { Outcome, PredictionListSort } from '@/types/prediction';
 
 const PAGE_SIZE = 20;
 const HOME_SAMPLE_SIZE = 50;
 
 export function DashboardView() {
   const router = useRouter();
-  const [categoryTab, setCategoryTab] = useState<CategoryTab>("All");
-  const [listSort, setListSort] = useState<PredictionListSort>("newest");
-  const [outcomeFilter, setOutcomeFilter] = useState<Outcome | "all">("all");
+  const [categoryTab, setCategoryTab] = useState<CategoryTab>('All');
+  const [listSort, setListSort] = useState<PredictionListSort>('newest');
+  const [outcomeFilter, setOutcomeFilter] = useState<Outcome | 'all'>('all');
   const category = useMemo(
     () => categoryFromCategoryTab(categoryTab),
     [categoryTab],
   );
 
-  const isDefaultFeed =
-    categoryTab === "All" && listSort === "newest" && outcomeFilter === "all";
+  const isDefaultFeed
+    = categoryTab === 'All' && listSort === 'newest' && outcomeFilter === 'all';
 
   const feedFilters = useMemo(
     () => ({
-      status: outcomeFilter === "all" ? ("all" as const) : outcomeFilter,
+      status: outcomeFilter === 'all' ? ('all' as const) : outcomeFilter,
       ...(category !== undefined ? { category } : {}),
-      ...(listSort !== "newest" ? { sort: listSort } : {}),
+      ...(listSort !== 'newest' ? { sort: listSort } : {}),
     }),
     [category, listSort, outcomeFilter],
   );
 
   const homeSample = usePredictionFeed(
-    { status: "all" },
+    { status: 'all' },
     { pageSize: HOME_SAMPLE_SIZE },
   );
 
@@ -95,7 +95,7 @@ export function DashboardView() {
 
   const trendingEntries = useMemo(() => {
     if (trendingApi.data.length > 0) {
-      return trendingApi.data.map((t) => ({
+      return trendingApi.data.map(t => ({
         topic: t,
         count: t.count,
         recentCount: t.recentCount,
@@ -119,7 +119,7 @@ export function DashboardView() {
 
   const handleCategoryTabChange = useCallback(
     (tab: CategoryTab) => {
-      if (tab !== "All") {
+      if (tab !== 'All') {
         const cat = categoryFromCategoryTab(tab);
         if (cat) {
           router.push(`/category/${cat.toLowerCase()}`);
@@ -127,14 +127,14 @@ export function DashboardView() {
         }
       }
       setCategoryTab(tab);
-      setOutcomeFilter("all");
+      setOutcomeFilter('all');
     },
     [router],
   );
 
   const handleCategorySelect = useCallback(
     (tab: CategoryTab) => {
-      if (tab !== "All") {
+      if (tab !== 'All') {
         const cat = categoryFromCategoryTab(tab);
         if (cat) {
           router.push(`/category/${cat.toLowerCase()}`);
@@ -142,19 +142,19 @@ export function DashboardView() {
         }
       }
       setCategoryTab(tab);
-      setOutcomeFilter("all");
+      setOutcomeFilter('all');
       scrollBrowseForecastsIntoView();
     },
     [router],
   );
 
   const handleOutcomeFilter = useCallback((outcome: Outcome) => {
-    setOutcomeFilter((prev) => (prev === outcome ? "all" : outcome));
+    setOutcomeFilter(prev => (prev === outcome ? 'all' : outcome));
     scrollBrowseForecastsIntoView();
   }, []);
 
   const clearOutcomeFilter = useCallback(() => {
-    setOutcomeFilter("all");
+    setOutcomeFilter('all');
     scrollBrowseForecastsIntoView();
   }, []);
 
@@ -190,52 +190,59 @@ export function DashboardView() {
               Browse forecasts
             </h2>
             <p className="mt-2 text-sm text-muted">{sortSubtitle(listSort)}</p>
-            {outcomeFilter !== "all" ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted">
-                  Showing:{" "}
-                  <span className="font-medium text-foreground">
-                    {outcomeLabels[outcomeFilter]}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  onClick={clearOutcomeFilter}
-                >
-                  Clear status filter
-                </button>
-              </div>
-            ) : null}
+            {outcomeFilter !== 'all'
+              ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-muted">
+                      Showing:
+                      {' '}
+                      <span className="font-medium text-foreground">
+                        {outcomeLabels[outcomeFilter]}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      onClick={clearOutcomeFilter}
+                    >
+                      Clear status filter
+                    </button>
+                  </div>
+                )
+              : null}
           </div>
-          {loading && data.length > 0 ? (
-            <span
-              className="text-xs text-muted"
-              role="status"
-              aria-live="polite"
-            >
-              Updating…
-            </span>
-          ) : null}
+          {loading && data.length > 0
+            ? (
+                <span
+                  className="text-xs text-muted"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Updating…
+                </span>
+              )
+            : null}
         </div>
 
-        {error ? (
-          <div
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/35 bg-error/10 px-4 py-3 text-sm text-error"
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-          >
-            <span>{error}</span>
-            <button
-              type="button"
-              className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              onClick={() => void refetch()}
-            >
-              Retry
-            </button>
-          </div>
-        ) : null}
+        {error
+          ? (
+              <div
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/35 bg-error/10 px-4 py-3 text-sm text-error"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+              >
+                <span>{error}</span>
+                <button
+                  type="button"
+                  className="rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  onClick={() => void refetch()}
+                >
+                  Retry
+                </button>
+              </div>
+            )
+          : null}
 
         <CategoryTabs
           active={categoryTab}
@@ -259,18 +266,20 @@ export function DashboardView() {
           onCategorySelect={handleCategorySelect}
         />
 
-        {hasMore && data.length > 0 ? (
-          <div className="flex justify-center pt-2">
-            <button
-              type="button"
-              className="rounded-full border border-border bg-surface-elevated px-6 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
-              disabled={loadingMore}
-              onClick={() => void loadMore()}
-            >
-              {loadingMore ? "Loading…" : "Load more"}
-            </button>
-          </div>
-        ) : null}
+        {hasMore && data.length > 0
+          ? (
+              <div className="flex justify-center pt-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-border bg-surface-elevated px-6 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                  disabled={loadingMore}
+                  onClick={() => void loadMore()}
+                >
+                  {loadingMore ? 'Loading…' : 'Load more'}
+                </button>
+              </div>
+            )
+          : null}
       </section>
 
       <LeaderboardSection limit={10} />

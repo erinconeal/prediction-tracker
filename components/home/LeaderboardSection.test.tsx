@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import { LeaderboardSection } from "./LeaderboardSection";
-import * as useLeaderboardModule from "@/hooks/useLeaderboard";
+import type { ReactNode } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { LeaderboardSection } from './LeaderboardSection';
+import * as useLeaderboardModule from '@/hooks/useLeaderboard';
 
-vi.mock("next/link", () => ({
+vi.mock('next/link', () => ({
   default: ({
     children,
     href,
@@ -19,14 +19,14 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/hooks/useLeaderboard");
+vi.mock('@/hooks/useLeaderboard');
 
 const useLeaderboard = vi.mocked(useLeaderboardModule.useLeaderboard);
 
 const sampleRow = {
   rank: 1,
-  source: "Jane Analyst",
-  sourceSlug: "jane-analyst",
+  source: 'Jane Analyst',
+  sourceSlug: 'jane-analyst',
   total: 4,
   resolved: 3,
   scored: 3,
@@ -35,16 +35,16 @@ const sampleRow = {
   pending: 1,
   outcomeUnresolved: 0,
   invalid: 0,
-  streakKind: "correct" as const,
+  streakKind: 'correct' as const,
   streakLength: 3,
 };
 
-describe("LeaderboardSection", () => {
+describe('LeaderboardSection', () => {
   beforeEach(() => {
     useLeaderboard.mockReset();
   });
 
-  test("renders featured leader with source slug link", async () => {
+  test('renders featured leader with source slug link', async () => {
     useLeaderboard.mockReturnValue({
       rows: [sampleRow],
       loading: false,
@@ -55,28 +55,28 @@ describe("LeaderboardSection", () => {
     render(<LeaderboardSection limit={10} />);
 
     expect(
-      screen.getByRole("heading", { name: /top predictors/i }),
+      screen.getByRole('heading', { name: /top predictors/i }),
     ).toBeInTheDocument();
-    const profile = screen.getByRole("link", { name: "Jane Analyst" });
-    expect(profile).toHaveAttribute("href", "/source/jane-analyst");
+    const profile = screen.getByRole('link', { name: 'Jane Analyst' });
+    expect(profile).toHaveAttribute('href', '/source/jane-analyst');
   });
 
-  test("given error, retry calls refetch", async () => {
+  test('given error, retry calls refetch', async () => {
     const refetch = vi.fn().mockResolvedValue(undefined);
     useLeaderboard.mockReturnValue({
       rows: [],
       loading: false,
-      error: "offline",
+      error: 'offline',
       refetch,
     });
 
     render(<LeaderboardSection />);
 
-    fireEvent.click(screen.getByRole("button", { name: /retry/i }));
+    fireEvent.click(screen.getByRole('button', { name: /retry/i }));
     expect(refetch).toHaveBeenCalled();
   });
 
-  test("shows loading shell while fetching", () => {
+  test('shows loading shell while fetching', () => {
     useLeaderboard.mockReturnValue({
       rows: [],
       loading: true,
@@ -86,6 +86,6 @@ describe("LeaderboardSection", () => {
 
     render(<LeaderboardSection />);
 
-    expect(document.querySelector(".animate-pulse")).toBeTruthy();
+    expect(document.querySelector('.animate-pulse')).toBeTruthy();
   });
 });

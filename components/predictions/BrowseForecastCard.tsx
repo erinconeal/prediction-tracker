@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { ForecastCardFooter } from "@/components/forecast/ForecastCardFooter";
-import { ForecastCardShell } from "@/components/forecast/ForecastCardShell";
-import { ForecastCardTitle } from "@/components/forecast/ForecastCardTitle";
-import { ForecastCategoryChip } from "@/components/forecast/ForecastCategoryChip";
-import { ForecastTopicChip } from "@/components/forecast/ForecastTopicChip";
-import { OutcomeFilterButton } from "@/components/predictions/OutcomeFilterButton";
-import { categoryTabFromName, type CategoryTab } from "@/lib/category-tabs";
-import { formatIsoDate, formatMonthYear } from "@/utils/format-date";
-import type { Outcome, Prediction } from "@/types/prediction";
-import { truncateWithEllipsis } from "@/utils/truncate-text";
+import { memo } from 'react';
+import { ForecastCardFooter } from '@/components/forecast/ForecastCardFooter';
+import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
+import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
+import { ForecastCategoryChip } from '@/components/forecast/ForecastCategoryChip';
+import { ForecastTopicChip } from '@/components/forecast/ForecastTopicChip';
+import { OutcomeFilterButton } from '@/components/predictions/OutcomeFilterButton';
+import { categoryTabFromName, type CategoryTab } from '@/lib/category-tabs';
+import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
+import type { Outcome, Prediction } from '@/types/prediction';
+import { truncateWithEllipsis } from '@/utils/truncate-text';
 
 type BrowseForecastCardProps = {
   prediction: Prediction;
-  outcomeFilter: Outcome | "all";
+  outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
   onCategorySelect?: (tab: CategoryTab) => void;
   className?: string;
@@ -25,7 +25,7 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
   outcomeFilter,
   onOutcomeFilter,
   onCategorySelect,
-  className = "",
+  className = '',
 }: BrowseForecastCardProps) {
   const secondaryLine = p.target_date
     ? `Target ${formatMonthYear(p.target_date)}`
@@ -36,7 +36,7 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
   return (
     <ForecastCardShell
       className={className}
-      headerStart={
+      headerStart={(
         <div className="flex min-w-0 flex-col gap-2">
           <ForecastCategoryChip
             category={p.category}
@@ -48,27 +48,27 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
           />
           <ForecastTopicChip topicIds={p.topicIds} />
         </div>
-      }
-      headerEnd={
+      )}
+      headerEnd={(
         <OutcomeFilterButton
           outcome={p.outcome}
           pressed={outcomeFilter === p.outcome}
           onFilter={onOutcomeFilter}
         />
-      }
-      title={
+      )}
+      title={(
         <ForecastCardTitle
           predictionId={p.id}
           text={truncateWithEllipsis(p.text, 160)}
         />
-      }
-      footer={
+      )}
+      footer={(
         <ForecastCardFooter
           sourceName={p.source}
           sourceSlug={p.sourceSlug}
           secondaryLine={secondaryLine}
         />
-      }
+      )}
     />
   );
 });

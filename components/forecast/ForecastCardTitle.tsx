@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
-import { forecastCardLinkClass, forecastCardTitleClass } from "./forecast-card-tokens";
+import Link from 'next/link';
+import { memo } from 'react';
+import { forecastCardLinkClass, forecastCardTitleClass } from './forecast-card-tokens';
 
 type ForecastCardTitleProps = {
   predictionId: string;

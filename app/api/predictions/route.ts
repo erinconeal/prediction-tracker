@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 import {
   createPrediction as createRow,
   listPredictions as listRows,
-} from "@/lib/prediction-store";
-import { findUnknownTopicIds } from "@/lib/validate-topic-ids";
+} from '@/lib/prediction-store';
+import { findUnknownTopicIds } from '@/lib/validate-topic-ids';
 import {
   OUTCOMES,
   type CreatePredictionInput,
   type Outcome,
   type PredictionListSort,
-} from "@/types/prediction";
+} from '@/types/prediction';
 
 function parseQueryInt(value: string | null, fallback: number): number {
-  if (value === null || value === "") return fallback;
+  if (value === null || value === '') return fallback;
   const n = Number.parseInt(value, 10);
   return Number.isFinite(n) ? n : fallback;
 }
@@ -24,26 +24,26 @@ function parseQueryInt(value: string | null, fallback: number): number {
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const source = searchParams.get("source") ?? undefined;
-  const category = searchParams.get("category") ?? undefined;
-  const topic = searchParams.get("topic") ?? undefined;
-  const statusParam = searchParams.get("status");
+  const source = searchParams.get('source') ?? undefined;
+  const category = searchParams.get('category') ?? undefined;
+  const topic = searchParams.get('topic') ?? undefined;
+  const statusParam = searchParams.get('status');
   let status: Outcome | undefined;
   if (
-    statusParam !== null &&
-    statusParam !== "" &&
-    (OUTCOMES as readonly string[]).includes(statusParam)
+    statusParam !== null
+    && statusParam !== ''
+    && (OUTCOMES as readonly string[]).includes(statusParam)
   ) {
     status = statusParam as Outcome;
   }
-  const limit = parseQueryInt(searchParams.get("limit"), 50);
-  const offset = Math.max(0, parseQueryInt(searchParams.get("offset"), 0));
-  const sortParam = searchParams.get("sort");
+  const limit = parseQueryInt(searchParams.get('limit'), 50);
+  const offset = Math.max(0, parseQueryInt(searchParams.get('offset'), 0));
+  const sortParam = searchParams.get('sort');
   let sort: PredictionListSort | undefined;
   if (
-    sortParam === "newest" ||
-    sortParam === "source_accuracy" ||
-    sortParam === "recently_resolved"
+    sortParam === 'newest'
+    || sortParam === 'source_accuracy'
+    || sortParam === 'recently_resolved'
   ) {
     sort = sortParam;
   }
@@ -68,29 +68,30 @@ export async function POST(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
-  } catch {
-    return NextResponse.json({ message: "Invalid JSON body" }, { status: 400 });
   }
-  if (!body || typeof body !== "object") {
-    return NextResponse.json({ message: "Expected object body" }, { status: 400 });
+  catch {
+    return NextResponse.json({ message: 'Invalid JSON body' }, { status: 400 });
+  }
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ message: 'Expected object body' }, { status: 400 });
   }
   const b = body as Record<string, unknown>;
-  const source = typeof b.source === "string" ? b.source : "";
-  const text = typeof b.text === "string" ? b.text : "";
+  const source = typeof b.source === 'string' ? b.source : '';
+  const text = typeof b.text === 'string' ? b.text : '';
   if (!source.trim() || !text.trim()) {
     return NextResponse.json(
-      { message: "`source` and `text` are required strings" },
+      { message: '`source` and `text` are required strings' },
       { status: 400 },
     );
   }
   const topicIds = Array.isArray(b.topicIds)
-    ? b.topicIds.filter((id): id is string => typeof id === "string")
+    ? b.topicIds.filter((id): id is string => typeof id === 'string')
     : undefined;
   if (topicIds && topicIds.length > 0) {
     const unknown = findUnknownTopicIds(topicIds);
     if (unknown.length > 0) {
       return NextResponse.json(
-        { message: `Unknown topicIds: ${unknown.join(", ")}` },
+        { message: `Unknown topicIds: ${unknown.join(', ')}` },
         { status: 400 },
       );
     }
@@ -98,9 +99,9 @@ export async function POST(request: Request) {
   const input: CreatePredictionInput = {
     source,
     text,
-    category: typeof b.category === "string" ? b.category : undefined,
+    category: typeof b.category === 'string' ? b.category : undefined,
     topicIds,
-    target_date: typeof b.target_date === "string" ? b.target_date : undefined,
+    target_date: typeof b.target_date === 'string' ? b.target_date : undefined,
   };
   const created = createRow(input);
   return NextResponse.json(created, { status: 201 });

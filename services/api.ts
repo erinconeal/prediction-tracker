@@ -3,13 +3,13 @@ import type {
   Prediction,
   PredictionFilters,
   TerminalOutcome,
-} from "@/types/prediction";
-import type { LeaderboardRow } from "@/lib/leaderboard";
-import type { Topic } from "@/types/topic";
+} from '@/types/prediction';
+import type { LeaderboardRow } from '@/lib/leaderboard';
+import type { Topic } from '@/types/topic';
 
-const BASE = "/api/predictions";
-const LEADERBOARD_BASE = "/api/leaderboard";
-const TOPICS_BASE = "/api/topics";
+const BASE = '/api/predictions';
+const LEADERBOARD_BASE = '/api/leaderboard';
+const TOPICS_BASE = '/api/topics';
 
 export type TrendingTopicDto = Topic & {
   count: number;
@@ -23,7 +23,7 @@ export class ApiError extends Error {
     readonly body?: unknown,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 }
 
@@ -32,8 +32,9 @@ async function parseJson<T>(response: Response): Promise<T> {
   if (!text) return {} as T;
   try {
     return JSON.parse(text) as T;
-  } catch {
-    throw new ApiError("Invalid JSON response", response.status);
+  }
+  catch {
+    throw new ApiError('Invalid JSON response', response.status);
   }
 }
 
@@ -42,8 +43,8 @@ function errorMessageFromBody(
   fallback: string,
 ): string {
   if (
-    "message" in body &&
-    typeof (body as { message?: unknown }).message === "string"
+    'message' in body
+    && typeof (body as { message?: unknown }).message === 'string'
   ) {
     return (body as { message: string }).message;
   }
@@ -52,24 +53,24 @@ function errorMessageFromBody(
 
 function buildListUrl(filters: PredictionFilters): string {
   const params = new URLSearchParams();
-  if (filters.source?.trim()) params.set("source", filters.source.trim());
-  if (filters.status && filters.status !== "all") {
-    params.set("status", filters.status);
+  if (filters.source?.trim()) params.set('source', filters.source.trim());
+  if (filters.status && filters.status !== 'all') {
+    params.set('status', filters.status);
   }
   if (filters.category?.trim()) {
-    params.set("category", filters.category.trim());
+    params.set('category', filters.category.trim());
   }
   if (filters.topic?.trim()) {
-    params.set("topic", filters.topic.trim());
+    params.set('topic', filters.topic.trim());
   }
   if (filters.limit !== undefined) {
-    params.set("limit", String(filters.limit));
+    params.set('limit', String(filters.limit));
   }
   if (filters.offset !== undefined) {
-    params.set("offset", String(filters.offset));
+    params.set('offset', String(filters.offset));
   }
-  if (filters.sort && filters.sort !== "newest") {
-    params.set("sort", filters.sort);
+  if (filters.sort && filters.sort !== 'newest') {
+    params.set('sort', filters.sort);
   }
   const q = params.toString();
   return q ? `${BASE}?${q}` : BASE;
@@ -80,16 +81,17 @@ export async function listPredictions(
   signal?: AbortSignal,
 ): Promise<Prediction[]> {
   const response = await fetch(buildListUrl(filters), {
-    method: "GET",
+    method: 'GET',
     signal,
-    headers: { Accept: "application/json" },
-    cache: "no-store",
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
   });
   if (!response.ok) {
     let body: object = {};
     try {
       body = await parseJson<{ message?: string }>(response);
-    } catch {
+    }
+    catch {
       /* ignore non-JSON error payloads */
     }
     throw new ApiError(
@@ -101,7 +103,7 @@ export async function listPredictions(
   const result = await parseJson<unknown>(response);
   if (!Array.isArray(result)) {
     throw new ApiError(
-      "Predictions response must be a JSON array",
+      'Predictions response must be a JSON array',
       response.status,
       result,
     );
@@ -114,15 +116,16 @@ export async function getPrediction(
   signal?: AbortSignal,
 ): Promise<Prediction> {
   const response = await fetch(`${BASE}/${encodeURIComponent(id)}`, {
-    method: "GET",
+    method: 'GET',
     signal,
-    headers: { Accept: "application/json" },
-    cache: "no-store",
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
   });
   let body: { message?: string } & Partial<Prediction> = {};
   try {
     body = await parseJson<{ message?: string } & Partial<Prediction>>(response);
-  } catch {
+  }
+  catch {
     /* ignore */
   }
   if (!response.ok) {
@@ -144,22 +147,23 @@ export async function listTopics(
   } = {},
 ): Promise<Topic[] | TrendingTopicDto[]> {
   const params = new URLSearchParams();
-  if (options.trending) params.set("trending", "true");
-  if (options.category?.trim()) params.set("category", options.category.trim());
-  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  if (options.trending) params.set('trending', 'true');
+  if (options.category?.trim()) params.set('category', options.category.trim());
+  if (options.limit !== undefined) params.set('limit', String(options.limit));
   const q = params.toString();
   const url = q ? `${TOPICS_BASE}?${q}` : TOPICS_BASE;
   const response = await fetch(url, {
-    method: "GET",
+    method: 'GET',
     signal: options.signal,
-    headers: { Accept: "application/json" },
-    cache: "no-store",
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
   });
   if (!response.ok) {
     let body: object = {};
     try {
       body = await parseJson<{ message?: string }>(response);
-    } catch {
+    }
+    catch {
       /* ignore */
     }
     throw new ApiError(
@@ -171,7 +175,7 @@ export async function listTopics(
   const result = await parseJson<unknown>(response);
   if (!Array.isArray(result)) {
     throw new ApiError(
-      "Topics response must be a JSON array",
+      'Topics response must be a JSON array',
       response.status,
       result,
     );
@@ -184,20 +188,21 @@ export async function listLeaderboard(
   signal?: AbortSignal,
 ): Promise<LeaderboardRow[]> {
   const params = new URLSearchParams();
-  if (limit !== 8) params.set("limit", String(limit));
+  if (limit !== 8) params.set('limit', String(limit));
   const q = params.toString();
   const url = q ? `${LEADERBOARD_BASE}?${q}` : LEADERBOARD_BASE;
   const response = await fetch(url, {
-    method: "GET",
+    method: 'GET',
     signal,
-    headers: { Accept: "application/json" },
-    cache: "no-store",
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
   });
   if (!response.ok) {
     let body: object = {};
     try {
       body = await parseJson<{ message?: string }>(response);
-    } catch {
+    }
+    catch {
       /* ignore */
     }
     throw new ApiError(
@@ -209,7 +214,7 @@ export async function listLeaderboard(
   const result = await parseJson<unknown>(response);
   if (!Array.isArray(result)) {
     throw new ApiError(
-      "Leaderboard response must be a JSON array",
+      'Leaderboard response must be a JSON array',
       response.status,
       result,
     );
@@ -222,18 +227,19 @@ export async function createPrediction(
   signal?: AbortSignal,
 ): Promise<Prediction> {
   const response = await fetch(BASE, {
-    method: "POST",
+    method: 'POST',
     signal,
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(input),
   });
   let body: { message?: string } & Partial<Prediction> = {};
   try {
     body = await parseJson<{ message?: string } & Partial<Prediction>>(response);
-  } catch {
+  }
+  catch {
     /* ignore parse failures; still branch on status below */
   }
   if (!response.ok) {
@@ -252,18 +258,19 @@ export async function updatePredictionOutcome(
   signal?: AbortSignal,
 ): Promise<Prediction> {
   const response = await fetch(`${BASE}/${encodeURIComponent(id)}`, {
-    method: "PATCH",
+    method: 'PATCH',
     signal,
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ outcome }),
   });
   let body: { message?: string } & Partial<Prediction> = {};
   try {
     body = await parseJson<{ message?: string } & Partial<Prediction>>(response);
-  } catch {
+  }
+  catch {
     /* ignore parse failures; still branch on status below */
   }
   if (!response.ok) {

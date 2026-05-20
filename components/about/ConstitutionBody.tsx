@@ -1,6 +1,6 @@
-import type { Components } from "react-markdown";
-import Markdown from "react-markdown";
-import type { MethodologyTocEntry, MethodologyTocLevel } from "@/lib/methodology-toc";
+import type { Components } from 'react-markdown';
+import Markdown from 'react-markdown';
+import type { MethodologyTocEntry, MethodologyTocLevel } from '@/lib/methodology-toc';
 
 function createMarkdownComponents(
   toc: readonly MethodologyTocEntry[],
@@ -14,7 +14,7 @@ function createMarkdownComponents(
     return next.id;
   };
 
-  const scrollAnchor = "scroll-mt-24";
+  const scrollAnchor = 'scroll-mt-24';
 
   return {
     h2: ({ children }) => {

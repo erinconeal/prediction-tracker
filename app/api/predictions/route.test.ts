@@ -1,18 +1,18 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 async function loadRouteModule() {
   vi.resetModules();
-  return import("./route");
+  return import('./route');
 }
 
-describe("GET /api/predictions route", () => {
+describe('GET /api/predictions route', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  test("given no query params, should return a non-empty list of prediction rows", async () => {
+  test('given no query params, should return a non-empty list of prediction rows', async () => {
     const { GET } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions");
+    const request = new Request('http://localhost/api/predictions');
 
     const response = await GET(request);
     const body = (await response.json()) as Array<{
@@ -27,34 +27,34 @@ describe("GET /api/predictions route", () => {
     expect(body.length).toBeGreaterThan(0);
     expect(
       body.every(
-        (row) =>
-          typeof row.id === "string" &&
-          typeof row.source === "string" &&
-          typeof row.text === "string" &&
-          ["pending", "correct", "incorrect", "unresolved", "invalid"].includes(
+        row =>
+          typeof row.id === 'string'
+          && typeof row.source === 'string'
+          && typeof row.text === 'string'
+          && ['pending', 'correct', 'incorrect', 'unresolved', 'invalid'].includes(
             row.outcome,
           ),
       ),
     ).toBe(true);
   });
 
-  test("given known status filter, should return only matching outcomes", async () => {
+  test('given known status filter, should return only matching outcomes', async () => {
     const { GET } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions?status=correct");
+    const request = new Request('http://localhost/api/predictions?status=correct');
 
     const response = await GET(request);
     const body = (await response.json()) as Array<{ outcome: string }>;
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
-    expect(body.every((row) => row.outcome === "correct")).toBe(true);
+    expect(body.every(row => row.outcome === 'correct')).toBe(true);
   });
 
-  test("given unknown status filter, should ignore it instead of erroring", async () => {
+  test('given unknown status filter, should ignore it instead of erroring', async () => {
     const { GET } = await loadRouteModule();
-    const allRequest = new Request("http://localhost/api/predictions");
+    const allRequest = new Request('http://localhost/api/predictions');
     const unknownStatusRequest = new Request(
-      "http://localhost/api/predictions?status=nope",
+      'http://localhost/api/predictions?status=nope',
     );
 
     const allResponse = await GET(allRequest);
@@ -66,10 +66,10 @@ describe("GET /api/predictions route", () => {
     expect(unknownStatusBody).toEqual(allBody);
   });
 
-  test("given source query by slug, should filter by source", async () => {
+  test('given source query by slug, should filter by source', async () => {
     const { GET } = await loadRouteModule();
     const request = new Request(
-      "http://localhost/api/predictions?source=jane-analyst",
+      'http://localhost/api/predictions?source=jane-analyst',
     );
 
     const response = await GET(request);
@@ -77,56 +77,56 @@ describe("GET /api/predictions route", () => {
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
-    expect(body.every((row) => row.source === "Jane Analyst")).toBe(true);
+    expect(body.every(row => row.source === 'Jane Analyst')).toBe(true);
   });
 
-  test("given topic query, should return only predictions linked to that topic", async () => {
+  test('given topic query, should return only predictions linked to that topic', async () => {
     const { predictionMatchesTopicSlug } = await import(
-      "@/lib/prediction-topic-match"
+      '@/lib/prediction-topic-match',
     );
     const { GET } = await loadRouteModule();
     const request = new Request(
-      "http://localhost/api/predictions?topic=ai-regulation-2026",
+      'http://localhost/api/predictions?topic=ai-regulation-2026',
     );
 
     const response = await GET(request);
-    const body = (await response.json()) as import("@/types/prediction").Prediction[];
+    const body = (await response.json()) as import('@/types/prediction').Prediction[];
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(
-      body.every((row) =>
-        predictionMatchesTopicSlug(row, "ai-regulation-2026"),
+      body.every(row =>
+        predictionMatchesTopicSlug(row, 'ai-regulation-2026'),
       ),
     ).toBe(true);
   });
 
-  test("given category query, should return only matching category case-insensitive", async () => {
+  test('given category query, should return only matching category case-insensitive', async () => {
     const { predictionMatchesCategory } = await import(
-      "@/lib/prediction-topic-match"
+      '@/lib/prediction-topic-match',
     );
     const { GET } = await loadRouteModule();
     const request = new Request(
-      "http://localhost/api/predictions?category=finance",
+      'http://localhost/api/predictions?category=finance',
     );
 
     const response = await GET(request);
-    const body = (await response.json()) as import("@/types/prediction").Prediction[];
+    const body = (await response.json()) as import('@/types/prediction').Prediction[];
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(
-      body.every((row) => predictionMatchesCategory(row, "finance")),
+      body.every(row => predictionMatchesCategory(row, 'finance')),
     ).toBe(true);
   });
 
-  test("given limit and offset, should return stable page slices", async () => {
+  test('given limit and offset, should return stable page slices', async () => {
     const { GET } = await loadRouteModule();
     const first = await GET(
-      new Request("http://localhost/api/predictions?limit=1&offset=0"),
+      new Request('http://localhost/api/predictions?limit=1&offset=0'),
     );
     const second = await GET(
-      new Request("http://localhost/api/predictions?limit=1&offset=1"),
+      new Request('http://localhost/api/predictions?limit=1&offset=1'),
     );
     const a = (await first.json()) as Array<{ id: string }>;
     const b = (await second.json()) as Array<{ id: string }>;
@@ -138,10 +138,10 @@ describe("GET /api/predictions route", () => {
     expect(a[0]!.id).not.toBe(b[0]!.id);
   });
 
-  test("given sort=recently_resolved, should list resolved rows before pending", async () => {
+  test('given sort=recently_resolved, should list resolved rows before pending', async () => {
     const { GET } = await loadRouteModule();
     const response = await GET(
-      new Request("http://localhost/api/predictions?sort=recently_resolved"),
+      new Request('http://localhost/api/predictions?sort=recently_resolved'),
     );
     const body = (await response.json()) as Array<{
       outcome: string;
@@ -150,24 +150,24 @@ describe("GET /api/predictions route", () => {
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThanOrEqual(4);
-    const firstPendingIndex = body.findIndex((r) => r.outcome === "pending");
+    const firstPendingIndex = body.findIndex(r => r.outcome === 'pending');
     let lastResolvedIndex = -1;
     for (let i = 0; i < body.length; i++) {
-      if (body[i]!.outcome !== "pending") lastResolvedIndex = i;
+      if (body[i]!.outcome !== 'pending') lastResolvedIndex = i;
     }
     expect(firstPendingIndex).toBeGreaterThan(lastResolvedIndex);
     expect(
       body
-        .filter((r) => r.outcome !== "pending")
-        .every((r) => typeof r.resolved_at === "string"),
+        .filter(r => r.outcome !== 'pending')
+        .every(r => typeof r.resolved_at === 'string'),
     ).toBe(true);
   });
 
-  test("given unknown sort param, should behave like default ordering", async () => {
+  test('given unknown sort param, should behave like default ordering', async () => {
     const { GET } = await loadRouteModule();
-    const defaultReq = new Request("http://localhost/api/predictions");
+    const defaultReq = new Request('http://localhost/api/predictions');
     const weirdSortReq = new Request(
-      "http://localhost/api/predictions?sort=not-a-sort",
+      'http://localhost/api/predictions?sort=not-a-sort',
     );
     const defaultBody = (await (await GET(defaultReq)).json()) as unknown[];
     const weirdBody = (await (await GET(weirdSortReq)).json()) as unknown[];
@@ -176,50 +176,50 @@ describe("GET /api/predictions route", () => {
   });
 });
 
-describe("POST /api/predictions route", () => {
+describe('POST /api/predictions route', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  test("given invalid JSON body, should return 400", async () => {
+  test('given invalid JSON body, should return 400', async () => {
     const { POST } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: "{ invalid",
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{ invalid',
     });
 
     const response = await POST(request);
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toBe("Invalid JSON body");
+    expect(body.message).toBe('Invalid JSON body');
   });
 
-  test("given missing required strings, should return 400 validation error", async () => {
+  test('given missing required strings, should return 400 validation error', async () => {
     const { POST } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: " ", text: "" }),
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: ' ', text: '' }),
     });
 
     const response = await POST(request);
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain("required strings");
+    expect(body.message).toContain('required strings');
   });
 
-  test("given unknown topicIds, should return 400", async () => {
+  test('given unknown topicIds, should return 400', async () => {
     const { POST } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        source: "New Source",
-        text: "New prediction text",
-        topicIds: ["not-a-real-topic-id"],
+        source: 'New Source',
+        text: 'New prediction text',
+        topicIds: ['not-a-real-topic-id'],
       }),
     });
 
@@ -227,21 +227,21 @@ describe("POST /api/predictions route", () => {
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain("Unknown topicIds");
+    expect(body.message).toContain('Unknown topicIds');
   });
 
-  test("given valid topicIds, should create row and return 201", async () => {
-    const { listTopics } = await import("@/lib/topic-store");
-    const topic = listTopics().find((t) => t.slug === "ai-regulation-2026");
+  test('given valid topicIds, should create row and return 201', async () => {
+    const { listTopics } = await import('@/lib/topic-store');
+    const topic = listTopics().find(t => t.slug === 'ai-regulation-2026');
     expect(topic).toBeDefined();
 
     const { POST } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        source: "New Source",
-        text: "Linked to AI regulation topic",
+        source: 'New Source',
+        text: 'Linked to AI regulation topic',
         topicIds: [topic!.id],
       }),
     });
@@ -254,19 +254,19 @@ describe("POST /api/predictions route", () => {
 
     expect(response.status).toBe(201);
     expect(body.topicIds).toEqual([topic!.id]);
-    expect(body.outcome).toBe("pending");
+    expect(body.outcome).toBe('pending');
   });
 
-  test("given valid payload, should create row and return 201", async () => {
+  test('given valid payload, should create row and return 201', async () => {
     const { POST } = await loadRouteModule();
-    const request = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        source: "  New Source  ",
-        text: "  New prediction text  ",
-        category: "  Markets  ",
-        target_date: "2026-12-31",
+        source: '  New Source  ',
+        text: '  New prediction text  ',
+        category: '  Markets  ',
+        target_date: '2026-12-31',
       }),
     });
 
@@ -283,11 +283,11 @@ describe("POST /api/predictions route", () => {
 
     expect(response.status).toBe(201);
     expect(body.id).toBeTruthy();
-    expect(body.source).toBe("New Source");
-    expect(body.text).toBe("New prediction text");
-    expect(body.category).toBe("Markets");
-    expect(body.sourceSlug).toBe("new-source");
-    expect(body.outcome).toBe("pending");
-    expect(body.target_date).toBe("2026-12-31T00:00:00.000Z");
+    expect(body.source).toBe('New Source');
+    expect(body.text).toBe('New prediction text');
+    expect(body.category).toBe('Markets');
+    expect(body.sourceSlug).toBe('new-source');
+    expect(body.outcome).toBe('pending');
+    expect(body.target_date).toBe('2026-12-31T00:00:00.000Z');
   });
 });

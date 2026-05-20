@@ -1,11 +1,11 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
-const CONSTITUTION_FILENAME = "constitution.md";
+const CONSTITUTION_FILENAME = 'constitution.md';
 
 export async function readConstitutionMarkdown(): Promise<string> {
   const fullPath = path.join(process.cwd(), CONSTITUTION_FILENAME);
-  return readFile(fullPath, "utf8");
+  return readFile(fullPath, 'utf8');
 }
 
 /**
@@ -13,24 +13,24 @@ export async function readConstitutionMarkdown(): Promise<string> {
  */
 export function stripLeadingAtxHeading(markdown: string): string {
   const trimmed = markdown.trimStart();
-  if (!trimmed.startsWith("# ")) {
+  if (!trimmed.startsWith('# ')) {
     return markdown;
   }
-  const firstNewline = trimmed.indexOf("\n");
-  const rest =
-    firstNewline === -1 ? "" : trimmed.slice(firstNewline + 1);
-  return rest.replace(/^\n+/, "");
+  const firstNewline = trimmed.indexOf('\n');
+  const rest
+    = firstNewline === -1 ? '' : trimmed.slice(firstNewline + 1);
+  return rest.replace(/^\n+/, '');
 }
 
 /** Plain text of the first ATX H1 line, if present (e.g. document title + version). */
 export function readLeadingAtxHeadingText(markdown: string): string | null {
   const trimmed = markdown.trimStart();
-  if (!trimmed.startsWith("# ")) {
+  if (!trimmed.startsWith('# ')) {
     return null;
   }
-  const firstNewline = trimmed.indexOf("\n");
-  const line =
-    firstNewline === -1
+  const firstNewline = trimmed.indexOf('\n');
+  const line
+    = firstNewline === -1
       ? trimmed.slice(2)
       : trimmed.slice(2, firstNewline);
   const title = line.trim();

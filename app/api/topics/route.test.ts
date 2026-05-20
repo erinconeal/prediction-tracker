@@ -1,18 +1,18 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 async function loadRouteModule() {
   vi.resetModules();
-  return import("./route");
+  return import('./route');
 }
 
-describe("GET /api/topics route", () => {
+describe('GET /api/topics route', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  test("given no query params, should return a non-empty topic list", async () => {
+  test('given no query params, should return a non-empty topic list', async () => {
     const { GET } = await loadRouteModule();
-    const response = await GET(new Request("http://localhost/api/topics"));
+    const response = await GET(new Request('http://localhost/api/topics'));
     const body = (await response.json()) as Array<{
       id: string;
       slug: string;
@@ -21,13 +21,13 @@ describe("GET /api/topics route", () => {
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
-    expect(body.every((row) => typeof row.slug === "string")).toBe(true);
+    expect(body.every(row => typeof row.slug === 'string')).toBe(true);
   });
 
-  test("given trending=true, should return topics with counts", async () => {
+  test('given trending=true, should return topics with counts', async () => {
     const { GET } = await loadRouteModule();
     const response = await GET(
-      new Request("http://localhost/api/topics?trending=true&limit=3"),
+      new Request('http://localhost/api/topics?trending=true&limit=3'),
     );
     const body = (await response.json()) as Array<{
       slug: string;
@@ -40,16 +40,16 @@ describe("GET /api/topics route", () => {
     expect(body.length).toBeLessThanOrEqual(3);
     expect(
       body.every(
-        (row) =>
-          typeof row.count === "number" && typeof row.recentCount === "number",
+        row =>
+          typeof row.count === 'number' && typeof row.recentCount === 'number',
       ),
     ).toBe(true);
   });
 
-  test("given unknown category slug, should return an empty array", async () => {
+  test('given unknown category slug, should return an empty array', async () => {
     const { GET } = await loadRouteModule();
     const response = await GET(
-      new Request("http://localhost/api/topics?category=not-a-category"),
+      new Request('http://localhost/api/topics?category=not-a-category'),
     );
     const body = await response.json();
 

@@ -1,4 +1,4 @@
-import type { Category } from "@/types/category";
+import type { Category } from '@/types/category';
 
 export type Topic = {
   id: string;

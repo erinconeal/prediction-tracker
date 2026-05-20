@@ -1,12 +1,12 @@
-import Link from "next/link";
-import type { MethodologyTocEntry } from "@/lib/methodology-toc";
+import Link from 'next/link';
+import type { MethodologyTocEntry } from '@/lib/methodology-toc';
 
 type MethodologyTableOfContentsProps = {
   entries: readonly MethodologyTocEntry[];
 };
 
-const linkClassName =
-  "block rounded-md py-2 text-muted transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const linkClassName
+  = 'block rounded-md py-2 text-muted transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 export function MethodologyTableOfContents({
   entries,
@@ -25,14 +25,14 @@ export function MethodologyTableOfContents({
         On this page
       </h2>
       <ol className="mt-3 list-none space-y-0.5 p-0 text-sm">
-        {entries.map((entry) => (
+        {entries.map(entry => (
           <li
             key={entry.id}
             className={
               entry.level === 3
-                ? "ps-3"
+                ? 'ps-3'
                 : entry.level >= 4
-                  ? "ps-6"
+                  ? 'ps-6'
                   : undefined
             }
           >

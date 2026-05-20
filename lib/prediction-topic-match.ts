@@ -1,7 +1,7 @@
-import type { Category } from "@/types/category";
-import { categoryFromSlug, isCategory } from "@/types/category";
-import type { Prediction } from "@/types/prediction";
-import { getTopicBySlug, getTopicsByIds } from "@/lib/topic-store";
+import type { Category } from '@/types/category';
+import { categoryFromSlug, isCategory } from '@/types/category';
+import type { Prediction } from '@/types/prediction';
+import { getTopicBySlug, getTopicsByIds } from '@/lib/topic-store';
 
 export function predictionMatchesTopicSlug(
   p: Prediction,
@@ -24,8 +24,8 @@ export function predictionMatchesCategory(
   }
 
   const linked = getTopicsByIds(p.topicIds);
-  return linked.some((t) =>
-    t.categories.some((cat) => cat.toLowerCase() === c),
+  return linked.some(t =>
+    t.categories.some(cat => cat.toLowerCase() === c),
   );
 }
 

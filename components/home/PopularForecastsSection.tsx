@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
-import { PopularForecastCard } from "@/components/home/PopularForecastCard";
-import { FEATURED_FORECAST_GRID_CLASS } from "@/lib/featured-forecast-columns";
-import type { CategoryTab } from "@/lib/category-tabs";
-import type { Prediction } from "@/types/prediction";
+import Link from 'next/link';
+import { memo } from 'react';
+import { PopularForecastCard } from '@/components/home/PopularForecastCard';
+import { FEATURED_FORECAST_GRID_CLASS } from '@/lib/featured-forecast-columns';
+import type { CategoryTab } from '@/lib/category-tabs';
+import type { Prediction } from '@/types/prediction';
 
 type PopularForecastsSectionProps = {
   predictions: Prediction[];
@@ -37,10 +37,10 @@ export const PopularForecastsSection = memo(function PopularForecastsSection({
   predictions,
   statsContext,
   slotCount,
-  seeAllHref = "#forecasts-heading",
+  seeAllHref = '#forecasts-heading',
   loading = false,
   onCategorySelect,
-  className = "",
+  className = '',
 }: PopularForecastsSectionProps) {
   const visiblePredictions = predictions.slice(0, slotCount);
   return (
@@ -61,23 +61,27 @@ export const PopularForecastsSection = memo(function PopularForecastsSection({
         </Link>
       </div>
 
-      {loading ? (
-        <PopularForecastsSkeleton slotCount={slotCount} />
-      ) : visiblePredictions.length === 0 ? (
-        <p className="text-sm text-muted">No forecasts to highlight yet.</p>
-      ) : (
-        <ul className={FEATURED_FORECAST_GRID_CLASS}>
-          {visiblePredictions.map((p) => (
-            <li key={p.id}>
-              <PopularForecastCard
-                prediction={p}
-                statsContext={statsContext}
-                onCategorySelect={onCategorySelect}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      {loading
+        ? (
+            <PopularForecastsSkeleton slotCount={slotCount} />
+          )
+        : visiblePredictions.length === 0
+          ? (
+              <p className="text-sm text-muted">No forecasts to highlight yet.</p>
+            )
+          : (
+              <ul className={FEATURED_FORECAST_GRID_CLASS}>
+                {visiblePredictions.map(p => (
+                  <li key={p.id}>
+                    <PopularForecastCard
+                      prediction={p}
+                      statsContext={statsContext}
+                      onCategorySelect={onCategorySelect}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
     </div>
   );
 });

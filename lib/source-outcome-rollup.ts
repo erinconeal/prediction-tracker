@@ -1,8 +1,8 @@
-import type { Prediction } from "@/types/prediction";
+import type { Prediction } from '@/types/prediction';
 import {
   isPendingOutcome,
   isScoredOutcome,
-} from "@/lib/prediction-outcome";
+} from '@/lib/prediction-outcome';
 
 /** Per-source counts for constitution-aligned accuracy (§7.2–7.3). */
 export type SourceOutcomeRollup = {
@@ -36,17 +36,17 @@ export function addPredictionToRollup(
     r.pending += 1;
     return;
   }
-  if (p.outcome === "unresolved") {
+  if (p.outcome === 'unresolved') {
     r.outcomeUnresolved += 1;
     return;
   }
-  if (p.outcome === "invalid") {
+  if (p.outcome === 'invalid') {
     r.invalid += 1;
     return;
   }
   if (isScoredOutcome(p.outcome)) {
     r.scored += 1;
-    if (p.outcome === "correct") r.correct += 1;
+    if (p.outcome === 'correct') r.correct += 1;
   }
 }
 

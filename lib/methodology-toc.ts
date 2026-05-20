@@ -15,9 +15,9 @@ export function slugifyMethodologyHeading(text: string): string {
   const base = text
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return base.length > 0 ? base : "section";
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return base.length > 0 ? base : 'section';
 }
 
 function uniqueSlug(base: string, used: Set<string>): string {
@@ -43,7 +43,7 @@ export function extractMethodologyToc(markdown: string): MethodologyTocEntry[] {
 
   for (const line of lines) {
     const trimmedStart = line.trimStart();
-    if (trimmedStart.startsWith("```")) {
+    if (trimmedStart.startsWith('```')) {
       inFence = !inFence;
       continue;
     }
@@ -57,7 +57,7 @@ export function extractMethodologyToc(markdown: string): MethodologyTocEntry[] {
     if (level < 2 || level > 6) continue;
 
     let rawText = m[2].trim();
-    rawText = rawText.replace(/\s+#+\s*$/, "").trim();
+    rawText = rawText.replace(/\s+#+\s*$/, '').trim();
     if (!rawText) continue;
 
     const baseSlug = slugifyMethodologyHeading(rawText);

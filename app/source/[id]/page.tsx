@@ -1,4 +1,4 @@
-import { SourceDetailView } from "@/components/source/SourceDetailView";
+import { SourceDetailView } from '@/components/source/SourceDetailView';
 
 type PageProps = {
   params: Promise<{ id: string }>;

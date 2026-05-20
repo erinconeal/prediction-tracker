@@ -1,9 +1,9 @@
-import type { Prediction } from "@/types/prediction";
+import type { Prediction } from '@/types/prediction';
 import {
   accuracyPercentFromRollup,
   emptySourceOutcomeRollup,
   addPredictionToRollup,
-} from "@/lib/source-outcome-rollup";
+} from '@/lib/source-outcome-rollup';
 
 export type SourceAccuracyStats = {
   name: string;
@@ -34,14 +34,14 @@ export function computeSourceAccuracyStats(
     primaryName?: string | null;
   },
 ): SourceAccuracyStats {
-  const name =
-    (options.primaryName !== null &&
-    options.primaryName !== undefined &&
-    options.primaryName !== ""
+  const name
+    = (options.primaryName !== null
+      && options.primaryName !== undefined
+      && options.primaryName !== ''
       ? options.primaryName
-      : undefined) ??
-    predictions[0]?.source ??
-    options.nameFallback;
+      : undefined)
+    ?? predictions[0]?.source
+    ?? options.nameFallback;
 
   const rollup = emptySourceOutcomeRollup();
   for (const p of predictions) {

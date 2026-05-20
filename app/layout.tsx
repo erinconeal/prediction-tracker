@@ -1,37 +1,37 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 import {
   IBM_Plex_Mono,
   Instrument_Serif,
   Source_Sans_3,
-} from "next/font/google";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import "./globals.css";
+} from 'next/font/google';
+import { SiteHeader } from '@/components/layout/SiteHeader';
+import './globals.css';
 
 const instrumentSerif = Instrument_Serif({
-  variable: "--font-pt-display",
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
+  variable: '--font-pt-display',
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
 });
 
 const sourceSans3 = Source_Sans_3({
-  variable: "--font-pt-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
+  variable: '--font-pt-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-pt-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
+  variable: '--font-pt-mono',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Prediction Tracker",
+  title: 'Prediction Tracker',
   description:
-    "Track predictions from public figures and measure accuracy over time.",
+    'Track predictions from public figures and measure accuracy over time.',
 };
 
 export default function RootLayout({

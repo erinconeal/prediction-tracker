@@ -1,6 +1,6 @@
 /** Matches `PopularForecastsSection` grid: 1 col default, 3 at lg, 4 at xl. */
-export const FEATURED_FORECAST_GRID_CLASS =
-  "grid list-none gap-4 lg:grid-cols-3 xl:grid-cols-4";
+export const FEATURED_FORECAST_GRID_CLASS
+  = 'grid list-none gap-4 lg:grid-cols-3 xl:grid-cols-4';
 
 export const FEATURED_FORECAST_MAX_SLOTS = 4;
 

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { memo, type ReactNode } from "react";
+import { memo, type ReactNode } from 'react';
 import {
   forecastCardHeaderClass,
   forecastCardShellClass,
-} from "./forecast-card-tokens";
+} from './forecast-card-tokens';
 
 type ForecastCardShellProps = {
   headerStart: ReactNode;
@@ -19,7 +19,7 @@ export const ForecastCardShell = memo(function ForecastCardShell({
   headerEnd,
   title,
   footer,
-  className = "",
+  className = '',
 }: ForecastCardShellProps) {
   return (
     <article

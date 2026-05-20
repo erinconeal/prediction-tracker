@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo, type ReactNode } from "react";
-import { formatIsoDate, formatMonthYear } from "@/utils/format-date";
-import type { Prediction } from "@/types/prediction";
-import { OutcomeBadge } from "./OutcomeBadge";
+import Link from 'next/link';
+import { memo, type ReactNode } from 'react';
+import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
+import type { Prediction } from '@/types/prediction';
+import { OutcomeBadge } from './OutcomeBadge';
 
-export type PredictionCardSize = "compact" | "default" | "featured";
+export type PredictionCardSize = 'compact' | 'default' | 'featured';
 
 export type PredictionCardProps = {
   prediction: Prediction;
@@ -24,47 +24,49 @@ export type PredictionCardProps = {
 };
 
 const sizeClass: Record<PredictionCardSize, string> = {
-  compact: "p-4",
-  default: "p-5",
-  featured: "p-6 sm:p-8",
+  compact: 'p-4',
+  default: 'p-5',
+  featured: 'p-6 sm:p-8',
 };
 
 const textClass: Record<PredictionCardSize, string> = {
-  compact: "text-base leading-snug",
-  default: "text-lg leading-snug",
-  featured: "text-xl leading-snug sm:text-2xl",
+  compact: 'text-base leading-snug',
+  default: 'text-lg leading-snug',
+  featured: 'text-xl leading-snug sm:text-2xl',
 };
 
-const linkSourceClass =
-  "text-muted underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const linkSourceClass
+  = 'text-muted underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 export const PredictionCard = memo(function PredictionCard({
   prediction: p,
-  size = "default",
+  size = 'default',
   linkSource = true,
   scoreSlot,
   footerSlot,
   showCreatedAt = false,
-  className = "",
+  className = '',
 }: PredictionCardProps) {
   const pad = sizeClass[size];
   const quoteClass = `font-semibold text-foreground ${textClass[size]}`;
 
-  const sourceBody = linkSource ? (
-    <Link
-      href={`/source/${encodeURIComponent(p.sourceSlug)}`}
-      className={linkSourceClass}
-    >
-      {p.source}
-    </Link>
-  ) : (
-    <span className="text-muted">{p.source}</span>
-  );
+  const sourceBody = linkSource
+    ? (
+        <Link
+          href={`/source/${encodeURIComponent(p.sourceSlug)}`}
+          className={linkSourceClass}
+        >
+          {p.source}
+        </Link>
+      )
+    : (
+        <span className="text-muted">{p.source}</span>
+      );
 
-  const dtClass =
-    "font-normal uppercase tracking-wide text-muted";
-  const ddClass = "text-muted";
-  const categoryDdClass = "text-muted";
+  const dtClass
+    = 'font-normal uppercase tracking-wide text-muted';
+  const ddClass = 'text-muted';
+  const categoryDdClass = 'text-muted';
 
   return (
     <article
@@ -81,27 +83,33 @@ export const PredictionCard = memo(function PredictionCard({
             <dd className={`min-w-0 ${ddClass}`}>{sourceBody}</dd>
             <dt className={dtClass}>Category</dt>
             <dd className={categoryDdClass}>
-              {p.category?.trim() ? p.category : "—"}
+              {p.category?.trim() ? p.category : '—'}
             </dd>
             <dt className={dtClass}>Target date</dt>
             <dd className={ddClass}>
-              {p.target_date ? formatMonthYear(p.target_date) : "—"}
+              {p.target_date ? formatMonthYear(p.target_date) : '—'}
             </dd>
-            {showCreatedAt ? (
-              <>
-                <dt className={dtClass}>Added</dt>
-                <dd className={ddClass}>{formatIsoDate(p.created_at)}</dd>
-              </>
-            ) : null}
+            {showCreatedAt
+              ? (
+                  <>
+                    <dt className={dtClass}>Added</dt>
+                    <dd className={ddClass}>{formatIsoDate(p.created_at)}</dd>
+                  </>
+                )
+              : null}
           </div>
         </dl>
-        {scoreSlot ? (
-          <div className="text-sm text-muted">{scoreSlot}</div>
-        ) : null}
+        {scoreSlot
+          ? (
+              <div className="text-sm text-muted">{scoreSlot}</div>
+            )
+          : null}
       </div>
-      {footerSlot ? (
-        <div className="mt-4 border-t border-border pt-4">{footerSlot}</div>
-      ) : null}
+      {footerSlot
+        ? (
+            <div className="mt-4 border-t border-border pt-4">{footerSlot}</div>
+          )
+        : null}
     </article>
   );
 });

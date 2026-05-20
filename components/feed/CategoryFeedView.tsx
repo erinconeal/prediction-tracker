@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useMemo } from "react";
+import Link from 'next/link';
+import { useMemo } from 'react';
 import {
   breadcrumbLinkClass,
   DiscoveryFeedLayout,
-} from "@/components/feed/DiscoveryFeedLayout";
-import { FeedSidebar } from "@/components/feed/FeedSidebar";
-import { outcomeLabels } from "@/components/predictions/outcome-display";
-import { useDiscoveryFeedPage } from "@/hooks/useDiscoveryFeedPage";
-import { useTrendingTopics } from "@/hooks/useTrendingTopics";
-import { categoryToSlug, type Category } from "@/types/category";
-import type { Outcome } from "@/types/prediction";
+} from '@/components/feed/DiscoveryFeedLayout';
+import { FeedSidebar } from '@/components/feed/FeedSidebar';
+import { outcomeLabels } from '@/components/predictions/outcome-display';
+import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
+import { useTrendingTopics } from '@/hooks/useTrendingTopics';
+import { categoryToSlug, type Category } from '@/types/category';
+import type { Outcome } from '@/types/prediction';
 
 type CategoryFeedViewProps = {
   category: Category;
 };
 
 export function CategoryFeedView({ category }: CategoryFeedViewProps) {
-  const feed = useDiscoveryFeedPage({ kind: "category", category });
+  const feed = useDiscoveryFeedPage({ kind: 'category', category });
   const trending = useTrendingTopics({
     category: categoryToSlug(category),
     limit: 5,
   });
 
   const emptyMessage = useMemo(() => {
-    if (feed.outcomeFilter !== "all") {
+    if (feed.outcomeFilter !== 'all') {
       return `No ${outcomeLabels[feed.outcomeFilter as Outcome].toLowerCase()} forecasts in ${category} yet.`;
     }
     return `No predictions in ${category} yet.`;
@@ -33,7 +33,7 @@ export function CategoryFeedView({ category }: CategoryFeedViewProps) {
 
   return (
     <DiscoveryFeedLayout
-      header={
+      header={(
         <>
           <p className="text-sm text-muted">
             <Link href="/" className={breadcrumbLinkClass}>
@@ -46,7 +46,7 @@ export function CategoryFeedView({ category }: CategoryFeedViewProps) {
             {category}
           </h1>
         </>
-      }
+      )}
       emptyMessage={emptyMessage}
       listSort={feed.listSort}
       onListSortChange={feed.setListSort}
@@ -60,7 +60,7 @@ export function CategoryFeedView({ category }: CategoryFeedViewProps) {
       hasMore={feed.hasMore}
       onRetry={() => void feed.refetch()}
       onLoadMore={() => void feed.loadMore()}
-      sidebar={
+      sidebar={(
         <FeedSidebar
           activeCategory={category}
           trendingTopics={trending.data}
@@ -68,7 +68,7 @@ export function CategoryFeedView({ category }: CategoryFeedViewProps) {
           recentResolutions={feed.recentResolutions}
           platformStats={feed.platformStats}
         />
-      }
+      )}
     />
   );
 }

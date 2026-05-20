@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import { ConstitutionBody } from "@/components/about/ConstitutionBody";
-import { MethodologyTableOfContents } from "@/components/about/MethodologyTableOfContents";
+import type { Metadata } from 'next';
+import { ConstitutionBody } from '@/components/about/ConstitutionBody';
+import { MethodologyTableOfContents } from '@/components/about/MethodologyTableOfContents';
 import {
   readConstitutionMarkdown,
   readLeadingAtxHeadingText,
   stripLeadingAtxHeading,
-} from "@/lib/constitution";
-import { extractMethodologyToc } from "@/lib/methodology-toc";
+} from '@/lib/constitution';
+import { extractMethodologyToc } from '@/lib/methodology-toc';
 
 export const metadata: Metadata = {
-  title: "About — Methodology",
+  title: 'About — Methodology',
   description:
-    "How Prediction Tracker scores predictions: eligibility, resolution, accuracy, and transparency rules from the scoring constitution.",
+    'How Prediction Tracker scores predictions: eligibility, resolution, accuracy, and transparency rules from the scoring constitution.',
 };
 
 export default async function AboutPage() {
@@ -26,11 +26,14 @@ export default async function AboutPage() {
         <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground">
           About
         </h1>
-        {documentTitle ? (
-          <p className="text-sm font-medium text-muted">{documentTitle}</p>
-        ) : null}
+        {documentTitle
+          ? (
+              <p className="text-sm font-medium text-muted">{documentTitle}</p>
+            )
+          : null}
         <p className="text-lg leading-relaxed text-muted">
-          This page publishes the full{" "}
+          This page publishes the full
+          {' '}
           <span className="font-medium text-foreground">scoring constitution</span>
           : the canonical methodology for what counts as a prediction, how
           outcomes are assigned, and how accuracy is reported. Metrics in the app

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, listLeaderboard } from "@/services/api";
-import type { LeaderboardRow } from "@/lib/leaderboard";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ApiError, listLeaderboard } from '@/services/api';
+import type { LeaderboardRow } from '@/lib/leaderboard';
+import { isAbortError } from '@/utils/is-abort-error';
 
 export type UseLeaderboardResult = {
   rows: LeaderboardRow[];
@@ -30,12 +30,14 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
         const data = await listLeaderboard(limit, controller.signal);
         if (genRef.current !== gen) return;
         setRows(data);
-      } catch (e: unknown) {
+      }
+      catch (e: unknown) {
         if (isAbortError(e)) return;
         if (genRef.current !== gen) return;
-        setError(e instanceof ApiError ? e.message : "Something went wrong");
+        setError(e instanceof ApiError ? e.message : 'Something went wrong');
         setRows([]);
-      } finally {
+      }
+      finally {
         if (genRef.current === gen) setLoading(false);
       }
     }
@@ -61,11 +63,13 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
       const data = await listLeaderboard(limit, controller.signal);
       if (genRef.current !== gen) return;
       setRows(data);
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (isAbortError(e)) return;
       if (genRef.current !== gen) return;
-      setError(e instanceof ApiError ? e.message : "Something went wrong");
-    } finally {
+      setError(e instanceof ApiError ? e.message : 'Something went wrong');
+    }
+    finally {
       if (genRef.current === gen) setLoading(false);
       if (refetchAbortRef.current === controller) {
         refetchAbortRef.current = null;

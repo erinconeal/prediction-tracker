@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { BrowseForecastCard } from "@/components/predictions/BrowseForecastCard";
-import type { CategoryTab } from "@/lib/category-tabs";
-import type { Outcome, Prediction } from "@/types/prediction";
+import { memo } from 'react';
+import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
+import type { CategoryTab } from '@/lib/category-tabs';
+import type { Outcome, Prediction } from '@/types/prediction';
 
 type PredictionFeedListProps = {
   predictions: Prediction[];
   loading: boolean;
   emptyMessage?: string;
-  outcomeFilter: Outcome | "all";
+  outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
   onCategorySelect?: (tab: CategoryTab) => void;
 };
@@ -17,7 +17,7 @@ type PredictionFeedListProps = {
 export const PredictionFeedList = memo(function PredictionFeedList({
   predictions,
   loading,
-  emptyMessage = "No predictions in this view yet.",
+  emptyMessage = 'No predictions in this view yet.',
   outcomeFilter,
   onOutcomeFilter,
   onCategorySelect,
@@ -25,7 +25,7 @@ export const PredictionFeedList = memo(function PredictionFeedList({
   if (loading && predictions.length === 0) {
     return (
       <ul className="space-y-4" aria-busy="true" aria-label="Loading predictions">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3, 4].map(i => (
           <li key={i} className="list-none">
             <div className="h-40 animate-pulse rounded-xl bg-surface" />
           </li>
@@ -44,7 +44,7 @@ export const PredictionFeedList = memo(function PredictionFeedList({
 
   return (
     <ul className="space-y-4">
-      {predictions.map((p) => (
+      {predictions.map(p => (
         <li key={p.id} className="list-none">
           <BrowseForecastCard
             prediction={p}

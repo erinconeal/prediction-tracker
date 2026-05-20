@@ -1,27 +1,27 @@
-import type { Outcome } from "@/types/prediction";
+import type { Outcome } from '@/types/prediction';
 
 export const outcomeStyles: Record<Outcome, string> = {
   pending:
-    "border border-warning/40 bg-warning/15 text-foreground",
-  correct: "bg-success/15 text-success",
-  incorrect: "bg-error/15 text-error",
-  unresolved: "bg-info/15 text-info",
+    'border border-warning/40 bg-warning/15 text-foreground',
+  correct: 'bg-success/15 text-success',
+  incorrect: 'bg-error/15 text-error',
+  unresolved: 'bg-info/15 text-info',
   invalid:
-    "border border-border bg-surface text-muted ring-1 ring-border/80",
+    'border border-border bg-surface text-muted ring-1 ring-border/80',
 };
 
 export const outcomeLabels: Record<Outcome, string> = {
-  pending: "Pending",
-  correct: "Correct",
-  incorrect: "Incorrect",
-  unresolved: "Unresolved",
-  invalid: "Invalid",
+  pending: 'Pending',
+  correct: 'Correct',
+  incorrect: 'Incorrect',
+  unresolved: 'Unresolved',
+  invalid: 'Invalid',
 };
 
 export function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
-  const cls = "size-3 shrink-0 stroke-current";
+  const cls = 'size-3 shrink-0 stroke-current';
   switch (outcome) {
-    case "pending":
+    case 'pending':
       return (
         <svg className={cls} viewBox="0 0 12 12" fill="none" aria-hidden>
           <circle cx="6" cy="6" r="4.25" strokeWidth="1.25" />
@@ -33,7 +33,7 @@ export function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
           />
         </svg>
       );
-    case "correct":
+    case 'correct':
       return (
         <svg className={cls} viewBox="0 0 12 12" fill="none" aria-hidden>
           <path
@@ -44,7 +44,7 @@ export function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
           />
         </svg>
       );
-    case "incorrect":
+    case 'incorrect':
       return (
         <svg className={cls} viewBox="0 0 12 12" fill="none" aria-hidden>
           <path
@@ -54,7 +54,7 @@ export function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
           />
         </svg>
       );
-    case "unresolved":
+    case 'unresolved':
       return (
         <svg className={cls} viewBox="0 0 12 12" fill="none" aria-hidden>
           <circle cx="6" cy="6" r="4.25" strokeWidth="1.25" />
@@ -65,7 +65,7 @@ export function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
           />
         </svg>
       );
-    case "invalid":
+    case 'invalid':
       return (
         <svg className={cls} viewBox="0 0 12 12" fill="none" aria-hidden>
           <circle cx="6" cy="6" r="4.25" strokeWidth="1.25" />

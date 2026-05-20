@@ -1,35 +1,35 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 async function loadRoutes() {
   vi.resetModules();
-  const collection = await import("../route");
-  const item = await import("./route");
+  const collection = await import('../route');
+  const item = await import('./route');
   return { ...collection, ...item };
 }
 
-describe("GET /api/predictions/[id] route", () => {
+describe('GET /api/predictions/[id] route', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  test("given unknown id, should return 404", async () => {
+  test('given unknown id, should return 404', async () => {
     const { GET } = await loadRoutes();
     const response = await GET(
-      new Request("http://localhost/api/predictions/nope"),
-      { params: Promise.resolve({ id: "nope" }) },
+      new Request('http://localhost/api/predictions/nope'),
+      { params: Promise.resolve({ id: 'nope' }) },
     );
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(404);
-    expect(body.message).toBe("Prediction not found");
+    expect(body.message).toBe('Prediction not found');
   });
 
-  test("given existing id, should return prediction row", async () => {
+  test('given existing id, should return prediction row', async () => {
     const { POST, GET } = await loadRoutes();
-    const createRequest = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: "GET Source", text: "Row for GET" }),
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'GET Source', text: 'Row for GET' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -44,68 +44,68 @@ describe("GET /api/predictions/[id] route", () => {
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
-    expect(body.text).toBe("Row for GET");
+    expect(body.text).toBe('Row for GET');
   });
 });
 
-describe("PATCH /api/predictions/[id] route", () => {
+describe('PATCH /api/predictions/[id] route', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  test("given invalid JSON body, should return 400", async () => {
+  test('given invalid JSON body, should return 400', async () => {
     const { PATCH } = await loadRoutes();
-    const request = new Request("http://localhost/api/predictions/x", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: "{ bad-json",
+    const request = new Request('http://localhost/api/predictions/x', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{ bad-json',
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: "x" }) });
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'x' }) });
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toBe("Invalid JSON body");
+    expect(body.message).toBe('Invalid JSON body');
   });
 
-  test("given unsupported outcome, should return 400", async () => {
+  test('given unsupported outcome, should return 400', async () => {
     const { PATCH } = await loadRoutes();
-    const request = new Request("http://localhost/api/predictions/x", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ outcome: "pending" }),
+    const request = new Request('http://localhost/api/predictions/x', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: 'pending' }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: "x" }) });
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'x' }) });
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain("must be");
+    expect(body.message).toContain('must be');
   });
 
-  test("given unknown id, should return 404", async () => {
+  test('given unknown id, should return 404', async () => {
     const { PATCH } = await loadRoutes();
-    const request = new Request("http://localhost/api/predictions/does-not-exist", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ outcome: "correct" }),
+    const request = new Request('http://localhost/api/predictions/does-not-exist', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: 'correct' }),
     });
 
     const response = await PATCH(request, {
-      params: Promise.resolve({ id: "does-not-exist" }),
+      params: Promise.resolve({ id: 'does-not-exist' }),
     });
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(404);
-    expect(body.message).toBe("Prediction not found");
+    expect(body.message).toBe('Prediction not found');
   });
 
-  test("given existing id and unresolved outcome, should patch and return updated row", async () => {
+  test('given existing id and unresolved outcome, should patch and return updated row', async () => {
     const { POST, PATCH } = await loadRoutes();
-    const createRequest = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: "Patch Source", text: "Update me" }),
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -115,9 +115,9 @@ describe("PATCH /api/predictions/[id] route", () => {
     const patchRequest = new Request(
       `http://localhost/api/predictions/${created.id}`,
       {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outcome: "unresolved" }),
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ outcome: 'unresolved' }),
       },
     );
     const response = await PATCH(patchRequest, {
@@ -131,16 +131,16 @@ describe("PATCH /api/predictions/[id] route", () => {
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
-    expect(body.outcome).toBe("unresolved");
-    expect(typeof body.resolved_at).toBe("string");
+    expect(body.outcome).toBe('unresolved');
+    expect(typeof body.resolved_at).toBe('string');
   });
 
-  test("given existing id and incorrect outcome, should patch and return updated row", async () => {
+  test('given existing id and incorrect outcome, should patch and return updated row', async () => {
     const { POST, PATCH } = await loadRoutes();
-    const createRequest = new Request("http://localhost/api/predictions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: "Patch Source", text: "Update me" }),
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -150,9 +150,9 @@ describe("PATCH /api/predictions/[id] route", () => {
     const patchRequest = new Request(
       `http://localhost/api/predictions/${created.id}`,
       {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outcome: "incorrect" }),
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ outcome: 'incorrect' }),
       },
     );
     const response = await PATCH(patchRequest, {
@@ -166,7 +166,7 @@ describe("PATCH /api/predictions/[id] route", () => {
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
-    expect(body.outcome).toBe("incorrect");
-    expect(typeof body.resolved_at).toBe("string");
+    expect(body.outcome).toBe('incorrect');
+    expect(typeof body.resolved_at).toBe('string');
   });
 });

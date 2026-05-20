@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, listPredictions } from "@/services/api";
-import type { Prediction, PredictionFilters } from "@/types/prediction";
-import { getFilterKey } from "@/utils/filter-key";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ApiError, listPredictions } from '@/services/api';
+import type { Prediction, PredictionFilters } from '@/types/prediction';
+import { getFilterKey } from '@/utils/filter-key';
+import { isAbortError } from '@/utils/is-abort-error';
 
 export type UsePredictionsResult = {
   data: Prediction[];
@@ -64,7 +64,8 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
       if (cached) {
         setData(cached);
         setLoading(false);
-      } else {
+      }
+      else {
         setLoading(true);
       }
       setError(null);
@@ -77,13 +78,15 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
         if (fetchGenerationRef.current !== generation) return;
         cacheRef.current.set(filterKey, result);
         setData(result);
-      } catch (e: unknown) {
+      }
+      catch (e: unknown) {
         if (isAbortError(e)) return;
         if (fetchGenerationRef.current !== generation) return;
-        const message =
-          e instanceof ApiError ? e.message : "Something went wrong";
+        const message
+          = e instanceof ApiError ? e.message : 'Something went wrong';
         setError(message);
-      } finally {
+      }
+      finally {
         // Only the newest generation clears loading (avoids races with aborted runs).
         if (fetchGenerationRef.current === generation) setLoading(false);
       }
@@ -106,7 +109,8 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
     if (cached) {
       setData(cached);
       setLoading(false);
-    } else {
+    }
+    else {
       setLoading(true);
     }
     setError(null);
@@ -120,13 +124,15 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
       const appliedKey = getFilterKey(filtersRef.current);
       cacheRef.current.set(appliedKey, result);
       setData(result);
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (isAbortError(e)) return;
       if (fetchGenerationRef.current !== generation) return;
-      const message =
-        e instanceof ApiError ? e.message : "Something went wrong";
+      const message
+        = e instanceof ApiError ? e.message : 'Something went wrong';
       setError(message);
-    } finally {
+    }
+    finally {
       if (fetchGenerationRef.current === generation) setLoading(false);
       // Another refetch() may have replaced the controller; only clear if ours is still current.
       if (refetchAbortRef.current === controller) {

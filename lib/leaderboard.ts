@@ -1,11 +1,11 @@
-import { comparePredictionsNewestFirst } from "@/lib/prediction-sort";
-import { isScoredOutcome } from "@/lib/prediction-outcome";
+import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
+import { isScoredOutcome } from '@/lib/prediction-outcome';
 import {
   accuracyPercentFromRollup,
   rollupBySource,
   type SourceOutcomeRollup,
-} from "@/lib/source-outcome-rollup";
-import type { Prediction } from "@/types/prediction";
+} from '@/lib/source-outcome-rollup';
+import type { Prediction } from '@/types/prediction';
 
 export type LeaderboardRow = {
   rank: number;
@@ -29,7 +29,7 @@ export type LeaderboardRow = {
    * (same ordering as the main feed: `created_at` desc, then global rank when
    * timestamps tie). Null when nothing scored for the source.
    */
-  streakKind: "correct" | "incorrect" | null;
+  streakKind: 'correct' | 'incorrect' | null;
   streakLength: number;
 };
 
@@ -47,18 +47,18 @@ function groupPredictionsBySource(predictions: Prediction[]) {
 function scoredOutcomeStreak(
   sourcePredictions: Prediction[],
   globalRankById: Map<string, number>,
-): { kind: "correct" | "incorrect"; length: number } | null {
+): { kind: 'correct' | 'incorrect'; length: number } | null {
   const scored = sourcePredictions
-    .filter((p) => isScoredOutcome(p.outcome))
+    .filter(p => isScoredOutcome(p.outcome))
     .sort((a, b) => {
-      const t =
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      const t
+        = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (t !== 0) return t;
       return (globalRankById.get(a.id) ?? 0) - (globalRankById.get(b.id) ?? 0);
     });
   if (scored.length === 0) return null;
   const head = scored[0]!;
-  const kind = head.outcome as "correct" | "incorrect";
+  const kind = head.outcome as 'correct' | 'incorrect';
   let length = 0;
   for (const p of scored) {
     if (p.outcome !== kind) break;
@@ -73,8 +73,8 @@ function sourceSlugForSource(
   globalRankById: Map<string, number>,
 ): string {
   const sorted = [...sourcePredictions].sort((a, b) => {
-    const t =
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const t
+      = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     if (t !== 0) return t;
     return (globalRankById.get(a.id) ?? 0) - (globalRankById.get(b.id) ?? 0);
   });

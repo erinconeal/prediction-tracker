@@ -1,11 +1,11 @@
 /** Fixed category allowlist for browse rails and feed filters. */
 export const CATEGORIES = [
-  "Tech",
-  "Sports",
-  "Politics",
-  "Finance",
-  "Weather",
-  "Historical",
+  'Tech',
+  'Sports',
+  'Politics',
+  'Finance',
+  'Weather',
+  'Historical',
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];

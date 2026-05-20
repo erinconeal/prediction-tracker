@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 export type CategoryDisplay = {
   label: string;
@@ -60,27 +60,27 @@ function DefaultIcon() {
 
 const CATEGORY_RULES: {
   match: RegExp;
-  display: Omit<CategoryDisplay, "label"> & { label?: string };
+  display: Omit<CategoryDisplay, 'label'> & { label?: string };
 }[] = [
   {
     match: /finance|fed|rate|market|econom/i,
     display: {
       icon: <FinanceIcon />,
-      iconWrapClass: "bg-interactive/10 text-interactive",
+      iconWrapClass: 'bg-interactive/10 text-interactive',
     },
   },
   {
     match: /tech|ai|software|crypto|bitcoin/i,
     display: {
       icon: <TechIcon />,
-      iconWrapClass: "bg-primary/10 text-primary",
+      iconWrapClass: 'bg-primary/10 text-primary',
     },
   },
   {
     match: /politic|election|debate|president|congress/i,
     display: {
       icon: <PoliticsIcon />,
-      iconWrapClass: "bg-ink/10 text-ink",
+      iconWrapClass: 'bg-ink/10 text-ink',
     },
   },
 ];
@@ -88,7 +88,7 @@ const CATEGORY_RULES: {
 export function categoryDisplayFromName(
   category: string | null | undefined,
 ): CategoryDisplay {
-  const raw = category?.trim() || "General";
+  const raw = category?.trim() || 'General';
   const label = raw.toUpperCase();
 
   for (const rule of CATEGORY_RULES) {
@@ -104,6 +104,6 @@ export function categoryDisplayFromName(
   return {
     label,
     icon: <DefaultIcon />,
-    iconWrapClass: "bg-surface text-muted ring-1 ring-border",
+    iconWrapClass: 'bg-surface text-muted ring-1 ring-border',
   };
 }

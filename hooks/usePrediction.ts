@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, getPrediction } from "@/services/api";
-import type { Prediction } from "@/types/prediction";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ApiError, getPrediction } from '@/services/api';
+import type { Prediction } from '@/types/prediction';
+import { isAbortError } from '@/utils/is-abort-error';
 
 export type UsePredictionResult = {
   prediction: Prediction | null;
@@ -30,17 +30,20 @@ export function usePrediction(id: string): UsePredictionResult {
         const row = await getPrediction(id, controller.signal);
         if (genRef.current !== gen) return;
         setPrediction(row);
-      } catch (e: unknown) {
+      }
+      catch (e: unknown) {
         if (isAbortError(e)) return;
         if (genRef.current !== gen) return;
         if (e instanceof ApiError && e.status === 404) {
           setPrediction(null);
-          setError("Prediction not found.");
-        } else {
-          setError(e instanceof ApiError ? e.message : "Something went wrong");
+          setError('Prediction not found.');
+        }
+        else {
+          setError(e instanceof ApiError ? e.message : 'Something went wrong');
           setPrediction(null);
         }
-      } finally {
+      }
+      finally {
         if (genRef.current === gen) setLoading(false);
       }
     }
@@ -66,16 +69,19 @@ export function usePrediction(id: string): UsePredictionResult {
       const row = await getPrediction(id, controller.signal);
       if (genRef.current !== gen) return;
       setPrediction(row);
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (isAbortError(e)) return;
       if (genRef.current !== gen) return;
       if (e instanceof ApiError && e.status === 404) {
         setPrediction(null);
-        setError("Prediction not found.");
-      } else {
-        setError(e instanceof ApiError ? e.message : "Something went wrong");
+        setError('Prediction not found.');
       }
-    } finally {
+      else {
+        setError(e instanceof ApiError ? e.message : 'Something went wrong');
+      }
+    }
+    finally {
       if (genRef.current === gen) setLoading(false);
       if (refetchAbortRef.current === controller) {
         refetchAbortRef.current = null;

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { listTopics } from "@/services/api";
-import type { Topic } from "@/types/topic";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useEffect, useState } from 'react';
+import { listTopics } from '@/services/api';
+import type { Topic } from '@/types/topic';
+import { isAbortError } from '@/utils/is-abort-error';
 
 let sharedCatalog: Topic[] | null = null;
 let sharedCatalogPromise: Promise<Topic[]> | null = null;
@@ -58,7 +58,7 @@ export function useTopicCatalog(): {
   const getTopicsByIds = (ids: string[]) => {
     if (ids.length === 0) return [];
     const set = new Set(ids);
-    return topics.filter((t) => set.has(t.id));
+    return topics.filter(t => set.has(t.id));
   };
 
   return { topics, loading, getTopicsByIds };

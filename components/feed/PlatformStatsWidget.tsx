@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import type { FeedPlatformStats } from "@/lib/feed-platform-stats";
+import { memo } from 'react';
+import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
 import {
   formatAccuracyPercent,
   formatTrackedCount,
-} from "@/lib/feed-platform-stats";
+} from '@/lib/feed-platform-stats';
 
 type PlatformStatsWidgetProps = {
   stats: FeedPlatformStats;
@@ -14,7 +14,7 @@ type PlatformStatsWidgetProps = {
 
 export const PlatformStatsWidget = memo(function PlatformStatsWidget({
   stats,
-  className = "",
+  className = '',
 }: PlatformStatsWidgetProps) {
   return (
     <section

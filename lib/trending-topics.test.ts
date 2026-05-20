@@ -1,13 +1,13 @@
-import { describe, expect, test } from "vitest";
-import type { Category } from "@/types/category";
-import type { Prediction } from "@/types/prediction";
-import type { Topic } from "@/types/topic";
-import { rankTrendingTopics } from "./trending-topics";
+import { describe, expect, test } from 'vitest';
+import type { Category } from '@/types/category';
+import type { Prediction } from '@/types/prediction';
+import type { Topic } from '@/types/topic';
+import { rankTrendingTopics } from './trending-topics';
 
 function topic(
   id: string,
   slug: string,
-  categories: Category[] = ["Tech"],
+  categories: Category[] = ['Tech'],
 ): Topic {
   return { id, slug, name: slug, categories };
 }
@@ -17,46 +17,46 @@ function row(
   created_at: string,
 ): Prediction {
   return {
-    id: "x",
-    source: "S",
-    sourceSlug: "s",
-    text: "t",
-    category: "Tech",
+    id: 'x',
+    source: 'S',
+    sourceSlug: 's',
+    text: 't',
+    category: 'Tech',
     topicIds,
     created_at,
     resolved_at: null,
     target_date: null,
-    outcome: "pending",
+    outcome: 'pending',
   };
 }
 
-describe("rankTrendingTopics", () => {
-  const now = Date.parse("2024-06-15T12:00:00.000Z");
-  const tA = topic("t-a", "topic-a");
-  const tB = topic("t-b", "topic-b", ["Finance"]);
+describe('rankTrendingTopics', () => {
+  const now = Date.parse('2024-06-15T12:00:00.000Z');
+  const tA = topic('t-a', 'topic-a');
+  const tB = topic('t-b', 'topic-b', ['Finance']);
 
-  test("ranks by recent count then total count", () => {
+  test('ranks by recent count then total count', () => {
     const predictions = [
-      row(["t-a"], "2024-06-14T00:00:00.000Z"),
-      row(["t-a"], "2024-06-13T00:00:00.000Z"),
-      row(["t-b"], "2024-06-14T00:00:00.000Z"),
-      row(["t-b"], "2024-01-01T00:00:00.000Z"),
-      row(["t-b"], "2024-01-02T00:00:00.000Z"),
-      row(["t-b"], "2024-01-03T00:00:00.000Z"),
+      row(['t-a'], '2024-06-14T00:00:00.000Z'),
+      row(['t-a'], '2024-06-13T00:00:00.000Z'),
+      row(['t-b'], '2024-06-14T00:00:00.000Z'),
+      row(['t-b'], '2024-01-01T00:00:00.000Z'),
+      row(['t-b'], '2024-01-02T00:00:00.000Z'),
+      row(['t-b'], '2024-01-03T00:00:00.000Z'),
     ];
 
     const ranked = rankTrendingTopics([tA, tB], predictions, { now });
-    expect(ranked[0]?.topic.id).toBe("t-a");
+    expect(ranked[0]?.topic.id).toBe('t-a');
     expect(ranked[0]?.recentCount).toBe(2);
-    expect(ranked[1]?.topic.id).toBe("t-b");
+    expect(ranked[1]?.topic.id).toBe('t-b');
     expect(ranked[1]?.recentCount).toBe(1);
     expect(ranked[1]?.count).toBe(4);
   });
 
-  test("ignores unknown topic ids", () => {
+  test('ignores unknown topic ids', () => {
     const ranked = rankTrendingTopics(
       [tA],
-      [row(["unknown"], "2024-06-14T00:00:00.000Z")],
+      [row(['unknown'], '2024-06-14T00:00:00.000Z')],
       { now },
     );
     expect(ranked).toHaveLength(0);
