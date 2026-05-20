@@ -1,3 +1,13 @@
+import {
+  BarChart3,
+  Circle,
+  CloudSun,
+  Cpu,
+  History,
+  Landmark,
+  Trophy,
+  type LucideIcon,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export type CategoryDisplay = {
@@ -6,81 +16,62 @@ export type CategoryDisplay = {
   iconWrapClass: string;
 };
 
-function FinanceIcon() {
-  return (
-    <svg className="size-4" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path
-        d="M3 12V6M7 12V3M11 12V8M14 12H2"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
+const CATEGORY_ICON_CLASS = 'size-4 shrink-0';
 
-function TechIcon() {
+function categoryIcon(Icon: LucideIcon): ReactNode {
   return (
-    <svg className="size-4" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <rect
-        x="4"
-        y="5"
-        width="8"
-        height="7"
-        rx="1.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <circle cx="6.5" cy="3" r="1" fill="currentColor" />
-      <circle cx="9.5" cy="3" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function PoliticsIcon() {
-  return (
-    <svg className="size-4" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path
-        d="M8 2v12M5 5h6M4 14h8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function DefaultIcon() {
-  return (
-    <svg className="size-4" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
+    <Icon className={CATEGORY_ICON_CLASS} aria-hidden strokeWidth={1.75} />
   );
 }
 
 const CATEGORY_RULES: {
   match: RegExp;
-  display: Omit<CategoryDisplay, 'label'> & { label?: string };
+  display: {
+    Icon: LucideIcon;
+    iconWrapClass: string;
+    label?: string;
+  };
 }[] = [
   {
     match: /finance|fed|rate|market|econom/i,
     display: {
-      icon: <FinanceIcon />,
+      Icon: BarChart3,
       iconWrapClass: 'bg-interactive/10 text-interactive',
     },
   },
   {
     match: /tech|ai|software|crypto|bitcoin/i,
     display: {
-      icon: <TechIcon />,
+      Icon: Cpu,
       iconWrapClass: 'bg-primary/10 text-primary',
     },
   },
   {
     match: /politic|election|debate|president|congress/i,
     display: {
-      icon: <PoliticsIcon />,
+      Icon: Landmark,
       iconWrapClass: 'bg-ink/10 text-ink',
+    },
+  },
+  {
+    match: /^sports?$|sport|league|tournament|championship|olympic/i,
+    display: {
+      Icon: Trophy,
+      iconWrapClass: 'bg-accent-attention/15 text-accent-attention',
+    },
+  },
+  {
+    match: /weather|climate|storm|hurricane|temperature/i,
+    display: {
+      Icon: CloudSun,
+      iconWrapClass: 'bg-info/10 text-info',
+    },
+  },
+  {
+    match: /histor|archaeolog|ancient|century|era\b|past events/i,
+    display: {
+      Icon: History,
+      iconWrapClass: 'bg-muted/15 text-muted',
     },
   },
 ];
@@ -95,7 +86,7 @@ export function categoryDisplayFromName(
     if (rule.match.test(raw)) {
       return {
         label: rule.display.label ?? label,
-        icon: rule.display.icon,
+        icon: categoryIcon(rule.display.Icon),
         iconWrapClass: rule.display.iconWrapClass,
       };
     }
@@ -103,7 +94,7 @@ export function categoryDisplayFromName(
 
   return {
     label,
-    icon: <DefaultIcon />,
+    icon: categoryIcon(Circle),
     iconWrapClass: 'bg-surface text-muted ring-1 ring-border',
   };
 }
