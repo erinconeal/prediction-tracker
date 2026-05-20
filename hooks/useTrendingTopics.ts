@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { listTopics, type TrendingTopicDto } from "@/services/api";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useEffect, useState } from 'react';
+import { listTopics, type TrendingTopicDto } from '@/services/api';
+import { isAbortError } from '@/utils/is-abort-error';
 
 type UseTrendingTopicsOptions = {
   category?: string;
@@ -16,20 +16,17 @@ export function useTrendingTopics({
   enabled = true,
 }: UseTrendingTopicsOptions = {}) {
   const [data, setData] = useState<TrendingTopicDto[]>([]);
-  const [loading, setLoading] = useState(enabled);
+  const [fetchLoading, setFetchLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!enabled) {
-      setLoading(false);
-      return;
-    }
+    if (!enabled) return;
 
     const controller = new AbortController();
-    setLoading(true);
-    setError(null);
 
     async function loadTopics(): Promise<void> {
+      setFetchLoading(true);
+      setError(null);
       try {
         const rows = await listTopics({
           trending: true,
@@ -38,19 +35,30 @@ export function useTrendingTopics({
           signal: controller.signal,
         });
         setData(rows as TrendingTopicDto[]);
-      } catch (err: unknown) {
+      }
+      catch (err: unknown) {
         if (isAbortError(err)) return;
-        setError(err instanceof Error ? err.message : "Failed to load topics");
+        setError(err instanceof Error ? err.message : 'Failed to load topics');
         setData([]);
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
+      }
+      finally {
+        if (!controller.signal.aborted) setFetchLoading(false);
       }
     }
 
     void loadTopics();
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      setFetchLoading(false);
+    };
   }, [category, limit, enabled]);
 
-  return { data, loading, error };
+  const idle = !enabled;
+
+  return {
+    data: idle ? [] : data,
+    loading: idle ? false : fetchLoading,
+    error: idle ? null : error,
+  };
 }

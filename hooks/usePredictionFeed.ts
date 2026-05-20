@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, listPredictions } from "@/services/api";
-import type { Prediction, PredictionFilters } from "@/types/prediction";
-import { getFilterKey } from "@/utils/filter-key";
-import { isAbortError } from "@/utils/is-abort-error";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ApiError, listPredictions } from '@/services/api';
+import type { Prediction, PredictionFilters } from '@/types/prediction';
+import { getFilterKey } from '@/utils/filter-key';
+import { isAbortError } from '@/utils/is-abort-error';
 
 export type UsePredictionFeedOptions = {
   /** Page size for each request (default 20). */
@@ -23,7 +23,7 @@ export type UsePredictionFeedResult = {
   loadMore: () => Promise<void>;
 };
 
-type FeedFilters = Omit<PredictionFilters, "limit" | "offset">;
+type FeedFilters = Omit<PredictionFilters, 'limit' | 'offset'>;
 
 /**
  * Paginated home feed: first page loads on mount or when base filters change;
@@ -55,7 +55,7 @@ export function usePredictionFeed(
   const dataRef = useRef<Prediction[]>([]);
 
   const [data, setData] = useState<Prediction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -68,11 +68,6 @@ export function usePredictionFeed(
     if (!enabled) {
       firstPageGenRef.current += 1;
       loadMoreAbortRef.current?.abort();
-      setData([]);
-      setLoading(false);
-      setLoadingMore(false);
-      setError(null);
-      setHasMore(false);
       return;
     }
 
@@ -85,6 +80,9 @@ export function usePredictionFeed(
       setLoadingMore(false);
       setError(null);
       setHasMore(true);
+      setData([]);
+      dataRef.current = [];
+
       try {
         const result = await listPredictions(
           {
@@ -97,15 +95,17 @@ export function usePredictionFeed(
         if (firstPageGenRef.current !== generation) return;
         setData(result);
         setHasMore(result.length === pageSize);
-      } catch (e: unknown) {
+      }
+      catch (e: unknown) {
         if (isAbortError(e)) return;
         if (firstPageGenRef.current !== generation) return;
-        const message =
-          e instanceof ApiError ? e.message : "Something went wrong";
+        const message
+          = e instanceof ApiError ? e.message : 'Something went wrong';
         setError(message);
         setData([]);
         setHasMore(false);
-      } finally {
+      }
+      finally {
         if (firstPageGenRef.current === generation) setLoading(false);
       }
     }
@@ -140,6 +140,9 @@ export function usePredictionFeed(
     setLoading(true);
     setLoadingMore(false);
     setError(null);
+    setData([]);
+    dataRef.current = [];
+
     try {
       const result = await listPredictions(
         {
@@ -152,13 +155,15 @@ export function usePredictionFeed(
       if (firstPageGenRef.current !== generation) return;
       setData(result);
       setHasMore(result.length === pageSize);
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (isAbortError(e)) return;
       if (firstPageGenRef.current !== generation) return;
-      const message =
-        e instanceof ApiError ? e.message : "Something went wrong";
+      const message
+        = e instanceof ApiError ? e.message : 'Something went wrong';
       setError(message);
-    } finally {
+    }
+    finally {
       if (firstPageGenRef.current === generation) setLoading(false);
       if (refetchAbortRef.current === controller) {
         refetchAbortRef.current = null;
@@ -188,7 +193,7 @@ export function usePredictionFeed(
       );
       if (seq !== loadMoreSeqRef.current) return;
       setData((prev) => {
-        const seen = new Set(prev.map((p) => p.id));
+        const seen = new Set(prev.map(p => p.id));
         const merged = [...prev];
         for (const p of page) {
           if (!seen.has(p.id)) {
@@ -199,13 +204,15 @@ export function usePredictionFeed(
         return merged;
       });
       setHasMore(page.length === pageSize);
-    } catch (e: unknown) {
+    }
+    catch (e: unknown) {
       if (isAbortError(e)) return;
       if (seq !== loadMoreSeqRef.current) return;
-      const message =
-        e instanceof ApiError ? e.message : "Something went wrong";
+      const message
+        = e instanceof ApiError ? e.message : 'Something went wrong';
       setError(message);
-    } finally {
+    }
+    finally {
       if (seq === loadMoreSeqRef.current) setLoadingMore(false);
       if (loadMoreAbortRef.current === controller) {
         loadMoreAbortRef.current = null;
@@ -213,12 +220,14 @@ export function usePredictionFeed(
     }
   }, [enabled, hasMore, loading, loadingMore, pageSize]);
 
+  const idle = !enabled;
+
   return {
-    data,
-    loading,
-    loadingMore,
-    error,
-    hasMore,
+    data: idle ? [] : data,
+    loading: idle ? false : loading,
+    loadingMore: idle ? false : loadingMore,
+    error: idle ? null : error,
+    hasMore: idle ? false : hasMore,
     refetch,
     loadMore,
   };
