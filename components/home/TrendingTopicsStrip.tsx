@@ -58,7 +58,7 @@ const scrollListClass
   = 'flex list-none gap-x-5 overflow-x-auto overflow-y-visible scroll-smooth transition-[padding] duration-200 ease-out motion-reduce:transition-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden';
 
 const scrollEdgeButtonClass
-  = 'relative z-[2] inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center bg-transparent text-foreground transition-colors hover:text-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  = 'relative z-[2] inline-flex min-h-11 min-w-11 shrink-0 items-center bg-transparent text-foreground transition-colors hover:text-interactive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 const scrollEdgeShellClass
   = 'absolute inset-y-0 z-[1] flex w-24 items-center transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none';
@@ -81,8 +81,8 @@ function ScrollEdge({
   const isRight = side === 'right';
   const fadeGradientClass = embedded
     ? isRight
-      ? 'bg-gradient-to-r from-transparent from-0% via-surface-elevated via-[35%] to-surface-elevated'
-      : 'bg-gradient-to-l from-transparent from-0% via-surface-elevated via-[35%] to-surface-elevated'
+      ? 'bg-gradient-to-r from-transparent from-0% via-surface-elevated via-[75%] to-surface-elevated'
+      : 'bg-gradient-to-l from-transparent from-0% via-surface-elevated via-[55%] to-surface-elevated'
     : isRight
       ? 'bg-gradient-to-r from-transparent from-0% via-background via-[35%] to-background'
       : 'bg-gradient-to-l from-transparent from-0% via-background via-[35%] to-background';
@@ -106,7 +106,7 @@ function ScrollEdge({
       />
       <button
         type="button"
-        className={`${scrollEdgeButtonClass} ${isRight ? 'pr-1' : 'pl-1'}`}
+        className={`${scrollEdgeButtonClass} ${isRight ? 'justify-end pr-0' : 'justify-center pl-1'}`}
         aria-label={label}
         tabIndex={visible ? 0 : -1}
         onClick={onClick}
@@ -295,14 +295,14 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
       } ${className}`.trim()}
       aria-labelledby="trending-topics-heading"
     >
-      <div className="flex h-5 shrink-0 items-center gap-2">
+      <div className="inline-flex leading-5 shrink-0 items-center gap-2">
         <span
           className="size-2 shrink-0 rounded-full bg-error animate-trending-live-dot motion-reduce:animate-none"
           aria-hidden
         />
         <h2
           id="trending-topics-heading"
-          className="whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-muted"
+          className="whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-muted mt-[2px]"
         >
           Trending topics
         </h2>
