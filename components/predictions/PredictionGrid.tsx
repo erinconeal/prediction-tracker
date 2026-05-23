@@ -4,7 +4,6 @@ import { memo } from 'react';
 import { BROWSE_FORECAST_GRID_CLASS } from '@/components/forecast/forecast-card-tokens';
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
 import type { Outcome, Prediction } from '@/types/prediction';
-import type { CategoryTab } from '@/lib/category-tabs';
 
 type PredictionGridProps = {
   predictions: Prediction[];
@@ -12,7 +11,6 @@ type PredictionGridProps = {
   emptyMessage?: string;
   outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
-  onCategorySelect?: (tab: CategoryTab) => void;
 };
 
 export const PredictionGrid = memo(function PredictionGrid({
@@ -21,7 +19,6 @@ export const PredictionGrid = memo(function PredictionGrid({
   emptyMessage = 'No predictions in this view yet.',
   outcomeFilter,
   onOutcomeFilter,
-  onCategorySelect,
 }: PredictionGridProps) {
   if (loading && predictions.length === 0) {
     return (
@@ -53,7 +50,6 @@ export const PredictionGrid = memo(function PredictionGrid({
             prediction={p}
             outcomeFilter={outcomeFilter}
             onOutcomeFilter={onOutcomeFilter}
-            onCategorySelect={onCategorySelect}
           />
         </li>
       ))}
