@@ -30,7 +30,7 @@ export const ForecastCardFooter = memo(function ForecastCardFooter({
           <SourceAvatar name={sourceName} size="sm" />
           <Link
             href={`/source/${encodeURIComponent(sourceSlug)}`}
-            className={`truncate text-sm font-medium text-foreground underline-offset-2 hover:underline ${forecastCardLinkClass}`}
+            className={`truncate text-sm font-medium text-foreground underline-offset-2 ${forecastCardLinkClass}`}
           >
             {sourceName}
           </Link>

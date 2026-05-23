@@ -2,7 +2,6 @@
 
 import { memo } from 'react';
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
-import type { CategoryTab } from '@/lib/category-tabs';
 import type { Outcome, Prediction } from '@/types/prediction';
 
 type PredictionFeedListProps = {
@@ -11,7 +10,6 @@ type PredictionFeedListProps = {
   emptyMessage?: string;
   outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
-  onCategorySelect?: (tab: CategoryTab) => void;
 };
 
 export const PredictionFeedList = memo(function PredictionFeedList({
@@ -20,7 +18,6 @@ export const PredictionFeedList = memo(function PredictionFeedList({
   emptyMessage = 'No predictions in this view yet.',
   outcomeFilter,
   onOutcomeFilter,
-  onCategorySelect,
 }: PredictionFeedListProps) {
   if (loading && predictions.length === 0) {
     return (
@@ -50,7 +47,6 @@ export const PredictionFeedList = memo(function PredictionFeedList({
             prediction={p}
             outcomeFilter={outcomeFilter}
             onOutcomeFilter={onOutcomeFilter}
-            onCategorySelect={onCategorySelect}
           />
         </li>
       ))}

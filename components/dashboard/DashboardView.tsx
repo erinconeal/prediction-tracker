@@ -132,22 +132,6 @@ export function DashboardView() {
     [router],
   );
 
-  const handleCategorySelect = useCallback(
-    (tab: CategoryTab) => {
-      if (tab !== 'All') {
-        const cat = categoryFromCategoryTab(tab);
-        if (cat) {
-          router.push(`/category/${cat.toLowerCase()}`);
-          return;
-        }
-      }
-      setCategoryTab(tab);
-      setOutcomeFilter('all');
-      scrollBrowseForecastsIntoView();
-    },
-    [router],
-  );
-
   const handleOutcomeFilter = useCallback((outcome: Outcome) => {
     setOutcomeFilter(prev => (prev === outcome ? 'all' : outcome));
     scrollBrowseForecastsIntoView();
@@ -176,7 +160,6 @@ export function DashboardView() {
           statsContext={homeSample.data}
           loading={homeSample.loading}
           slotCount={featuredSlotCount}
-          onCategorySelect={handleCategorySelect}
         />
       </HomeHeroBand>
 
@@ -263,7 +246,6 @@ export function DashboardView() {
           emptyMessage={emptyMessage}
           outcomeFilter={outcomeFilter}
           onOutcomeFilter={handleOutcomeFilter}
-          onCategorySelect={handleCategorySelect}
         />
 
         {hasMore && data.length > 0

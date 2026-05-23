@@ -5,25 +5,25 @@ import { memo } from 'react';
 import { categoryDisplayFromName } from '@/lib/category-display';
 import { categoryTabFromName } from '@/lib/category-tabs';
 import { categoryToSlug } from '@/types/category';
-import { forecastCardLinkClass } from './forecast-card-tokens';
 
 type ForecastCategoryChipProps = {
   category: string | null | undefined;
-  /** When set, uses button + callback instead of category page link. */
-  onCategoryNavigate?: () => void;
   className?: string;
 };
 
-const chipButtonClass = `inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left ${forecastCardLinkClass}`;
-
 const chipLinkClass
-  = 'inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  = 'group inline-flex min-h-11 min-w-0 max-w-full items-center gap-2.5 rounded-lg text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 const chipStaticClass = 'inline-flex min-w-0 max-w-full items-center gap-2.5';
 
+const labelLinkClass
+  = 'truncate text-xs font-semibold tracking-wide text-muted transition-colors group-hover:text-interactive group-hover:underline underline-offset-2';
+
+const labelStaticClass
+  = 'truncate text-xs font-semibold tracking-wide text-muted';
+
 export const ForecastCategoryChip = memo(function ForecastCategoryChip({
   category,
-  onCategoryNavigate,
   className = '',
 }: ForecastCategoryChipProps) {
   const display = categoryDisplayFromName(category);
@@ -40,26 +40,6 @@ export const ForecastCategoryChip = memo(function ForecastCategoryChip({
     </span>
   );
 
-  const label = (
-    <span className="truncate text-xs font-semibold tracking-wide text-muted">
-      {display.label}
-    </span>
-  );
-
-  if (onCategoryNavigate) {
-    return (
-      <button
-        type="button"
-        className={`${chipButtonClass} ${className}`.trim()}
-        onClick={onCategoryNavigate}
-        aria-label={`Browse ${tab ?? category} forecasts`}
-      >
-        {icon}
-        {label}
-      </button>
-    );
-  }
-
   if (href) {
     return (
       <Link
@@ -68,7 +48,9 @@ export const ForecastCategoryChip = memo(function ForecastCategoryChip({
         aria-label={`Browse ${tab} forecasts`}
       >
         {icon}
-        {label}
+        <span className={labelLinkClass}>
+          {display.label}
+        </span>
       </Link>
     );
   }
@@ -76,7 +58,9 @@ export const ForecastCategoryChip = memo(function ForecastCategoryChip({
   return (
     <span className={`${chipStaticClass} ${className}`.trim()}>
       {icon}
-      {label}
+      <span className={labelStaticClass}>
+        {display.label}
+      </span>
     </span>
   );
 });

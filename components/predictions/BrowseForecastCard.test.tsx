@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import { BrowseForecastCard } from './BrowseForecastCard';
 
+// mock next/link to allow testing of links in child components
 vi.mock('next/link', () => ({
   default: ({
     children,
@@ -36,14 +37,12 @@ function prediction(overrides: Partial<Prediction> = {}): Prediction {
 }
 
 describe('BrowseForecastCard', () => {
-  test('exposes separate links for category, title, and source without a wrapping card link', () => {
-    const onCategorySelect = vi.fn();
+  test('exposes separate links for title, category, and source without a wrapping card link', () => {
     const { container } = render(
       <BrowseForecastCard
         prediction={prediction()}
         outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
-        onCategorySelect={onCategorySelect}
       />,
     );
 
@@ -54,9 +53,10 @@ describe('BrowseForecastCard', () => {
       'href',
       '/source/jane',
     );
-    expect(
-      screen.getByRole('button', { name: /browse finance forecasts/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /browse finance forecasts/i })).toHaveAttribute(
+      'href',
+      '/category/finance',
+    );
     expect(container.querySelector('article > a')).toBeNull();
   });
 
