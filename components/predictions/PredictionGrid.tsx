@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { BROWSE_FORECAST_GRID_CLASS } from '@/components/forecast/forecast-card-tokens';
+import { browseForecastGridClass } from '@/components/forecast/forecast-card-tokens';
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
 import type { Outcome, Prediction } from '@/types/prediction';
 
@@ -23,7 +23,7 @@ export const PredictionGrid = memo(function PredictionGrid({
   if (loading && predictions.length === 0) {
     return (
       <div
-        className={BROWSE_FORECAST_GRID_CLASS.replace('list-none ', '')}
+        className={browseForecastGridClass.replace('list-none ', '')}
         aria-busy="true"
         aria-label="Loading predictions"
       >
@@ -43,7 +43,7 @@ export const PredictionGrid = memo(function PredictionGrid({
   }
 
   return (
-    <ul className={BROWSE_FORECAST_GRID_CLASS}>
+    <ul className={browseForecastGridClass}>
       {predictions.map(p => (
         <li key={p.id} className="min-w-0">
           <BrowseForecastCard

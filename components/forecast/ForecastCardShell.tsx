@@ -2,22 +2,21 @@
 
 import { memo, type ReactNode } from 'react';
 import {
-  forecastCardHeaderClass,
   forecastCardShellClass,
 } from './forecast-card-tokens';
 
 type ForecastCardShellProps = {
-  headerStart: ReactNode;
-  headerEnd: ReactNode;
+  header: ReactNode;
   title: ReactNode;
+  afterTitle?: ReactNode;
   footer: ReactNode;
   className?: string;
 };
 
 export const ForecastCardShell = memo(function ForecastCardShell({
-  headerStart,
-  headerEnd,
+  header,
   title,
+  afterTitle,
   footer,
   className = '',
 }: ForecastCardShellProps) {
@@ -25,11 +24,11 @@ export const ForecastCardShell = memo(function ForecastCardShell({
     <article
       className={`${forecastCardShellClass} ${className}`.trim()}
     >
-      <div className={forecastCardHeaderClass}>
-        <div className="min-w-0 flex-1">{headerStart}</div>
-        <div className="shrink-0">{headerEnd}</div>
+      {header}
+      <div className="mt-4 flex min-h-[3.25rem] flex-1 flex-col">
+        <h3 className="min-h-0">{title}</h3>
+        {afterTitle ? <div className="mt-2">{afterTitle}</div> : null}
       </div>
-      <h3 className="mt-4 min-h-[3.25rem] flex-1">{title}</h3>
       {footer}
     </article>
   );

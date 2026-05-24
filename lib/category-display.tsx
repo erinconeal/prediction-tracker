@@ -79,11 +79,10 @@ const CATEGORY_RULES: {
 export function categoryDisplayFromName(
   category: string | null | undefined,
 ): CategoryDisplay {
-  const raw = category?.trim() || 'General';
-  const label = raw.toUpperCase();
+  const label = category?.trim() || 'General';
 
   for (const rule of CATEGORY_RULES) {
-    if (rule.match.test(raw)) {
+    if (rule.match.test(label)) {
       return {
         label: rule.display.label ?? label,
         icon: categoryIcon(rule.display.Icon),

@@ -1,11 +1,10 @@
 'use client';
 
 import { memo } from 'react';
-import { ForecastCardFooter } from '@/components/forecast/ForecastCardFooter';
+import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
+import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
-import { ForecastCategoryChip } from '@/components/forecast/ForecastCategoryChip';
-import { ForecastTopicChip } from '@/components/forecast/ForecastTopicChip';
 import { OutcomeFilterButton } from '@/components/predictions/OutcomeFilterButton';
 import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
 import type { Outcome, Prediction } from '@/types/prediction';
@@ -24,26 +23,24 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
   onOutcomeFilter,
   className = '',
 }: BrowseForecastCardProps) {
-  const secondaryLine = p.target_date
+  const timingLine = p.target_date
     ? `Target ${formatMonthYear(p.target_date)}`
     : `Added ${formatIsoDate(p.created_at)}`;
 
   return (
     <ForecastCardShell
       className={className}
-      headerStart={(
-        <div className="flex min-w-0 flex-col gap-2">
-          <ForecastCategoryChip
-            category={p.category}
-          />
-          <ForecastTopicChip topicIds={p.topicIds} />
-        </div>
-      )}
-      headerEnd={(
-        <OutcomeFilterButton
-          outcome={p.outcome}
-          pressed={outcomeFilter === p.outcome}
-          onFilter={onOutcomeFilter}
+      header={(
+        <ForecastCardSourceHeader
+          sourceName={p.source}
+          sourceSlug={p.sourceSlug}
+          headerEnd={(
+            <OutcomeFilterButton
+              outcome={p.outcome}
+              pressed={outcomeFilter === p.outcome}
+              onFilter={onOutcomeFilter}
+            />
+          )}
         />
       )}
       title={(
@@ -52,11 +49,13 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
           text={truncateWithEllipsis(p.text, 160)}
         />
       )}
+      afterTitle={(
+        <p className="text-xs text-muted">{timingLine}</p>
+      )}
       footer={(
-        <ForecastCardFooter
-          sourceName={p.source}
-          sourceSlug={p.sourceSlug}
-          secondaryLine={secondaryLine}
+        <ForecastCardMetaFooter
+          category={p.category}
+          topicIds={p.topicIds}
         />
       )}
     />

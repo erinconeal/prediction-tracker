@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import { BrowseForecastCard } from './BrowseForecastCard';
+import { getTopicsByIds } from '@/lib/topic-store';
 
 // mock next/link to allow testing of links in child components
 vi.mock('next/link', () => ({
@@ -19,6 +20,14 @@ vi.mock('next/link', () => ({
     </a>
   ),
 }));
+
+vi.mock('@/hooks/useTopicCatalog', () => ({
+  useTopicCatalog: () => ({
+    getTopicsByIds,
+  }),
+}));
+
+const TOPIC_AI = 'topic-ai-regulation-2026';
 
 function prediction(overrides: Partial<Prediction> = {}): Prediction {
   return {
@@ -89,5 +98,51 @@ describe('BrowseForecastCard', () => {
     );
 
     expect(screen.queryByText('Track record')).not.toBeInTheDocument();
+  });
+
+  test('shows target or added timing between title and footer', () => {
+    const { rerender } = render(
+      <BrowseForecastCard
+        prediction={prediction({ target_date: '2025-03-15T00:00:00.000Z' })}
+        outcomeFilter="all"
+        onOutcomeFilter={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/target mar 2025/i)).toBeInTheDocument();
+
+    rerender(
+      <BrowseForecastCard
+        prediction={prediction({ target_date: null })}
+        outcomeFilter="all"
+        onOutcomeFilter={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/^Added /i)).toBeInTheDocument();
+  });
+
+  test('topic in footer is shown when prediction has topics', () => {
+    render(
+      <BrowseForecastCard
+        prediction={prediction({ topicIds: [TOPIC_AI] })}
+        outcomeFilter="all"
+        onOutcomeFilter={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'AI regulation 2026' })).toBeInTheDocument();
+    expect(screen.queryByText('+1')).not.toBeInTheDocument();
+  });
+
+  test('topic in footer is not shown when prediction has no topics', () => {
+    render(
+      <BrowseForecastCard
+        prediction={prediction({ topicIds: [] })}
+        outcomeFilter="all"
+        onOutcomeFilter={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole('link', { name: 'AI regulation 2026' })).not.toBeInTheDocument();
+    expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 });

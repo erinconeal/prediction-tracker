@@ -1,11 +1,10 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { ForecastCardFooter } from '@/components/forecast/ForecastCardFooter';
+import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
+import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
-import { ForecastCategoryChip } from '@/components/forecast/ForecastCategoryChip';
-import { ForecastSparkline } from '@/components/ui/ForecastSparkline';
 import {
   forecastDisplayMetricFromStats,
   trendAriaLabel,
@@ -23,12 +22,6 @@ const BADGE_CLASS = {
   up: 'bg-success/12 text-success',
   down: 'bg-error/12 text-error',
   flat: 'bg-warning/15 text-warning',
-} as const;
-
-const TREND_SYMBOL = {
-  up: '↑',
-  down: '↓',
-  flat: '—',
 } as const;
 
 export const PopularForecastCard = memo(function PopularForecastCard({
@@ -52,46 +45,33 @@ export const PopularForecastCard = memo(function PopularForecastCard({
   const badgeClass = BADGE_CLASS[metric.trend];
   const badgeText
     = metric.percent === null
-      ? `— ${TREND_SYMBOL[metric.trend]}`
-      : `${metric.percent}% ${TREND_SYMBOL[metric.trend]}`;
+      ? '— accurate'
+      : `${metric.percent}% accurate`;
 
   const metricAria
     = metric.percent === null
       ? `Source accuracy unavailable, ${trendAriaLabel(metric.trend)}`
       : `Source accuracy ${metric.percent} percent, ${trendAriaLabel(metric.trend)}`;
 
-  const trackRecordCorner = (
-    <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
-      <span className="text-xs font-semibold uppercase tracking-wide text-muted">
-        Track record
-      </span>
-      <span
-        className={`inline-flex items-center gap-0.5 rounded-full px-2.5 py-1 font-mono text-xs font-semibold tabular-nums ${badgeClass}`}
-        aria-label={metricAria}
-      >
-        <span aria-hidden>{badgeText}</span>
-      </span>
-    </div>
-  );
-
-  const sparklineEnd = (
-    <div className="flex flex-col items-end gap-1">
-      <ForecastSparkline seed={prediction.id} trend={metric.trend} />
-      <p className="max-w-[4.5rem] text-right text-xs leading-tight text-muted">
-        Not live market odds
-      </p>
-    </div>
+  const sourceAccuracyCorner = (
+    <span
+      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 font-mono text-xs font-semibold tabular-nums ${badgeClass}`}
+      aria-label={metricAria}
+    >
+      <span aria-hidden>{badgeText}</span>
+    </span>
   );
 
   return (
     <ForecastCardShell
       className={className}
-      headerStart={(
-        <ForecastCategoryChip
-          category={prediction.category}
+      header={(
+        <ForecastCardSourceHeader
+          sourceName={prediction.source}
+          sourceSlug={prediction.sourceSlug}
+          headerEnd={sourceAccuracyCorner}
         />
       )}
-      headerEnd={trackRecordCorner}
       title={(
         <ForecastCardTitle
           predictionId={prediction.id}
@@ -99,10 +79,8 @@ export const PopularForecastCard = memo(function PopularForecastCard({
         />
       )}
       footer={(
-        <ForecastCardFooter
-          sourceName={prediction.source}
-          sourceSlug={prediction.sourceSlug}
-          endSlot={sparklineEnd}
+        <ForecastCardMetaFooter
+          category={prediction.category}
         />
       )}
     />

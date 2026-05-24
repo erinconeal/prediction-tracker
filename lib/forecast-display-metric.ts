@@ -9,7 +9,7 @@ export type ForecastDisplayMetric = {
 };
 
 /**
- * Maps source accuracy into hero badge + sparkline tone. Not market odds —
+ * Maps source accuracy into Featured badge tone. Not market odds —
  * encodes track-record strength for the consensus source.
  */
 export function forecastDisplayMetricFromStats(
