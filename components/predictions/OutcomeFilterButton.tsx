@@ -17,7 +17,6 @@ type OutcomeFilterButtonProps = {
 export const OutcomeFilterButton = memo(function OutcomeFilterButton({
   outcome,
   onFilter,
-  className = '',
 }: OutcomeFilterButtonProps) {
   const label = outcomeLabels[outcome];
 
