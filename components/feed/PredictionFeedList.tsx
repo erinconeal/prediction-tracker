@@ -45,7 +45,6 @@ export const PredictionFeedList = memo(function PredictionFeedList({
         <li key={p.id} className="list-none">
           <BrowseForecastCard
             prediction={p}
-            outcomeFilter={outcomeFilter}
             onOutcomeFilter={onOutcomeFilter}
           />
         </li>

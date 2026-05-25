@@ -50,7 +50,6 @@ describe('BrowseForecastCard', () => {
     const { container } = render(
       <BrowseForecastCard
         prediction={prediction()}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -74,7 +73,6 @@ describe('BrowseForecastCard', () => {
     render(
       <BrowseForecastCard
         prediction={prediction()}
-        outcomeFilter="all"
         onOutcomeFilter={onOutcomeFilter}
       />,
     );
@@ -88,11 +86,25 @@ describe('BrowseForecastCard', () => {
     expect(onOutcomeFilter).toHaveBeenCalledWith('incorrect');
   });
 
+  test('outcome filter button does not use aria-pressed (filter state is in page header)', () => {
+    render(
+      <BrowseForecastCard
+        prediction={prediction()}
+        onOutcomeFilter={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: /filter browse forecasts by incorrect/i,
+      }),
+    ).not.toHaveAttribute('aria-pressed');
+  });
+
   test('track record corner is not used', () => {
     render(
       <BrowseForecastCard
         prediction={prediction()}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -104,7 +116,6 @@ describe('BrowseForecastCard', () => {
     const { rerender } = render(
       <BrowseForecastCard
         prediction={prediction({ target_date: '2025-03-15T00:00:00.000Z' })}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -114,7 +125,6 @@ describe('BrowseForecastCard', () => {
     rerender(
       <BrowseForecastCard
         prediction={prediction({ target_date: null })}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -126,7 +136,6 @@ describe('BrowseForecastCard', () => {
     render(
       <BrowseForecastCard
         prediction={prediction({ topicIds: [TOPIC_AI] })}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -138,7 +147,6 @@ describe('BrowseForecastCard', () => {
     render(
       <BrowseForecastCard
         prediction={prediction({ topicIds: [] })}
-        outcomeFilter="all"
         onOutcomeFilter={vi.fn()}
       />,
     );

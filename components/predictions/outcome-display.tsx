@@ -10,6 +10,20 @@ export const outcomeStyles: Record<Outcome, string> = {
     'border border-border bg-surface text-muted ring-1 ring-border/80',
 };
 
+/** Interactive browse filter chips only (hover/active); static badges use `outcomeStyles`. */
+export const outcomeFilterButtonStyles: Record<Outcome, string> = {
+  pending:
+    'border border-warning/40 bg-warning/15 text-foreground hover:bg-warning/25 active:bg-warning/30',
+  correct:
+    'bg-success/15 text-success hover:bg-success/25 active:bg-success/30',
+  incorrect:
+    'bg-error/15 text-error hover:bg-error/25 active:bg-error/30',
+  unresolved:
+    'bg-info/15 text-info hover:bg-info/25 active:bg-info/30',
+  invalid:
+    'border border-border bg-surface text-muted ring-1 ring-border/80 hover:bg-surface-elevated active:bg-border/40',
+};
+
 export const outcomeLabels: Record<Outcome, string> = {
   pending: 'Pending',
   correct: 'Correct',

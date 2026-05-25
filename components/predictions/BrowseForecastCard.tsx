@@ -12,14 +12,12 @@ import { truncateWithEllipsis } from '@/utils/truncate-text';
 
 type BrowseForecastCardProps = {
   prediction: Prediction;
-  outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
   className?: string;
 };
 
 export const BrowseForecastCard = memo(function BrowseForecastCard({
   prediction: p,
-  outcomeFilter,
   onOutcomeFilter,
   className = '',
 }: BrowseForecastCardProps) {
@@ -37,7 +35,6 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
           headerEnd={(
             <OutcomeFilterButton
               outcome={p.outcome}
-              pressed={outcomeFilter === p.outcome}
               onFilter={onOutcomeFilter}
             />
           )}

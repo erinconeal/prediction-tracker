@@ -48,7 +48,6 @@ export const PredictionGrid = memo(function PredictionGrid({
         <li key={p.id} className="min-w-0">
           <BrowseForecastCard
             prediction={p}
-            outcomeFilter={outcomeFilter}
             onOutcomeFilter={onOutcomeFilter}
           />
         </li>

@@ -55,7 +55,11 @@ export function DiscoveryFeedLayout({
           <p className="text-sm text-muted">{sortSubtitle(listSort)}</p>
           {outcomeFilter !== 'all'
             ? (
-                <div className="flex flex-wrap items-center gap-2">
+                <div
+                  className="flex flex-wrap items-center gap-2"
+                  role="status"
+                  aria-live="polite"
+                >
                   <span className="text-sm text-muted">
                     Showing:
                     {' '}

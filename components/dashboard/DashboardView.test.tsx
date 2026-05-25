@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import * as api from '@/services/api';
@@ -75,6 +75,21 @@ const leaderboardRow = {
   streakKind: null as 'correct' | 'incorrect' | null,
   streakLength: 0,
 };
+
+function outcomeFilterInBrowseCard(predictionTitle: RegExp, outcomeLabel: string) {
+  const browseSection = screen
+    .getByRole('heading', { name: /browse forecasts/i })
+    .closest('section');
+  expect(browseSection).toBeTruthy();
+  const titleLink = within(browseSection!).getByRole('link', {
+    name: predictionTitle,
+  });
+  const card = titleLink.closest('article');
+  expect(card).toBeTruthy();
+  return within(card!).getByRole('button', {
+    name: new RegExp(`filter browse forecasts by ${outcomeLabel}`, 'i'),
+  });
+}
 
 describe('DashboardView', () => {
   beforeEach(() => {
@@ -221,20 +236,22 @@ describe('DashboardView', () => {
     render(<DashboardView />);
 
     await waitFor(() => {
-      expect(screen.getAllByRole('link', { name: /wrong take/i }).length)
-        .toBeGreaterThan(0);
+      expect(
+        screen.getByRole('heading', { name: /browse forecasts/i }),
+      ).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getAllByRole('button', {
-        name: /filter browse forecasts by incorrect/i,
-      })[0]!,
-    );
+    fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      expect(screen.getByText('Showing:')).toBeInTheDocument();
+      const browseSection = screen
+        .getByRole('heading', { name: /browse forecasts/i })
+        .closest('section')!;
+      expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
+      const status = within(browseSection).getByText('Showing:').closest('[role="status"]');
+      expect(status).toHaveAttribute('aria-live', 'polite');
       expect(
-        screen.getByRole('button', { name: /clear status filter/i }),
+        within(browseSection).getByRole('button', { name: /clear status filter/i }),
       ).toBeInTheDocument();
     });
 
@@ -259,30 +276,25 @@ describe('DashboardView', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', {
-          name: /filter browse forecasts by incorrect/i,
-        }).length,
-      ).toBeGreaterThan(0);
+        screen.getByRole('heading', { name: /browse forecasts/i }),
+      ).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getAllByRole('button', {
-        name: /filter browse forecasts by incorrect/i,
-      })[0]!,
-    );
+    fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
     await waitFor(() => {
-      expect(screen.getByText('Showing:')).toBeInTheDocument();
+      const browseSection = screen
+        .getByRole('heading', { name: /browse forecasts/i })
+        .closest('section')!;
+      expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: /filter browse forecasts by incorrect/i,
-        pressed: true,
-      }),
-    );
+    fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      expect(screen.queryByText('Showing:')).not.toBeInTheDocument();
+      const browseSection = screen
+        .getByRole('heading', { name: /browse forecasts/i })
+        .closest('section')!;
+      expect(within(browseSection).queryByText('Showing:')).not.toBeInTheDocument();
     });
 
     expect(listPredictions).toHaveBeenCalledWith(
@@ -309,26 +321,26 @@ describe('DashboardView', () => {
 
     await waitFor(() => {
       expect(
-        screen.getAllByRole('button', {
-          name: /filter browse forecasts by incorrect/i,
-        }).length,
-      ).toBeGreaterThan(0);
+        screen.getByRole('heading', { name: /browse forecasts/i }),
+      ).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getAllByRole('button', {
-        name: /filter browse forecasts by incorrect/i,
-      })[0]!,
-    );
+    fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      expect(screen.getByText('Showing:')).toBeInTheDocument();
+      const browseSection = screen
+        .getByRole('heading', { name: /browse forecasts/i })
+        .closest('section')!;
+      expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole('radio', { name: /^finance$/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText('Showing:')).not.toBeInTheDocument();
+      const browseSection = screen
+        .getByRole('heading', { name: /browse forecasts/i })
+        .closest('section')!;
+      expect(within(browseSection).queryByText('Showing:')).not.toBeInTheDocument();
     });
 
     expect(mockReplace).toHaveBeenCalledWith('/?category=finance', { scroll: false });

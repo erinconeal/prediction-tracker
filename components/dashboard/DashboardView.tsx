@@ -249,7 +249,11 @@ export function DashboardView() {
           </div>
           {outcomeFilter !== 'all'
             ? (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div
+                  className="mt-3 flex flex-wrap items-center gap-2"
+                  role="status"
+                  aria-live="polite"
+                >
                   <span className="text-sm text-muted">
                     Showing:
                     {' '}
@@ -259,10 +263,12 @@ export function DashboardView() {
                   </span>
                   <button
                     type="button"
-                    className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="inline-flex min-h-11 p-0 shrink-0 items-center justify-center rounded-full border border-border bg-surface-elevated text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     onClick={clearOutcomeFilter}
                   >
-                    Clear status filter
+                    <span className="inline-flex items-center gap-1 rounded-full text-sm font-medium px-2 py-0.5">
+                      Clear status filter
+                    </span>
                   </button>
                 </div>
               )
