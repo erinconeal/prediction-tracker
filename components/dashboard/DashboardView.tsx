@@ -171,7 +171,7 @@ export function DashboardView() {
   );
 
   return (
-    <div className="-mt-4 space-y-16 pb-4">
+    <div className="-mt-4 space-y-12 pb-4">
       <h1 className="sr-only">Prediction Tracker</h1>
       <HomeHeroBand>
         <HomeHeroCard
@@ -183,7 +183,7 @@ export function DashboardView() {
         />
       </HomeHeroBand>
 
-      <section className="space-y-6" aria-labelledby="forecasts-heading">
+      <section className="space-y-4" aria-labelledby="forecasts-heading">
         <div>
           <div className="flex items-center justify-between gap-4">
             <h2
