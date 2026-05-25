@@ -160,6 +160,49 @@ describe('DashboardView', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('given loaded dashboard, sort tabs should be hidden until toggled', async () => {
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Prediction 0').length).toBeGreaterThan(0);
+    });
+
+    expect(document.getElementById('prediction-sort-tabs')).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /show sort options/i }),
+    ).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(screen.getByRole('button', { name: /show sort options/i }));
+
+    expect(screen.getByRole('radio', { name: /^newest$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /hide sort options/i }),
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('given non-default sort with collapsed panel, should show visible sorted label', async () => {
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Prediction 0').length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /show sort options/i }));
+    fireEvent.click(
+      screen.getByRole('radio', { name: /most accurate source/i }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: /hide sort options/i }));
+
+    expect(screen.getByText(/sorted:/i)).toHaveTextContent('Most accurate source');
+    expect(screen.queryByRole('radio', { name: /most accurate source/i }))
+      .not.toBeInTheDocument();
+  });
+
   test('clicking an outcome filter on a browse card should filter by status', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === 'incorrect') {

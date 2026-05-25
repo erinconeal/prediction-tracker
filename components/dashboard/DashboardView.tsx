@@ -1,10 +1,11 @@
 'use client';
 
+import { Settings2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   PredictionSortTabs,
-  sortSubtitle,
+  sortOptionLabel,
 } from '@/components/dashboard/PredictionSortTabs';
 import {
   CategoryTabs,
@@ -36,6 +37,10 @@ export function DashboardView() {
   const [categoryTab, setCategoryTab] = useState<CategoryTab>('All');
   const [listSort, setListSort] = useState<PredictionListSort>('newest');
   const [outcomeFilter, setOutcomeFilter] = useState<Outcome | 'all'>('all');
+  const [sortFiltersOpen, setSortFiltersOpen] = useState(false);
+  const sortToggleRef = useRef<HTMLButtonElement>(null);
+  const sortPanelRef = useRef<HTMLDivElement>(null);
+  const sortFiltersWasOpen = useRef(sortFiltersOpen);
   const category = useMemo(
     () => categoryFromCategoryTab(categoryTab),
     [categoryTab],
@@ -142,6 +147,21 @@ export function DashboardView() {
     scrollBrowseForecastsIntoView();
   }, []);
 
+  useEffect(() => {
+    if (sortFiltersWasOpen.current === sortFiltersOpen) return;
+    sortFiltersWasOpen.current = sortFiltersOpen;
+
+    if (sortFiltersOpen) {
+      const firstRadio = sortPanelRef.current?.querySelector<HTMLInputElement>(
+        'input[type="radio"]',
+      );
+      firstRadio?.focus();
+      return;
+    }
+
+    sortToggleRef.current?.focus();
+  }, [sortFiltersOpen]);
+
   const trendingTopicsHeader = (
     <TrendingTopicsStrip
       topics={trendingEntries}
@@ -164,45 +184,74 @@ export function DashboardView() {
       </HomeHeroBand>
 
       <section className="space-y-6" aria-labelledby="forecasts-heading">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+        <div>
+          <div className="flex items-center justify-between gap-4">
             <h2
               id="forecasts-heading"
               className="font-serif text-2xl font-normal tracking-tight text-foreground sm:text-3xl"
             >
               Browse forecasts
             </h2>
-            <p className="mt-2 text-sm text-muted">{sortSubtitle(listSort)}</p>
-            {outcomeFilter !== 'all'
-              ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="flex shrink-0 items-center gap-3">
+              {loading && data.length > 0
+                ? (
+                    <span
+                      className="text-xs text-muted"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Updating…
+                    </span>
+                  )
+                : null}
+              {!sortFiltersOpen && listSort !== 'newest'
+                ? (
                     <span className="text-sm text-muted">
-                      Showing:
+                      Sorted:
                       {' '}
                       <span className="font-medium text-foreground">
-                        {outcomeLabels[outcomeFilter]}
+                        {sortOptionLabel(listSort)}
                       </span>
                     </span>
-                    <button
-                      type="button"
-                      className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      onClick={clearOutcomeFilter}
-                    >
-                      Clear status filter
-                    </button>
-                  </div>
-                )
-              : null}
-          </div>
-          {loading && data.length > 0
-            ? (
-                <span
-                  className="text-xs text-muted"
-                  role="status"
-                  aria-live="polite"
-                >
-                  Updating…
+                  )
+                : null}
+              <button
+                ref={sortToggleRef}
+                type="button"
+                className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  listSort !== 'newest'
+                    ? 'text-primary'
+                    : 'text-muted hover:text-foreground'
+                }`}
+                aria-expanded={sortFiltersOpen}
+                aria-controls="prediction-sort-tabs"
+                onClick={() => setSortFiltersOpen(open => !open)}
+              >
+                <Settings2 className="size-5" aria-hidden strokeWidth={1.75} />
+                <span className="sr-only">
+                  {sortFiltersOpen ? 'Hide sort options' : 'Show sort options'}
                 </span>
+              </button>
+            </div>
+          </div>
+          {outcomeFilter !== 'all'
+            ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-muted">
+                    Showing:
+                    {' '}
+                    <span className="font-medium text-foreground">
+                      {outcomeLabels[outcomeFilter]}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    onClick={clearOutcomeFilter}
+                  >
+                    Clear status filter
+                  </button>
+                </div>
               )
             : null}
         </div>
@@ -234,11 +283,23 @@ export function DashboardView() {
           showLegend={false}
         />
 
-        <PredictionSortTabs
-          value={listSort}
-          onChange={setListSort}
-          disabled={loading && data.length === 0}
-        />
+        <div
+          ref={sortPanelRef}
+          className={
+            sortFiltersOpen
+              ? 'animate-sort-filters-enter motion-reduce:animate-none'
+              : 'hidden'
+          }
+          hidden={!sortFiltersOpen}
+        >
+          <PredictionSortTabs
+            id="prediction-sort-tabs"
+            value={listSort}
+            onChange={setListSort}
+            disabled={loading && data.length === 0}
+            hideLegend
+          />
+        </div>
 
         <PredictionGrid
           predictions={data}

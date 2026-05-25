@@ -61,6 +61,19 @@
   --font-mono: var(--font-pt-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
   --animate-trending-live-dot: trending-live-dot-pulse 1.2s ease-in-out 5 forwards;
+  --animate-sort-filters-enter: sort-filters-enter 180ms ease-out both;
+}
+
+@keyframes sort-filters-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes trending-live-dot-pulse {
