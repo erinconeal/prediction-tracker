@@ -1,7 +1,7 @@
 'use client';
 
 import { Settings2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   PredictionSortTabs,
@@ -21,6 +21,10 @@ import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import { browseEmptyMessage } from '@/lib/browse-empty-message';
 import { pickPopularForecastsFromFeed } from '@/lib/popular-forecasts';
+import {
+  buildHomeBrowseHref,
+  categoryTabFromSearchParam,
+} from '@/lib/home-category-url';
 import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
 import { listTopics } from '@/services/api';
 import { rankTrendingTopics } from '@/lib/trending-topics';
@@ -34,7 +38,11 @@ const HOME_SAMPLE_SIZE = 50;
 
 export function DashboardView() {
   const router = useRouter();
-  const [categoryTab, setCategoryTab] = useState<CategoryTab>('All');
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [categoryTab, setCategoryTab] = useState<CategoryTab>(() =>
+    categoryTabFromSearchParam(searchParams.get('category')) ?? 'All',
+  );
   const [listSort, setListSort] = useState<PredictionListSort>('newest');
   const [outcomeFilter, setOutcomeFilter] = useState<Outcome | 'all'>('all');
   const [sortFiltersOpen, setSortFiltersOpen] = useState(false);
@@ -122,19 +130,24 @@ export function DashboardView() {
 
   const emptyMessage = browseEmptyMessage(categoryTab, outcomeFilter);
 
+  const syncCategoryToUrl = useCallback(
+    (tab: CategoryTab) => {
+      router.replace(
+        buildHomeBrowseHref(pathname, tab, searchParams),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
   const handleCategoryTabChange = useCallback(
     (tab: CategoryTab) => {
-      if (tab !== 'All') {
-        const cat = categoryFromCategoryTab(tab);
-        if (cat) {
-          router.push(`/category/${cat.toLowerCase()}`);
-          return;
-        }
-      }
       setCategoryTab(tab);
       setOutcomeFilter('all');
+      syncCategoryToUrl(tab);
+      scrollBrowseForecastsIntoView();
     },
-    [router],
+    [syncCategoryToUrl],
   );
 
   const handleOutcomeFilter = useCallback((outcome: Outcome) => {

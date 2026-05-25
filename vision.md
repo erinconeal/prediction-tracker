@@ -110,8 +110,8 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 
 ### Discovery Routes
 
-* `/` — home: featured forecasts, trending topics, category tabs, browse list
-* `/category/[slug]` — predictions matching category (directly or via linked topics)
+* `/` — home: featured forecasts, trending topics, category tabs (in-place browse filter; optional `?category={slug}` for shareable category selection), browse list
+* `/category/[slug]` — dedicated category feed (sidebar layout); also linked from forecast cards and category pills
 * `/topics/[slug]` — predictions linked to that topic
 
 ### Async Handling

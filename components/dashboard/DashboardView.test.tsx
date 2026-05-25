@@ -6,10 +6,13 @@ import * as api from '@/services/api';
 import type { PredictionFilters } from '@/types/prediction';
 import { DashboardView } from './DashboardView';
 
-const mockPush = vi.fn();
+const mockReplace = vi.fn();
+let mockSearchParams = new URLSearchParams();
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace }),
+  useSearchParams: () => mockSearchParams,
+  usePathname: () => '/',
 }));
 
 vi.mock('next/link', () => ({
@@ -78,7 +81,8 @@ describe('DashboardView', () => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
     listTopics.mockReset();
-    mockPush.mockReset();
+    mockReplace.mockReset();
+    mockSearchParams = new URLSearchParams();
     listLeaderboard.mockResolvedValue([leaderboardRow]);
     listTopics.mockResolvedValue([]);
   });
@@ -324,8 +328,51 @@ describe('DashboardView', () => {
     fireEvent.click(screen.getByRole('radio', { name: /^finance$/i }));
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/category/finance');
+      expect(screen.queryByText('Showing:')).not.toBeInTheDocument();
     });
+
+    expect(mockReplace).toHaveBeenCalledWith('/?category=finance', { scroll: false });
+
+    expect(listPredictions).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'Finance', limit: 20, offset: 0 }),
+      expect.any(AbortSignal),
+    );
+  });
+
+  test('given category=finance in URL, should activate Finance tab and filter browse feed', async () => {
+    mockSearchParams = new URLSearchParams('category=finance');
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.category === 'Finance') {
+        return [{ ...row(1), category: 'Finance', text: 'Finance only' }];
+      }
+      return [row(0)];
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('radio', { name: /^finance$/i })).toBeChecked();
+    });
+
+    expect(listPredictions).toHaveBeenCalledWith(
+      expect.objectContaining({ category: 'Finance', limit: 20, offset: 0 }),
+      expect.any(AbortSignal),
+    );
+  });
+
+  test('given All category tab selected, should remove category from URL', async () => {
+    mockSearchParams = new URLSearchParams('category=finance');
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('radio', { name: /^finance$/i })).toBeChecked();
+    });
+
+    fireEvent.click(screen.getByRole('radio', { name: /^all$/i }));
+
+    expect(mockReplace).toHaveBeenCalledWith('/', { scroll: false });
   });
 
   test('given trending topics loaded, should still show browse category tabs', async () => {
