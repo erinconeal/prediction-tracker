@@ -37,38 +37,35 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
 
   return (
     <DiscoveryFeedLayout
-      header={(
-        <>
-          <p className="text-sm text-muted">
-            <Link href="/" className={breadcrumbLinkClass}>
-              Home
-            </Link>
-            <span aria-hidden> / </span>
-            <span>Topic</span>
-          </p>
-          <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground sm:text-4xl">
-            {topic.name}
-          </h1>
-          {parentBuckets.length > 0
-            ? (
-                <ul
-                  className="flex list-none flex-wrap gap-2"
-                  aria-label="Parent topics"
+      headerPrefix={(
+        <nav aria-label="Breadcrumb">
+          <ol className="m-0 flex list-none flex-wrap items-center gap-x-1 gap-y-1 p-0 text-sm text-muted">
+            <li className="inline-flex items-center gap-x-1">
+              <Link href="/" className={breadcrumbLinkClass}>
+                Home
+              </Link>
+            </li>
+            {parentBuckets.map((bucket, index) => (
+              <li key={bucket.id} className="inline-flex items-center gap-x-1">
+                <span aria-hidden>{index === 0 ? ' / ' : ' · '}</span>
+                <Link
+                  href={topicPagePath(bucket.slug)}
+                  className={breadcrumbLinkClass}
                 >
-                  {parentBuckets.map(bucket => (
-                    <li key={bucket.id}>
-                      <Link
-                        href={topicPagePath(bucket.slug)}
-                        className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      >
-                        {bucket.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )
-            : null}
-        </>
+                  {bucket.name}
+                </Link>
+              </li>
+            ))}
+            <li aria-current="page" className="sr-only">
+              {topic.name}
+            </li>
+          </ol>
+        </nav>
+      )}
+      title={(
+        <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground sm:text-4xl">
+          {topic.name}
+        </h1>
       )}
       emptyMessage={emptyMessage}
       listSort={feed.listSort}

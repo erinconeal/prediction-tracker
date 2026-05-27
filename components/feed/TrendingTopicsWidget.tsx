@@ -1,5 +1,6 @@
 'use client';
 
+import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
 import { topicPagePath } from '@/lib/topic-path';
@@ -25,7 +26,7 @@ export const TrendingTopicsWidget = memo(function TrendingTopicsWidget({
         id="sidebar-trending-heading"
         className="flex items-center gap-2 text-sm font-semibold"
       >
-        <span aria-hidden>↗</span>
+        <TrendingUp className="size-4" aria-hidden strokeWidth={1.75} />
         Trending topics
       </h2>
       {loading

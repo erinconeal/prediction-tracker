@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import type { Topic } from '@/types/topic';
 import { TopicFeedView } from './TopicFeedView';
@@ -31,13 +31,15 @@ vi.mock('@/hooks/useTrendingTopics', () => ({
     mockUseTrendingTopics(options),
 }));
 
+const mockGetParentBucketTopics = vi.fn<() => Topic[]>(() => []);
+
 vi.mock('@/hooks/useTopicCatalog', () => ({
   useTopicCatalog: () => ({
     topics: [],
     loading: false,
     getTopicsByIds: () => [],
     getPrimaryTopicForPrediction: () => null,
-    getParentBucketTopics: () => [],
+    getParentBucketTopics: mockGetParentBucketTopics,
   }),
 }));
 
@@ -59,6 +61,22 @@ const curatedTopic: Topic = {
   name: 'AI regulation 2026',
   kind: 'curated',
   parentTopicIds: ['topic-tech', 'topic-politics'],
+};
+
+const parentTech: Topic = {
+  id: 'topic-tech',
+  slug: 'technology',
+  name: 'Technology',
+  kind: 'bucket',
+  parentTopicIds: [],
+};
+
+const parentPolitics: Topic = {
+  id: 'topic-politics',
+  slug: 'politics',
+  name: 'Politics',
+  kind: 'bucket',
+  parentTopicIds: [],
 };
 
 function idleFeed() {
@@ -100,6 +118,8 @@ describe('TopicFeedView', () => {
       loading: false,
       error: null,
     });
+    mockGetParentBucketTopics.mockReset();
+    mockGetParentBucketTopics.mockReturnValue([]);
   });
 
   test('given a curated topic, should load feed via discovery scope hook', () => {
@@ -127,5 +147,32 @@ describe('TopicFeedView', () => {
     expect(
       screen.getByRole('link', { name: 'Finance' }),
     ).toHaveAttribute('href', '/finance');
+  });
+
+  test('given parent bucket topics, should render ordered breadcrumb links', () => {
+    mockGetParentBucketTopics.mockReturnValue([parentTech, parentPolitics]);
+
+    render(<TopicFeedView topic={curatedTopic} />);
+
+    const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    const trail = within(nav).getByRole('list');
+    expect(trail.tagName).toBe('OL');
+
+    expect(within(trail).getByRole('link', { name: 'Home' })).toHaveAttribute(
+      'href',
+      '/',
+    );
+    expect(
+      within(trail).getByRole('link', { name: 'Technology' }),
+    ).toHaveAttribute('href', '/technology');
+    expect(
+      within(trail).getByRole('link', { name: 'Politics' }),
+    ).toHaveAttribute('href', '/politics');
+    expect(
+      within(trail).getByText('AI regulation 2026', { selector: '[aria-current="page"]' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'AI regulation 2026' }),
+    ).toBeInTheDocument();
   });
 });
