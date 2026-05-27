@@ -106,7 +106,7 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 ### Discovery Routes
 
 * `/` — home: featured forecasts, trending topics, bucket tabs (in-place browse filter; optional `?topic={slug}` for shareable bucket selection), browse list
-* `/topics/[slug]` — feed for a bucket or curated topic (sidebar layout); linked from forecast cards and discovery rails
+* `/[slug]` — feed for a bucket or curated topic (sidebar layout); linked from forecast cards and discovery rails
 
 ### Async Handling
 

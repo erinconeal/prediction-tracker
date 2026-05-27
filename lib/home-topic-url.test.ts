@@ -54,7 +54,7 @@ describe('home-topic-url', () => {
   test('given curated topic slug, should resolve to redirect', () => {
     expect(resolveHomeTopicQuery('ai-regulation-2026')).toEqual({
       kind: 'redirect',
-      href: '/topics/ai-regulation-2026',
+      href: '/ai-regulation-2026',
     });
   });
 

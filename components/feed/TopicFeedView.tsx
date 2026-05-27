@@ -10,6 +10,7 @@ import { FeedSidebar } from '@/components/feed/FeedSidebar';
 import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
 import { useTopicCatalog } from '@/hooks/useTopicCatalog';
+import { topicPagePath } from '@/lib/topic-path';
 import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import type { Topic } from '@/types/topic';
 import type { Outcome } from '@/types/prediction';
@@ -57,7 +58,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
                   {parentBuckets.map(bucket => (
                     <li key={bucket.id}>
                       <Link
-                        href={`/topics/${bucket.slug}`}
+                        href={topicPagePath(bucket.slug)}
                         className="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-elevated px-3 py-1 text-sm font-medium text-foreground hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >
                         {bucket.name}

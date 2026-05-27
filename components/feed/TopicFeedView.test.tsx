@@ -126,6 +126,6 @@ describe('TopicFeedView', () => {
     });
     expect(
       screen.getByRole('link', { name: 'Finance' }),
-    ).toHaveAttribute('href', '/topics/finance');
+    ).toHaveAttribute('href', '/finance');
   });
 });

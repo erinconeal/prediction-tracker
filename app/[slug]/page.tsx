@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { TopicFeedView } from '@/components/feed/TopicFeedView';
+import { isReservedTopicSlug } from '@/lib/topic-path';
 import { getTopicBySlug } from '@/lib/topic-store';
 
 type PageProps = {
@@ -8,6 +9,9 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
+  if (isReservedTopicSlug(slug)) {
+    return { title: 'Topic not found' };
+  }
   const topic = getTopicBySlug(slug);
   if (!topic) {
     return { title: 'Topic not found' };
@@ -20,6 +24,9 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function TopicPage({ params }: PageProps) {
   const { slug } = await params;
+  if (isReservedTopicSlug(slug)) {
+    notFound();
+  }
   const topic = getTopicBySlug(slug);
   if (!topic) {
     notFound();

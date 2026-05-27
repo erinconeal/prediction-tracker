@@ -29,7 +29,7 @@ describe('ForecastTopicLink', () => {
     const link = screen.getByRole('link', {
       name: 'Browse Finance forecasts',
     });
-    expect(link).toHaveAttribute('href', '/topics/finance');
+    expect(link).toHaveAttribute('href', '/finance');
     expect(link).toHaveTextContent('Finance');
   });
 

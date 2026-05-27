@@ -54,10 +54,10 @@ describe('ForecastCardMetaFooter', () => {
     render(<ForecastCardMetaFooter topicIds={[TOPIC_MIDTERM]} />);
     expect(
       screen.getByRole('link', { name: 'Browse Politics forecasts' }),
-    ).toHaveAttribute('href', '/topics/politics');
+    ).toHaveAttribute('href', '/politics');
     expect(
       screen.getByRole('link', { name: 'Browse Midterm elections 2026 forecasts' }),
-    ).toHaveAttribute('href', '/topics/midterm-elections-2026');
+    ).toHaveAttribute('href', '/midterm-elections-2026');
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
@@ -65,9 +65,9 @@ describe('ForecastCardMetaFooter', () => {
     render(<ForecastCardMetaFooter topicIds={[TOPIC_AI]} />);
     expect(
       screen.getByRole('link', { name: 'Browse Tech forecasts' }),
-    ).toHaveAttribute('href', '/topics/tech');
+    ).toHaveAttribute('href', '/tech');
     const topicLink = screen.getByRole('link', { name: 'Browse AI regulation 2026 forecasts' });
-    expect(topicLink).toHaveAttribute('href', '/topics/ai-regulation-2026');
+    expect(topicLink).toHaveAttribute('href', '/ai-regulation-2026');
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { memo } from 'react';
 import { BUCKET_TOPICS } from '@/lib/topic-buckets';
+import { topicPagePath } from '@/lib/topic-path';
 
 type TopicBucketPillsProps = {
   activeBucketSlug: string;
@@ -35,7 +36,7 @@ export const TopicBucketPills = memo(function TopicBucketPills({
           return (
             <li key={bucket.slug}>
               <Link
-                href={`/topics/${bucket.slug}`}
+                href={topicPagePath(bucket.slug)}
                 className={`inline-flex min-h-11 items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                   isActive
                     ? 'bg-interactive text-white shadow-sm'

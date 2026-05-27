@@ -24,7 +24,7 @@ describe('TrendingTopicsStrip', () => {
     expect(screen.getByRole('heading', { name: /trending topics/i })).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /ai regulation 2026/i }),
-    ).toHaveAttribute('href', '/topics/ai-regulation-2026');
+    ).toHaveAttribute('href', '/ai-regulation-2026');
   });
 
   test('hides when empty and not loading', () => {

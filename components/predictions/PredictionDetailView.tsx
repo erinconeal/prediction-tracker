@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import { usePrediction } from '@/hooks/usePrediction';
 import { usePredictions } from '@/hooks/usePredictions';
+import { topicPagePath } from '@/lib/topic-path';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
 import { updatePredictionOutcome } from '@/services/api';
 import type { TerminalOutcome } from '@/types/prediction';
@@ -111,7 +112,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
                     <span key={t.id}>
                       {i > 0 ? ', ' : null}
                       <Link
-                        href={`/topics/${t.slug}`}
+                        href={topicPagePath(t.slug)}
                         className="underline-offset-2 hover:underline"
                       >
                         {t.name}

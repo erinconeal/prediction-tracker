@@ -76,7 +76,7 @@ describe('BrowseForecastCard', () => {
     );
     expect(screen.getByRole('link', { name: /browse finance forecasts/i })).toHaveAttribute(
       'href',
-      '/topics/finance',
+      '/finance',
     );
     expect(container.querySelector('article > a')).toBeNull();
   });

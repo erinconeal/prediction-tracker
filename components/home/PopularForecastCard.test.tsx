@@ -72,11 +72,11 @@ describe('PopularForecastCard', () => {
 
     expect(
       screen.getByRole('link', { name: /browse finance forecasts/i }),
-    ).toHaveAttribute('href', '/topics/finance');
+    ).toHaveAttribute('href', '/finance');
   });
 
   test('given topicIds on the prediction, should render topic footer link', () => {
-    const { container } = render(
+    render(
       <PopularForecastCard
         prediction={prediction({ topicIds: ['topic-ai-regulation-2026'] })}
         statsContext={[prediction({ topicIds: ['topic-ai-regulation-2026'] })]}
@@ -85,8 +85,7 @@ describe('PopularForecastCard', () => {
 
     expect(
       screen.getByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
-    ).toHaveAttribute('href', '/topics/ai-regulation-2026');
-    expect(container.querySelector('a[href^="/topics/"]')).toBeTruthy();
+    ).toHaveAttribute('href', '/ai-regulation-2026');
   });
 
   test('given no scored predictions for the source, should show unavailable accuracy badge', () => {

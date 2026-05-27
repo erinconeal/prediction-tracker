@@ -399,7 +399,7 @@ describe('DashboardView', () => {
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith(
-        '/topics/ai-regulation-2026',
+        '/ai-regulation-2026',
         { scroll: false },
       );
     });
@@ -470,6 +470,6 @@ describe('DashboardView', () => {
 
     expect(
       screen.getByRole('link', { name: /ai regulation 2026/i }),
-    ).toHaveAttribute('href', '/topics/ai-regulation-2026');
+    ).toHaveAttribute('href', '/ai-regulation-2026');
   });
 });

@@ -49,7 +49,7 @@ describe('useHomeTopicQuery', () => {
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith(
-        '/topics/ai-regulation-2026',
+        '/ai-regulation-2026',
         { scroll: false },
       );
     });

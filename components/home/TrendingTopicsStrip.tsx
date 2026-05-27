@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicEntry } from '@/lib/trending-topics';
 
 type TrendingTopicsStripProps = {
@@ -239,7 +240,7 @@ function TrendingTopicsScroller({
                     className={`flex shrink-0 items-center ${isActive ? 'pl-5' : ''}`}
                   >
                     <Link
-                      href={`/topics/${topic.slug}`}
+                      href={topicPagePath(topic.slug)}
                       className={`${topicLinkClass} ${
                         isActive
                           ? 'text-interactive'

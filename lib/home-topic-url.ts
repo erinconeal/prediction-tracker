@@ -3,6 +3,7 @@ import {
   topicBucketTabFromSlug,
   topicSlugFromBucketTab,
 } from '@/lib/topic-tabs';
+import { topicPagePath } from '@/lib/topic-path';
 import { getTopicBySlug } from '@/lib/topic-store';
 
 /** Maps `?topic=` slug on the home page to an active bucket tab. */
@@ -38,7 +39,7 @@ export function resolveHomeTopicQuery(
 
   const topic = getTopicBySlug(value);
   if (topic && topic.kind === 'curated') {
-    return { kind: 'redirect', href: `/topics/${topic.slug}` };
+    return { kind: 'redirect', href: topicPagePath(topic.slug) };
   }
 
   return { kind: 'strip' };

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicDto } from '@/services/api';
 
 type TrendingTopicsWidgetProps = {
@@ -46,7 +47,7 @@ export const TrendingTopicsWidget = memo(function TrendingTopicsWidget({
                 {topics.map(t => (
                   <li key={t.id} className="list-none">
                     <Link
-                      href={`/topics/${t.slug}`}
+                      href={topicPagePath(t.slug)}
                       className="flex items-center justify-between gap-2 rounded-lg bg-white/10 px-3 py-2.5 text-sm font-medium transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-interactive"
                     >
                       <span className="min-w-0 truncate">{t.name}</span>
