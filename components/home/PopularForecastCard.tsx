@@ -79,9 +79,7 @@ export const PopularForecastCard = memo(function PopularForecastCard({
         />
       )}
       footer={(
-        <ForecastCardMetaFooter
-          category={prediction.category}
-        />
+        <ForecastCardMetaFooter topicIds={prediction.topicIds} />
       )}
     />
   );

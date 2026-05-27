@@ -1,4 +1,5 @@
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
+import { primaryBucketTopicForPrediction } from '@/lib/topic-store';
 import type { Prediction } from '@/types/prediction';
 
 import { FEATURED_FORECAST_MAX_SLOTS } from '@/lib/featured-forecast-columns';
@@ -8,7 +9,7 @@ export const DEFAULT_POPULAR_FORECAST_COUNT = FEATURED_FORECAST_MAX_SLOTS;
 
 /**
  * Picks hero “popular forecast” cards: newest first, preferring one row per
- * category before backfilling so the grid stays visually varied.
+ * bucket topic before backfilling so the grid stays visually varied.
  */
 export function pickPopularForecastsFromFeed(
   data: Prediction[],
@@ -26,13 +27,14 @@ export function pickPopularForecastsFromFeed(
     .sort(comparePredictionsNewestFirst);
 
   const picked: Prediction[] = [];
-  const seenCategories = new Set<string>();
+  const seenBuckets = new Set<string>();
 
   for (const p of candidates) {
     if (picked.length >= max) break;
-    const key = (p.category?.trim() || 'Other').toLowerCase();
-    if (seenCategories.has(key)) continue;
-    seenCategories.add(key);
+    const bucket = primaryBucketTopicForPrediction(p);
+    const key = (bucket?.slug ?? 'other').toLowerCase();
+    if (seenBuckets.has(key)) continue;
+    seenBuckets.add(key);
     picked.push(p);
   }
 

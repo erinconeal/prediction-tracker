@@ -4,7 +4,7 @@ import { pickPopularForecastsFromFeed } from './popular-forecasts';
 
 function prediction(
   id: string,
-  category: string | null,
+  topicIds: string[],
   createdAt: string,
 ): Prediction {
   return {
@@ -12,8 +12,7 @@ function prediction(
     source: 'Source',
     sourceSlug: 'source',
     text: `Prediction ${id}`,
-    category,
-    topicIds: [],
+    topicIds,
     created_at: createdAt,
     resolved_at: null,
     target_date: null,
@@ -22,12 +21,12 @@ function prediction(
 }
 
 describe('pickPopularForecastsFromFeed', () => {
-  test('prefers one forecast per category before backfilling', () => {
+  test('prefers one forecast per bucket topic before backfilling', () => {
     const data = [
-      prediction('a', 'Finance', '2024-06-03T00:00:00.000Z'),
-      prediction('b', 'Finance', '2024-06-02T00:00:00.000Z'),
-      prediction('c', 'Tech', '2024-06-01T00:00:00.000Z'),
-      prediction('d', 'Politics', '2024-05-31T00:00:00.000Z'),
+      prediction('a', ['topic-finance'], '2024-06-03T00:00:00.000Z'),
+      prediction('b', ['topic-finance'], '2024-06-02T00:00:00.000Z'),
+      prediction('c', ['topic-tech'], '2024-06-01T00:00:00.000Z'),
+      prediction('d', ['topic-politics'], '2024-05-31T00:00:00.000Z'),
     ];
 
     const picked = pickPopularForecastsFromFeed(data, { max: 3 });
@@ -37,8 +36,8 @@ describe('pickPopularForecastsFromFeed', () => {
 
   test('excludes ids when requested', () => {
     const data = [
-      prediction('a', 'Finance', '2024-06-03T00:00:00.000Z'),
-      prediction('b', 'Tech', '2024-06-02T00:00:00.000Z'),
+      prediction('a', ['topic-finance'], '2024-06-03T00:00:00.000Z'),
+      prediction('b', ['topic-tech'], '2024-06-02T00:00:00.000Z'),
     ];
 
     const picked = pickPopularForecastsFromFeed(data, {
@@ -54,15 +53,15 @@ describe('pickPopularForecastsFromFeed', () => {
   });
 
   test('given max zero, should return no picks', () => {
-    const data = [prediction('a', 'Finance', '2024-06-03T00:00:00.000Z')];
+    const data = [prediction('a', ['topic-finance'], '2024-06-03T00:00:00.000Z')];
     expect(pickPopularForecastsFromFeed(data, { max: 0 })).toEqual([]);
   });
 
-  test('given only one category, should backfill to max', () => {
+  test('given only one bucket, should backfill to max', () => {
     const data = [
-      prediction('a', 'Finance', '2024-06-03T00:00:00.000Z'),
-      prediction('b', 'Finance', '2024-06-02T00:00:00.000Z'),
-      prediction('c', 'Finance', '2024-06-01T00:00:00.000Z'),
+      prediction('a', ['topic-finance'], '2024-06-03T00:00:00.000Z'),
+      prediction('b', ['topic-finance'], '2024-06-02T00:00:00.000Z'),
+      prediction('c', ['topic-finance'], '2024-06-01T00:00:00.000Z'),
     ];
     expect(pickPopularForecastsFromFeed(data, { max: 3 }).map(p => p.id)).toEqual([
       'a',

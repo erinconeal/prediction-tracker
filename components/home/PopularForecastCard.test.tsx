@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Prediction } from '@/types/prediction';
+import { getTopicsByIds } from '@/lib/topic-store';
 import { PopularForecastCard } from './PopularForecastCard';
 
 vi.mock('next/link', () => ({
@@ -19,15 +20,25 @@ vi.mock('next/link', () => ({
   ),
 }));
 
-const mockGetTopicsByIds = vi.fn<(ids: string[]) => { id: string; slug: string; name: string }[]>(
-  () => [],
-);
+function primaryFromIds(ids: string[]) {
+  const linked = getTopicsByIds(ids);
+  const curated = linked.find(t => t.kind === 'curated');
+  if (curated) return curated;
+  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
+}
+
+function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
+  if (topic.kind !== 'curated') return [];
+  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
+}
 
 vi.mock('@/hooks/useTopicCatalog', () => ({
   useTopicCatalog: () => ({
     topics: [],
     loading: false,
-    getTopicsByIds: mockGetTopicsByIds,
+    getTopicsByIds,
+    getPrimaryTopicForPrediction: primaryFromIds,
+    getParentBucketTopics: parentBucketsFromTopic,
   }),
 }));
 
@@ -37,8 +48,7 @@ function prediction(overrides: Partial<Prediction> = {}): Prediction {
     source: 'Jane Analyst',
     sourceSlug: 'jane',
     text: 'Will rates fall this year?',
-    category: 'Finance',
-    topicIds: [],
+    topicIds: ['topic-finance'],
     created_at: '2024-06-01T00:00:00.000Z',
     resolved_at: null,
     target_date: null,
@@ -49,11 +59,10 @@ function prediction(overrides: Partial<Prediction> = {}): Prediction {
 
 describe('PopularForecastCard', () => {
   beforeEach(() => {
-    mockGetTopicsByIds.mockReset();
-    mockGetTopicsByIds.mockReturnValue([]);
+    vi.clearAllMocks();
   });
 
-  test('given a forecast, should show category link in footer', () => {
+  test('given a forecast, should show primary topic link in footer', () => {
     render(
       <PopularForecastCard
         prediction={prediction()}
@@ -63,34 +72,21 @@ describe('PopularForecastCard', () => {
 
     expect(
       screen.getByRole('link', { name: /browse finance forecasts/i }),
-    ).toHaveAttribute('href', '/category/finance');
+    ).toHaveAttribute('href', '/topics/finance');
   });
 
-  test('given topicIds on the prediction, should not render topic footer links', () => {
-    mockGetTopicsByIds.mockImplementation((ids: string[]) =>
-      ids.includes('topic-ai')
-        ? [
-            {
-              id: 'topic-ai',
-              slug: 'ai-regulation-2026',
-              name: 'AI regulation 2026',
-            },
-          ]
-        : [],
-    );
-
+  test('given topicIds on the prediction, should render topic footer link', () => {
     const { container } = render(
       <PopularForecastCard
-        prediction={prediction({ topicIds: ['topic-ai'] })}
-        statsContext={[prediction({ topicIds: ['topic-ai'] })]}
+        prediction={prediction({ topicIds: ['topic-ai-regulation-2026'] })}
+        statsContext={[prediction({ topicIds: ['topic-ai-regulation-2026'] })]}
       />,
     );
 
-    expect(mockGetTopicsByIds).toHaveBeenCalledWith([]);
     expect(
-      screen.queryByRole('link', { name: /ai regulation/i }),
-    ).not.toBeInTheDocument();
-    expect(container.querySelector('a[href^="/topics/"]')).toBeNull();
+      screen.getByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
+    ).toHaveAttribute('href', '/topics/ai-regulation-2026');
+    expect(container.querySelector('a[href^="/topics/"]')).toBeTruthy();
   });
 
   test('given no scored predictions for the source, should show unavailable accuracy badge', () => {

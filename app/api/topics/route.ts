@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { filterAndSortPredictions } from '@/lib/prediction-store';
 import { rankTrendingTopics } from '@/lib/trending-topics';
-import { listTopics, listTopicsForCategory } from '@/lib/topic-store';
-import { categoryFromSlug } from '@/types/category';
+import {
+  listCuratedTopics,
+  listTopics,
+  listTopicsForBucket,
+} from '@/lib/topic-store';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;
@@ -14,16 +17,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const trending = searchParams.get('trending') === 'true';
   const limit = Math.min(Math.max(1, parseQueryInt(searchParams.get('limit'), 6)), 50);
-  const categoryParam = searchParams.get('category');
+  const bucketParam = searchParams.get('bucket');
 
   if (trending) {
     const predictions = filterAndSortPredictions();
-    let pool = listTopics();
-    if (categoryParam?.trim()) {
-      const cat = categoryFromSlug(categoryParam);
-      if (cat) {
-        pool = listTopicsForCategory(cat);
-      }
+    let pool = listCuratedTopics();
+    if (bucketParam?.trim()) {
+      pool = listTopicsForBucket(bucketParam.trim());
     }
     const ranked = rankTrendingTopics(pool, predictions, { limit });
     return NextResponse.json(
@@ -35,13 +35,9 @@ export async function GET(request: Request) {
     );
   }
 
-  const categorySlug = categoryParam?.trim();
-  if (categorySlug) {
-    const cat = categoryFromSlug(categorySlug);
-    if (!cat) {
-      return NextResponse.json([]);
-    }
-    return NextResponse.json(listTopicsForCategory(cat));
+  const bucketSlug = bucketParam?.trim();
+  if (bucketSlug) {
+    return NextResponse.json(listTopicsForBucket(bucketSlug));
   }
 
   return NextResponse.json(listTopics());

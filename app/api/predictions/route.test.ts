@@ -101,13 +101,13 @@ describe('GET /api/predictions route', () => {
     ).toBe(true);
   });
 
-  test('given category query, should return only matching category case-insensitive', async () => {
-    const { predictionMatchesCategory } = await import(
+  test('given bucket topic query, should return roll-up matches', async () => {
+    const { predictionMatchesTopicSlug } = await import(
       '@/lib/prediction-topic-match',
     );
     const { GET } = await loadRouteModule();
     const request = new Request(
-      'http://localhost/api/predictions?category=finance',
+      'http://localhost/api/predictions?topic=finance',
     );
 
     const response = await GET(request);
@@ -116,7 +116,7 @@ describe('GET /api/predictions route', () => {
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(
-      body.every(row => predictionMatchesCategory(row, 'finance')),
+      body.every(row => predictionMatchesTopicSlug(row, 'finance')),
     ).toBe(true);
   });
 
@@ -265,7 +265,6 @@ describe('POST /api/predictions route', () => {
       body: JSON.stringify({
         source: '  New Source  ',
         text: '  New prediction text  ',
-        category: '  Markets  ',
         target_date: '2026-12-31',
       }),
     });
@@ -274,7 +273,7 @@ describe('POST /api/predictions route', () => {
     const body = (await response.json()) as {
       source: string;
       text: string;
-      category: string | null;
+      topicIds: string[];
       target_date: string | null;
       sourceSlug: string;
       outcome: string;
@@ -285,7 +284,7 @@ describe('POST /api/predictions route', () => {
     expect(body.id).toBeTruthy();
     expect(body.source).toBe('New Source');
     expect(body.text).toBe('New prediction text');
-    expect(body.category).toBe('Markets');
+    expect(body.topicIds).toEqual([]);
     expect(body.sourceSlug).toBe('new-source');
     expect(body.outcome).toBe('pending');
     expect(body.target_date).toBe('2026-12-31T00:00:00.000Z');

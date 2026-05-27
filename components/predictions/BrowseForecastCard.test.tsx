@@ -21,9 +21,23 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+function primaryFromIds(ids: string[]) {
+  const linked = getTopicsByIds(ids);
+  const curated = linked.find(t => t.kind === 'curated');
+  if (curated) return curated;
+  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
+}
+
+function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
+  if (topic.kind !== 'curated') return [];
+  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
+}
+
 vi.mock('@/hooks/useTopicCatalog', () => ({
   useTopicCatalog: () => ({
     getTopicsByIds,
+    getPrimaryTopicForPrediction: primaryFromIds,
+    getParentBucketTopics: parentBucketsFromTopic,
   }),
 }));
 
@@ -35,8 +49,7 @@ function prediction(overrides: Partial<Prediction> = {}): Prediction {
     source: 'Jane Analyst',
     sourceSlug: 'jane',
     text: 'Will rates fall this year?',
-    category: 'Finance',
-    topicIds: [],
+    topicIds: ['topic-finance'],
     created_at: '2024-06-01T00:00:00.000Z',
     resolved_at: null,
     target_date: null,
@@ -46,7 +59,7 @@ function prediction(overrides: Partial<Prediction> = {}): Prediction {
 }
 
 describe('BrowseForecastCard', () => {
-  test('exposes separate links for title, category, and source without a wrapping card link', () => {
+  test('exposes separate links for title, topic, and source without a wrapping card link', () => {
     const { container } = render(
       <BrowseForecastCard
         prediction={prediction()}
@@ -63,7 +76,7 @@ describe('BrowseForecastCard', () => {
     );
     expect(screen.getByRole('link', { name: /browse finance forecasts/i })).toHaveAttribute(
       'href',
-      '/category/finance',
+      '/topics/finance',
     );
     expect(container.querySelector('article > a')).toBeNull();
   });
@@ -139,7 +152,9 @@ describe('BrowseForecastCard', () => {
         onOutcomeFilter={vi.fn()}
       />,
     );
-    expect(screen.getByRole('link', { name: 'AI regulation 2026' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
@@ -151,6 +166,7 @@ describe('BrowseForecastCard', () => {
       />,
     );
     expect(screen.queryByRole('link', { name: 'AI regulation 2026' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /browse finance forecasts/i })).not.toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 });

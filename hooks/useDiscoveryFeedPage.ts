@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { computeFeedPlatformStats } from '@/lib/feed-platform-stats';
 import { pickRecentResolutions } from '@/lib/recent-resolutions';
-import type { Category } from '@/types/category';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
 import type { RecentResolution } from '@/lib/recent-resolutions';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
@@ -13,9 +12,7 @@ const LIST_PAGE_SIZE = 20;
 /** Single scoped fetch size for list pagination and sidebar widgets. */
 const SCOPE_BATCH_SIZE = 80;
 
-export type DiscoveryFeedScope
-  = | { kind: 'category'; category: Category }
-    | { kind: 'topic'; topicSlug: string };
+export type DiscoveryFeedScope = { topicSlug: string };
 
 type UseDiscoveryFeedPageResult = {
   listSort: PredictionListSort;
@@ -44,10 +41,7 @@ export function useDiscoveryFeedPage(
   const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE);
 
   const scopeFilters = useMemo(() => {
-    const base
-      = scope.kind === 'category'
-        ? { category: scope.category, status: 'all' as const }
-        : { topic: scope.topicSlug, status: 'all' as const };
+    const base = { topic: scope.topicSlug, status: 'all' as const };
     return listSort !== 'newest' ? { ...base, sort: listSort } : base;
   }, [scope, listSort]);
 

@@ -9,6 +9,7 @@ import { computeSourceAccuracyStats } from '@/lib/source-stats';
 import { updatePredictionOutcome } from '@/services/api';
 import type { TerminalOutcome } from '@/types/prediction';
 import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
+import { useTopicCatalog } from '@/hooks/useTopicCatalog';
 import { truncateWithEllipsis } from '@/utils/truncate-text';
 
 const IDLE_SOURCE = '__no_match_for_stats_idle__';
@@ -24,6 +25,7 @@ const statCard
   = 'rounded-xl border border-border bg-surface-elevated p-4 shadow-sm';
 
 export function PredictionDetailView({ id }: PredictionDetailViewProps) {
+  const { getTopicsByIds } = useTopicCatalog();
   const { prediction, loading, error, refetch: refetchPrediction }
     = usePrediction(id);
 
@@ -101,11 +103,21 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
           >
             {p.source}
           </Link>
-          {p.category
+          {p.topicIds.length > 0
             ? (
                 <>
                   {' · '}
-                  <span>{p.category}</span>
+                  {getTopicsByIds(p.topicIds).map((t, i) => (
+                    <span key={t.id}>
+                      {i > 0 ? ', ' : null}
+                      <Link
+                        href={`/topics/${t.slug}`}
+                        className="underline-offset-2 hover:underline"
+                      >
+                        {t.name}
+                      </Link>
+                    </span>
+                  ))}
                 </>
               )
             : null}

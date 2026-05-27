@@ -24,7 +24,6 @@ function sample(overrides: Partial<Prediction> = {}): Prediction {
     source: 'Alice',
     sourceSlug: 'alice',
     text: 'It will rain',
-    category: null,
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
     resolved_at: null,
@@ -90,38 +89,38 @@ describe('usePredictionFeed', () => {
 
   test('given filter key change, should reset to new first page not append', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
-      if (filters?.category === 'Finance') {
-        return [sample({ id: 'fin', category: 'Finance' })];
+      if (filters?.topic === 'finance') {
+        return [sample({ id: 'fin' })];
       }
-      if (filters?.category === 'Tech') {
-        return [sample({ id: 'tech', category: 'Tech' })];
+      if (filters?.topic === 'tech') {
+        return [sample({ id: 'tech' })];
       }
       return [];
     });
 
     const { result, rerender } = renderHook(
-      ({ category }: { category?: string }) => {
+      ({ topic }: { topic?: string }) => {
         const filters = useMemo(
           () => ({
             status: 'all' as const,
-            ...(category !== undefined ? { category } : {}),
+            ...(topic !== undefined ? { topic } : {}),
           }),
-          [category],
+          [topic],
         );
         return usePredictionFeed(filters, { pageSize: 20 });
       },
-      { initialProps: { category: 'Finance' as string | undefined } },
+      { initialProps: { topic: 'finance' as string | undefined } },
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.data[0]?.id).toBe('fin');
 
-    rerender({ category: 'Tech' });
+    rerender({ topic: 'tech' });
 
     await waitFor(() => expect(result.current.data[0]?.id).toBe('tech'));
 
     expect(listPredictions).toHaveBeenLastCalledWith(
-      { status: 'all', category: 'Tech', limit: 20, offset: 0 },
+      { status: 'all', topic: 'tech', limit: 20, offset: 0 },
       expect.any(AbortSignal),
     );
   });
@@ -200,7 +199,7 @@ describe('usePredictionFeed', () => {
       .mockResolvedValueOnce([sample({ id: 'old' })])
       .mockResolvedValueOnce([sample({ id: 'new' })]);
 
-    const { result, rerender } = renderHook(({ enabled }) => usePredictionFeed({ status: 'all', category: 'Tech' }, { enabled }), {
+    const { result, rerender } = renderHook(({ enabled }) => usePredictionFeed({ status: 'all', topic: 'tech' }, { enabled }), {
       initialProps: { enabled: true },
     });
 

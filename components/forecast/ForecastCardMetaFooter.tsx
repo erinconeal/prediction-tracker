@@ -1,52 +1,65 @@
 'use client';
 
-import Link from 'next/link';
 import { memo } from 'react';
 import { useTopicCatalog } from '@/hooks/useTopicCatalog';
-import { truncateWithEllipsis } from '@/utils/truncate-text';
-import { ForecastCategoryLink } from './ForecastCategoryLink';
-import { forecastCardLinkClass, forecastCardMetaFooterClass } from './forecast-card-tokens';
+import { pickDisplayBucketTopic } from '@/lib/topic-primary';
+import { ForecastTopicLink } from './ForecastTopicLink';
+import { forecastCardMetaFooterClass } from './forecast-card-tokens';
 
 type ForecastCardMetaFooterProps = {
-  category: string | null | undefined;
   topicIds?: string[];
   className?: string;
 };
 
-const topicLinkClass
-  = `inline min-h-11 items-center font-normal text-muted ${forecastCardLinkClass}`;
-
 export const ForecastCardMetaFooter = memo(function ForecastCardMetaFooter({
-  category,
   topicIds = [],
   className = '',
 }: ForecastCardMetaFooterProps) {
-  const { getTopicsByIds } = useTopicCatalog();
+  const {
+    getTopicsByIds,
+    getPrimaryTopicForPrediction,
+    getParentBucketTopics,
+  } = useTopicCatalog();
   const topics = getTopicsByIds(topicIds);
-  const primary = topics[0];
-  const extra = topics.length - 1;
+  const primary = getPrimaryTopicForPrediction(topicIds);
+  const bucketParent = primary
+    ? pickDisplayBucketTopic(
+        topics,
+        primary,
+        getParentBucketTopics(primary),
+      )
+    : null;
+  const extraTopics = topics.filter(
+    t => t.id !== primary?.id && t.id !== bucketParent?.id,
+  );
+  const extra = extraTopics.length;
 
   return (
     <div className={`${forecastCardMetaFooterClass} ${className}`.trim()}>
       <p className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1">
-        <ForecastCategoryLink category={category} />
-        {primary
+        {bucketParent
+          ? (
+              <>
+                <ForecastTopicLink topic={bucketParent} />
+                <span className="text-muted" aria-hidden>
+                  ·
+                </span>
+              </>
+            )
+          : null}
+        <ForecastTopicLink topic={primary} />
+        {extraTopics[0]
           ? (
               <>
                 <span className="text-muted" aria-hidden>
                   ·
                 </span>
-                <Link
-                  href={`/topics/${primary.slug}`}
-                  className={topicLinkClass}
-                >
-                  {truncateWithEllipsis(primary.name, 48)}
-                </Link>
-                {extra > 0
+                <ForecastTopicLink topic={extraTopics[0]} />
+                {extra > 1
                   ? (
                       <span className="text-muted">
                         +
-                        {extra}
+                        {extra - 1}
                       </span>
                     )
                   : null}

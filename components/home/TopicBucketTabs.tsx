@@ -2,33 +2,33 @@
 
 import { memo, useId } from 'react';
 import {
-  CATEGORY_TAB_VALUES,
-  type CategoryTab,
-} from '@/lib/category-tabs';
+  TOPIC_BUCKET_TAB_VALUES,
+  type TopicBucketTab,
+} from '@/lib/topic-tabs';
 
-export { CATEGORY_TAB_VALUES, type CategoryTab };
+export { TOPIC_BUCKET_TAB_VALUES, type TopicBucketTab };
 
-type CategoryTabsProps = {
-  active: CategoryTab;
-  onChange: (tab: CategoryTab) => void;
+type TopicBucketTabsProps = {
+  active: TopicBucketTab;
+  onChange: (tab: TopicBucketTab) => void;
   disabled?: boolean;
   /** When false, chips sit inline without a fieldset legend. */
   showLegend?: boolean;
   className?: string;
 };
 
-export const CategoryTabs = memo(function CategoryTabs({
+export const TopicBucketTabs = memo(function TopicBucketTabs({
   active,
   onChange,
   disabled = false,
   showLegend = true,
   className = '',
-}: CategoryTabsProps) {
-  const name = `category-tabs-${useId()}`;
+}: TopicBucketTabsProps) {
+  const name = `topic-bucket-tabs-${useId()}`;
 
   const chips = (
     <div className={`flex flex-wrap gap-2 ${showLegend ? 'mt-1.5' : ''}`.trim()}>
-      {CATEGORY_TAB_VALUES.map((tab) => {
+      {TOPIC_BUCKET_TAB_VALUES.map((tab) => {
         const isActive = tab === active;
         return (
           <label
@@ -58,15 +58,13 @@ export const CategoryTabs = memo(function CategoryTabs({
   );
 
   if (!showLegend) {
-    return <div className={`min-w-0 ${className}`.trim()}>{chips}</div>;
+    return <div className={className}>{chips}</div>;
   }
 
   return (
-    <fieldset className={`min-w-0 border-0 p-0 ${className}`.trim()}>
-      <legend className="text-xs font-medium text-muted">Categories</legend>
+    <fieldset className={`border-0 p-0 ${className}`.trim()}>
+      <legend className="text-sm font-semibold text-foreground">Browse by topic</legend>
       {chips}
     </fieldset>
   );
 });
-
-export { categoryFromCategoryTab } from '@/lib/category-tabs';

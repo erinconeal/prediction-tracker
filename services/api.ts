@@ -57,9 +57,6 @@ function buildListUrl(filters: PredictionFilters): string {
   if (filters.status && filters.status !== 'all') {
     params.set('status', filters.status);
   }
-  if (filters.category?.trim()) {
-    params.set('category', filters.category.trim());
-  }
   if (filters.topic?.trim()) {
     params.set('topic', filters.topic.trim());
   }
@@ -141,14 +138,14 @@ export async function getPrediction(
 export async function listTopics(
   options: {
     trending?: boolean;
-    category?: string;
+    bucket?: string;
     limit?: number;
     signal?: AbortSignal;
   } = {},
 ): Promise<Topic[] | TrendingTopicDto[]> {
   const params = new URLSearchParams();
   if (options.trending) params.set('trending', 'true');
-  if (options.category?.trim()) params.set('category', options.category.trim());
+  if (options.bucket?.trim()) params.set('bucket', options.bucket.trim());
   if (options.limit !== undefined) params.set('limit', String(options.limit));
   const q = params.toString();
   const url = q ? `${TOPICS_BASE}?${q}` : TOPICS_BASE;

@@ -1,0 +1,42 @@
+import type { ReactNode } from 'react';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, test, vi } from 'vitest';
+import { getTopicBySlug } from '@/lib/topic-store';
+import { ForecastTopicLink } from './ForecastTopicLink';
+
+vi.mock('next/link', () => ({
+  default: ({
+    children,
+    href,
+    ...rest
+  }: {
+    children: ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+describe('ForecastTopicLink', () => {
+  test('given a topic, should link to the topic feed with browse label', () => {
+    const topic = getTopicBySlug('finance');
+    expect(topic).toBeDefined();
+
+    render(<ForecastTopicLink topic={topic} />);
+
+    const link = screen.getByRole('link', {
+      name: 'Browse Finance forecasts',
+    });
+    expect(link).toHaveAttribute('href', '/topics/finance');
+    expect(link).toHaveTextContent('Finance');
+  });
+
+  test('given no topic, should render static general label', () => {
+    render(<ForecastTopicLink topic={null} />);
+
+    expect(screen.getByText('General')).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+});

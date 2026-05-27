@@ -12,6 +12,7 @@ export type TrendingTopicEntry = {
 
 /**
  * Ranks curated topics by linked prediction volume and recency.
+ * Pass curated topics only (buckets excluded from the pool).
  */
 export function rankTrendingTopics(
   topics: Topic[],
@@ -22,7 +23,8 @@ export function rankTrendingTopics(
   const recencyMs = options?.recencyMs ?? TRENDING_RECENCY_MS;
   const limit = options?.limit ?? 6;
 
-  const topicById = new Map(topics.map(t => [t.id, t]));
+  const curatedPool = topics.filter(t => t.kind === 'curated');
+  const topicById = new Map(curatedPool.map(t => [t.id, t]));
   const buckets = new Map<
     string,
     { topic: Topic; count: number; recentCount: number }

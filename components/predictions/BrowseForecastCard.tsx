@@ -50,10 +50,7 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
         <p className="text-xs text-muted">{timingLine}</p>
       )}
       footer={(
-        <ForecastCardMetaFooter
-          category={p.category}
-          topicIds={p.topicIds}
-        />
+        <ForecastCardMetaFooter topicIds={p.topicIds} />
       )}
     />
   );

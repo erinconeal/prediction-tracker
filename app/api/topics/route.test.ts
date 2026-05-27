@@ -46,10 +46,10 @@ describe('GET /api/topics route', () => {
     ).toBe(true);
   });
 
-  test('given unknown category slug, should return an empty array', async () => {
+  test('given unknown bucket slug, should return an empty array', async () => {
     const { GET } = await loadRouteModule();
     const response = await GET(
-      new Request('http://localhost/api/topics?category=not-a-category'),
+      new Request('http://localhost/api/topics?bucket=not-a-bucket'),
     );
     const body = await response.json();
 

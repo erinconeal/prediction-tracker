@@ -13,7 +13,6 @@ function row(overrides: Partial<Prediction> = {}): Prediction {
     source: 'Jane',
     sourceSlug: 'jane',
     text: 'Prediction text',
-    category: null,
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
     resolved_at: null,

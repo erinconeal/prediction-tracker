@@ -15,7 +15,6 @@ function samplePrediction(overrides: Partial<Prediction> = {}): Prediction {
     source: 'Alice',
     sourceSlug: 'alice',
     text: 'It will rain',
-    category: null,
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
     resolved_at: null,
@@ -73,17 +72,17 @@ describe('listPredictions', () => {
     );
   });
 
-  test('given category limit and offset, should append query parameters', async () => {
+  test('given topic limit and offset, should append query parameters', async () => {
     fetchMock.mockResolvedValue(jsonResponse([]));
 
     await listPredictions({
-      category: 'Tech',
+      topic: 'tech',
       limit: 20,
       offset: 40,
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/predictions?category=Tech&limit=20&offset=40',
+      '/api/predictions?topic=tech&limit=20&offset=40',
       expect.anything(),
     );
   });
@@ -221,7 +220,7 @@ describe('createPrediction', () => {
     const input = {
       source: 'Bob',
       text: 'Stocks up',
-      category: 'markets',
+      topicIds: ['topic-finance'],
     };
     const result = await createPrediction(input);
 

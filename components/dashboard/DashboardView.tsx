@@ -8,10 +8,9 @@ import {
   sortOptionLabel,
 } from '@/components/dashboard/PredictionSortTabs';
 import {
-  CategoryTabs,
-  categoryFromCategoryTab,
-  type CategoryTab,
-} from '@/components/home/CategoryTabs';
+  TopicBucketTabs,
+  type TopicBucketTab,
+} from '@/components/home/TopicBucketTabs';
 import { HomeHeroBand } from '@/components/home/HomeHeroBand';
 import { HomeHeroCard } from '@/components/home/HomeHeroCard';
 import { LeaderboardSection } from '@/components/home/LeaderboardSection';
@@ -21,10 +20,8 @@ import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import { browseEmptyMessage } from '@/lib/browse-empty-message';
 import { pickPopularForecastsFromFeed } from '@/lib/popular-forecasts';
-import {
-  buildHomeBrowseHref,
-  categoryTabFromSearchParam,
-} from '@/lib/home-category-url';
+import { buildHomeBrowseHref } from '@/lib/home-topic-url';
+import { useHomeTopicQuery } from '@/hooks/useHomeTopicQuery';
 import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
 import { listTopics } from '@/services/api';
 import { rankTrendingTopics } from '@/lib/trending-topics';
@@ -40,40 +37,34 @@ export function DashboardView() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [categoryTab, setCategoryTab] = useState<CategoryTab>(() =>
-    categoryTabFromSearchParam(searchParams.get('category')) ?? 'All',
-  );
+  const { topicTab, topicSlug, isFeedReady } = useHomeTopicQuery();
   const [listSort, setListSort] = useState<PredictionListSort>('newest');
   const [outcomeFilter, setOutcomeFilter] = useState<Outcome | 'all'>('all');
   const [sortFiltersOpen, setSortFiltersOpen] = useState(false);
   const sortToggleRef = useRef<HTMLButtonElement>(null);
   const sortPanelRef = useRef<HTMLDivElement>(null);
   const sortFiltersWasOpen = useRef(sortFiltersOpen);
-  const category = useMemo(
-    () => categoryFromCategoryTab(categoryTab),
-    [categoryTab],
-  );
 
   const isDefaultFeed
-    = categoryTab === 'All' && listSort === 'newest' && outcomeFilter === 'all';
+    = topicTab === 'All' && listSort === 'newest' && outcomeFilter === 'all';
 
   const feedFilters = useMemo(
     () => ({
       status: outcomeFilter === 'all' ? ('all' as const) : outcomeFilter,
-      ...(category !== undefined ? { category } : {}),
+      ...(topicSlug !== undefined ? { topic: topicSlug } : {}),
       ...(listSort !== 'newest' ? { sort: listSort } : {}),
     }),
-    [category, listSort, outcomeFilter],
+    [topicSlug, listSort, outcomeFilter],
   );
 
   const homeSample = usePredictionFeed(
     { status: 'all' },
-    { pageSize: HOME_SAMPLE_SIZE },
+    { pageSize: HOME_SAMPLE_SIZE, enabled: isFeedReady },
   );
 
   const filteredFeed = usePredictionFeed(feedFilters, {
     pageSize: PAGE_SIZE,
-    enabled: !isDefaultFeed,
+    enabled: isFeedReady && !isDefaultFeed,
   });
 
   const {
@@ -90,21 +81,27 @@ export function DashboardView() {
   const [catalogTopics, setCatalogTopics] = useState<Topic[]>([]);
 
   useEffect(() => {
+    if (!isFeedReady) return;
     if (trendingApi.data.length > 0 || trendingApi.loading) return;
 
     const controller = new AbortController();
-    void listTopics({ signal: controller.signal })
-      .then((rows) => {
+
+    async function loadCatalogTopics() {
+      try {
+        const rows = await listTopics({ signal: controller.signal });
         if (!controller.signal.aborted) {
           setCatalogTopics(rows as Topic[]);
         }
-      })
-      .catch(() => {
+      }
+      catch {
         if (!controller.signal.aborted) setCatalogTopics([]);
-      });
+      }
+    }
+
+    void loadCatalogTopics();
 
     return () => controller.abort();
-  }, [trendingApi.data.length, trendingApi.loading]);
+  }, [isFeedReady, trendingApi.data.length, trendingApi.loading]);
 
   const trendingEntries = useMemo(() => {
     if (trendingApi.data.length > 0) {
@@ -115,7 +112,8 @@ export function DashboardView() {
       }));
     }
     if (catalogTopics.length === 0) return [];
-    return rankTrendingTopics(catalogTopics, homeSample.data, { limit: 6 });
+    const curated = catalogTopics.filter(t => t.kind === 'curated');
+    return rankTrendingTopics(curated, homeSample.data, { limit: 6 });
   }, [trendingApi.data, catalogTopics, homeSample.data]);
 
   const featuredSlotCount = useFeaturedForecastSlotCount();
@@ -128,10 +126,10 @@ export function DashboardView() {
     [homeSample.data, featuredSlotCount],
   );
 
-  const emptyMessage = browseEmptyMessage(categoryTab, outcomeFilter);
+  const emptyMessage = browseEmptyMessage(topicTab, outcomeFilter);
 
-  const syncCategoryToUrl = useCallback(
-    (tab: CategoryTab) => {
+  const syncTopicTabToUrl = useCallback(
+    (tab: TopicBucketTab) => {
       router.replace(
         buildHomeBrowseHref(pathname, tab, searchParams),
         { scroll: false },
@@ -140,14 +138,13 @@ export function DashboardView() {
     [pathname, router, searchParams],
   );
 
-  const handleCategoryTabChange = useCallback(
-    (tab: CategoryTab) => {
-      setCategoryTab(tab);
+  const handleTopicTabChange = useCallback(
+    (tab: TopicBucketTab) => {
       setOutcomeFilter('all');
-      syncCategoryToUrl(tab);
+      syncTopicTabToUrl(tab);
       scrollBrowseForecastsIntoView();
     },
-    [syncCategoryToUrl],
+    [syncTopicTabToUrl],
   );
 
   const handleOutcomeFilter = useCallback((outcome: Outcome) => {
@@ -295,9 +292,9 @@ export function DashboardView() {
             )
           : null}
 
-        <CategoryTabs
-          active={categoryTab}
-          onChange={handleCategoryTabChange}
+        <TopicBucketTabs
+          active={topicTab}
+          onChange={handleTopicTabChange}
           disabled={loading && data.length === 0}
           showLegend={false}
         />

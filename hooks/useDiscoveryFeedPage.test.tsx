@@ -14,7 +14,7 @@ describe('useDiscoveryFeedPage', () => {
     mockUsePredictionFeed.mockReset();
   });
 
-  test('given a category scope, should use one scoped prediction feed request', () => {
+  test('given a topic scope, should use one scoped prediction feed request', () => {
     mockUsePredictionFeed.mockReturnValue({
       data: [],
       loading: false,
@@ -26,12 +26,12 @@ describe('useDiscoveryFeedPage', () => {
     });
 
     renderHook(() =>
-      useDiscoveryFeedPage({ kind: 'category', category: 'Finance' }),
+      useDiscoveryFeedPage({ topicSlug: 'finance' }),
     );
 
     expect(mockUsePredictionFeed).toHaveBeenCalledTimes(1);
     expect(mockUsePredictionFeed).toHaveBeenCalledWith(
-      { category: 'Finance', status: 'all' },
+      { topic: 'finance', status: 'all' },
       { pageSize: 80 },
     );
   });
@@ -44,8 +44,7 @@ describe('useDiscoveryFeedPage', () => {
           source: 'S',
           sourceSlug: 's',
           text: 'pending one',
-          category: 'Finance',
-          topicIds: [],
+          topicIds: ['topic-finance'],
           created_at: '2024-01-01T00:00:00.000Z',
           resolved_at: null,
           target_date: null,
@@ -56,8 +55,7 @@ describe('useDiscoveryFeedPage', () => {
           source: 'S',
           sourceSlug: 's',
           text: 'correct one',
-          category: 'Finance',
-          topicIds: [],
+          topicIds: ['topic-finance'],
           created_at: '2024-01-02T00:00:00.000Z',
           resolved_at: '2024-01-03T00:00:00.000Z',
           target_date: null,
@@ -73,7 +71,7 @@ describe('useDiscoveryFeedPage', () => {
     });
 
     const { result } = renderHook(() =>
-      useDiscoveryFeedPage({ kind: 'category', category: 'Finance' }),
+      useDiscoveryFeedPage({ topicSlug: 'finance' }),
     );
 
     act(() => {

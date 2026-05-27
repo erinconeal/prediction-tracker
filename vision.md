@@ -78,25 +78,20 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 
 ### Data Model
 
-**Category** (browse taxonomy):
+**Topic** (unified taxonomy):
 
-* Fixed allowlist: Tech, Sports, Politics, Finance, Weather, Historical
-* Used for home category tabs, `/category/[slug]` feeds, and filter rails
-* URL slug: lowercase category name (e.g. `politics`)
-
-**Topic** (curated discovery entity):
-
-* `id`, `slug`, `name`, `categories[]` (one or more categories for cross-listing)
+* **Bucket topics** (`kind: bucket`) — broad rails: Tech, Sports, Politics, Finance, Weather, Historical. Used for home bucket tabs, browse filters, and roll-up matching.
+* **Curated topics** (`kind: curated`) — specific events/themes (e.g. Open AI IPO) with `parentTopicIds` pointing at one or more bucket topics.
+* Fields: `id`, `slug`, `name`, `kind`, `parentTopicIds[]`
 * Seeded in MVP via in-memory store; not user-generated
-* Drives trending rankings and `/topics/[slug]` feeds
+* Trending rankings use **curated** topics only; bucket filter via `?bucket=` on topics API
 
 **Prediction** includes:
 
 * id
 * source (person or account)
 * text (prediction content)
-* category (optional) — primary display category for cards and browse
-* topicIds (array) — many-to-many links to curated topics; category filters also match predictions whose linked topics span that category
+* topicIds (array) — many-to-many links to topics; browse filters by topic slug with bucket roll-up (bucket slug matches direct links and curated children)
 * created_at
 * target_date (optional)
 * outcome: `pending` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
@@ -104,15 +99,14 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 
 **Discovery APIs (MVP):**
 
-* `GET /api/topics` — list topics; optional `trending`, `limit`, `category`
+* `GET /api/topics` — list topics; optional `trending`, `limit`, `bucket` (curated topics under a bucket)
 * `GET /api/topics/[slug]` — topic detail + prediction count
-* `GET /api/predictions` — supports `category`, `topic` (slug), `status`, `source`, and related filters
+* `GET /api/predictions` — supports `topic` (slug), `status`, `source`, and related filters
 
 ### Discovery Routes
 
-* `/` — home: featured forecasts, trending topics, category tabs (in-place browse filter; optional `?category={slug}` for shareable category selection), browse list
-* `/category/[slug]` — dedicated category feed (sidebar layout); also linked from forecast cards and category pills
-* `/topics/[slug]` — predictions linked to that topic
+* `/` — home: featured forecasts, trending topics, bucket tabs (in-place browse filter; optional `?topic={slug}` for shareable bucket selection), browse list
+* `/topics/[slug]` — feed for a bucket or curated topic (sidebar layout); linked from forecast cards and discovery rails
 
 ### Async Handling
 
@@ -171,8 +165,8 @@ The project is successful if:
 * Users can:
 
   * Add and view predictions
-  * Filter predictions by source, status, category, and topic
-  * Browse category and topic feed pages with sidebar context (trending, recent resolutions)
+  * Filter predictions by source, status, and topic (bucket or curated slug)
+  * Browse topic feed pages with sidebar context (trending, recent resolutions)
   * See accuracy metrics per source
   * Understand trends over time via charts (optional, as necessary)
 

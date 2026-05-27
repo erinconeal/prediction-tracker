@@ -19,55 +19,79 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+function primaryFromIds(ids: string[]) {
+  const linked = getTopicsByIds(ids);
+  const curated = linked.find(t => t.kind === 'curated');
+  if (curated) return curated;
+  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
+}
+
+function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
+  if (topic.kind !== 'curated') return [];
+  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
+}
+
 vi.mock('@/hooks/useTopicCatalog', () => ({
   useTopicCatalog: () => ({
     getTopicsByIds,
+    getPrimaryTopicForPrediction: primaryFromIds,
+    getParentBucketTopics: parentBucketsFromTopic,
   }),
 }));
 
 const TOPIC_AI = 'topic-ai-regulation-2026';
 const TOPIC_HOUSING = 'topic-housing-market-2026';
+const TOPIC_MIDTERM = 'topic-midterm-elections-2026';
 
 describe('ForecastCardMetaFooter', () => {
   test('no topics', () => {
-    render(<ForecastCardMetaFooter category="Finance" />);
-    expect(screen.getByText('Finance')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Browse Finance forecasts' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'AI regulation 2026' })).not.toBeInTheDocument();
+    render(<ForecastCardMetaFooter topicIds={[]} />);
+    expect(screen.getByText('General')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /browse/i })).not.toBeInTheDocument();
+  });
+
+  test('one curated topic shows parent bucket and curated label', () => {
+    render(<ForecastCardMetaFooter topicIds={[TOPIC_MIDTERM]} />);
+    expect(
+      screen.getByRole('link', { name: 'Browse Politics forecasts' }),
+    ).toHaveAttribute('href', '/topics/politics');
+    expect(
+      screen.getByRole('link', { name: 'Browse Midterm elections 2026 forecasts' }),
+    ).toHaveAttribute('href', '/topics/midterm-elections-2026');
+    expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
   test('one topic', () => {
-    render(<ForecastCardMetaFooter category="Finance" topicIds={[TOPIC_AI]} />);
-    expect(screen.getByText('Finance')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Browse Finance forecasts' })).toBeInTheDocument();
-    const topicLink = screen.getByRole('link', { name: 'AI regulation 2026' });
+    render(<ForecastCardMetaFooter topicIds={[TOPIC_AI]} />);
+    expect(
+      screen.getByRole('link', { name: 'Browse Tech forecasts' }),
+    ).toHaveAttribute('href', '/topics/tech');
+    const topicLink = screen.getByRole('link', { name: 'Browse AI regulation 2026 forecasts' });
     expect(topicLink).toHaveAttribute('href', '/topics/ai-regulation-2026');
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
   test('multiple topics', () => {
     render(
-      <ForecastCardMetaFooter category="Finance" topicIds={[TOPIC_AI, TOPIC_HOUSING]} />,
+      <ForecastCardMetaFooter topicIds={[TOPIC_AI, TOPIC_HOUSING]} />,
     );
-    expect(screen.getByText('Finance')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Browse Finance forecasts' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'AI regulation 2026' })).toBeInTheDocument();
-    expect(screen.getByText('+1')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Housing market 2026' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Browse AI regulation 2026 forecasts' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Browse Housing market 2026 forecasts' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
 
   test('unknown ids', () => {
     render(
       <ForecastCardMetaFooter
-        category="Finance"
         topicIds={[TOPIC_AI, TOPIC_HOUSING, 'unknown-id']}
       />,
     );
-    expect(screen.getByText('Finance')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Browse Finance forecasts' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'AI regulation 2026' })).toBeInTheDocument();
-    expect(screen.getByText('+1')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Browse AI regulation 2026 forecasts' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Browse Housing market 2026 forecasts' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Unknown topic' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Housing market 2026' })).not.toBeInTheDocument();
   });
 });

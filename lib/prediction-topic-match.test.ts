@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import { listTopics } from '@/lib/topic-store';
-import {
-  predictionMatchesCategory,
-  predictionMatchesTopicSlug,
-} from './prediction-topic-match';
+import { predictionMatchesTopicSlug } from './prediction-topic-match';
 
 function base(overrides: Partial<Prediction> = {}): Prediction {
   return {
@@ -12,7 +9,6 @@ function base(overrides: Partial<Prediction> = {}): Prediction {
     source: 'S',
     sourceSlug: 's',
     text: 't',
-    category: 'Finance',
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
     resolved_at: null,
@@ -22,38 +18,40 @@ function base(overrides: Partial<Prediction> = {}): Prediction {
   };
 }
 
-describe('predictionMatchesCategory', () => {
-  test('matches explicit category on prediction', () => {
-    expect(predictionMatchesCategory(base({ category: 'Tech' }), 'Tech')).toBe(
-      true,
-    );
-  });
-
-  test('matches via linked topic categories', () => {
-    const topics = listTopics();
-    const ai = topics.find(t => t.slug === 'ai-regulation-2026');
-    expect(ai).toBeDefined();
-    expect(
-      predictionMatchesCategory(
-        base({ category: null, topicIds: [ai!.id] }),
-        'Politics',
-      ),
-    ).toBe(true);
-  });
-});
-
 describe('predictionMatchesTopicSlug', () => {
   test('given unknown topic slug, should not match', () => {
     expect(predictionMatchesTopicSlug(base(), 'not-a-real-topic')).toBe(false);
   });
 
-  test('given linked topic slug, should match', () => {
+  test('given linked curated topic slug, should match', () => {
     const ai = listTopics().find(t => t.slug === 'ai-regulation-2026');
     expect(ai).toBeDefined();
     expect(
       predictionMatchesTopicSlug(
         base({ topicIds: [ai!.id] }),
         'ai-regulation-2026',
+      ),
+    ).toBe(true);
+  });
+
+  test('given bucket slug, should match via curated parent roll-up', () => {
+    const ai = listTopics().find(t => t.slug === 'ai-regulation-2026');
+    expect(ai).toBeDefined();
+    expect(
+      predictionMatchesTopicSlug(
+        base({ topicIds: [ai!.id] }),
+        'politics',
+      ),
+    ).toBe(true);
+  });
+
+  test('given bucket slug with direct bucket link, should match', () => {
+    const tech = listTopics().find(t => t.slug === 'tech');
+    expect(tech).toBeDefined();
+    expect(
+      predictionMatchesTopicSlug(
+        base({ topicIds: [tech!.id] }),
+        'tech',
       ),
     ).toBe(true);
   });

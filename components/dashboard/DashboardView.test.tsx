@@ -51,7 +51,6 @@ function row(i: number): Prediction {
     source: 'Source',
     sourceSlug: 'source',
     text: `Prediction ${i}`,
-    category: null,
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
     resolved_at: null,
@@ -303,13 +302,13 @@ describe('DashboardView', () => {
     );
   });
 
-  test('changing category while outcome filter is active should clear outcome filter', async () => {
+  test('changing topic tab while outcome filter is active should clear outcome filter', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === 'incorrect') {
         return [{ ...row(0), outcome: 'incorrect', text: 'Wrong take' }];
       }
-      if (filters?.category === 'Finance') {
-        return [{ ...row(1), category: 'Finance', text: 'Finance only' }];
+      if (filters?.topic === 'finance') {
+        return [{ ...row(1), text: 'Finance only' }];
       }
       return [
         { ...row(0), outcome: 'incorrect', text: 'Wrong take' },
@@ -317,7 +316,7 @@ describe('DashboardView', () => {
       ];
     });
 
-    render(<DashboardView />);
+    const { rerender } = render(<DashboardView />);
 
     await waitFor(() => {
       expect(
@@ -343,19 +342,24 @@ describe('DashboardView', () => {
       expect(within(browseSection).queryByText('Showing:')).not.toBeInTheDocument();
     });
 
-    expect(mockReplace).toHaveBeenCalledWith('/?category=finance', { scroll: false });
+    expect(mockReplace).toHaveBeenCalledWith('/?topic=finance', { scroll: false });
 
-    expect(listPredictions).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'Finance', limit: 20, offset: 0 }),
-      expect.any(AbortSignal),
-    );
+    mockSearchParams = new URLSearchParams('topic=finance');
+    rerender(<DashboardView />);
+
+    await waitFor(() => {
+      expect(listPredictions).toHaveBeenCalledWith(
+        expect.objectContaining({ topic: 'finance', limit: 20, offset: 0 }),
+        expect.any(AbortSignal),
+      );
+    });
   });
 
-  test('given category=finance in URL, should activate Finance tab and filter browse feed', async () => {
-    mockSearchParams = new URLSearchParams('category=finance');
+  test('given topic=finance in URL, should activate Finance tab and filter browse feed', async () => {
+    mockSearchParams = new URLSearchParams('topic=finance');
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
-      if (filters?.category === 'Finance') {
-        return [{ ...row(1), category: 'Finance', text: 'Finance only' }];
+      if (filters?.topic === 'finance') {
+        return [{ ...row(1), text: 'Finance only' }];
       }
       return [row(0)];
     });
@@ -367,13 +371,13 @@ describe('DashboardView', () => {
     });
 
     expect(listPredictions).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'Finance', limit: 20, offset: 0 }),
+      expect.objectContaining({ topic: 'finance', limit: 20, offset: 0 }),
       expect.any(AbortSignal),
     );
   });
 
-  test('given All category tab selected, should remove category from URL', async () => {
-    mockSearchParams = new URLSearchParams('category=finance');
+  test('given All topic tab selected, should remove topic from URL', async () => {
+    mockSearchParams = new URLSearchParams('topic=finance');
     listPredictions.mockResolvedValue([row(0)]);
 
     render(<DashboardView />);
@@ -387,13 +391,44 @@ describe('DashboardView', () => {
     expect(mockReplace).toHaveBeenCalledWith('/', { scroll: false });
   });
 
-  test('given trending topics loaded, should still show browse category tabs', async () => {
+  test('given curated topic slug in URL, should redirect to topic page', async () => {
+    mockSearchParams = new URLSearchParams('topic=ai-regulation-2026');
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(
+        '/topics/ai-regulation-2026',
+        { scroll: false },
+      );
+    });
+
+    expect(listPredictions).not.toHaveBeenCalled();
+  });
+
+  test('given unknown topic slug in URL, should strip topic from URL and show All tab', async () => {
+    mockSearchParams = new URLSearchParams('topic=not-a-real-slug');
+    listPredictions.mockResolvedValue([row(0)]);
+
+    render(<DashboardView />);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/', { scroll: false });
+      expect(
+        screen.getByRole('radio', { name: /^all$/i }),
+      ).toBeChecked();
+    });
+  });
+
+  test('given trending topics loaded, should still show browse topic tabs', async () => {
     listTopics.mockResolvedValue([
       {
-        id: 'topic-ai',
+        id: 'topic-ai-regulation-2026',
         slug: 'ai-regulation-2026',
         name: 'AI regulation 2026',
-        categories: ['Tech', 'Politics'],
+        kind: 'curated',
+        parentTopicIds: ['topic-tech', 'topic-politics'],
         count: 3,
         recentCount: 2,
       },
@@ -415,10 +450,11 @@ describe('DashboardView', () => {
   test('trending topic link navigates to topic page', async () => {
     listTopics.mockResolvedValue([
       {
-        id: 'topic-ai',
+        id: 'topic-ai-regulation-2026',
         slug: 'ai-regulation-2026',
         name: 'AI regulation 2026',
-        categories: ['Tech', 'Politics'],
+        kind: 'curated',
+        parentTopicIds: ['topic-tech', 'topic-politics'],
         count: 3,
         recentCount: 2,
       },

@@ -10,21 +10,21 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-export type CategoryDisplay = {
+export type TopicDisplay = {
   label: string;
   icon: ReactNode;
   iconWrapClass: string;
 };
 
-const CATEGORY_ICON_CLASS = 'size-4 shrink-0';
+const TOPIC_ICON_CLASS = 'size-4 shrink-0';
 
-function categoryIcon(Icon: LucideIcon): ReactNode {
+function topicIcon(Icon: LucideIcon): ReactNode {
   return (
-    <Icon className={CATEGORY_ICON_CLASS} aria-hidden strokeWidth={1.75} />
+    <Icon className={TOPIC_ICON_CLASS} aria-hidden strokeWidth={1.75} />
   );
 }
 
-const CATEGORY_RULES: {
+const TOPIC_RULES: {
   match: RegExp;
   display: {
     Icon: LucideIcon;
@@ -76,16 +76,16 @@ const CATEGORY_RULES: {
   },
 ];
 
-export function categoryDisplayFromName(
-  category: string | null | undefined,
-): CategoryDisplay {
-  const label = category?.trim() || 'General';
+export function topicDisplayFromName(
+  name: string | null | undefined,
+): TopicDisplay {
+  const label = name?.trim() || 'General';
 
-  for (const rule of CATEGORY_RULES) {
+  for (const rule of TOPIC_RULES) {
     if (rule.match.test(label)) {
       return {
         label: rule.display.label ?? label,
-        icon: categoryIcon(rule.display.Icon),
+        icon: topicIcon(rule.display.Icon),
         iconWrapClass: rule.display.iconWrapClass,
       };
     }
@@ -93,7 +93,7 @@ export function categoryDisplayFromName(
 
   return {
     label,
-    icon: categoryIcon(Circle),
+    icon: topicIcon(Circle),
     iconWrapClass: 'bg-surface text-muted ring-1 ring-border',
   };
 }

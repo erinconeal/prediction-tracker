@@ -13,7 +13,6 @@ function row(
     source,
     sourceSlug: source.toLowerCase().replace(/\s+/g, '-'),
     text: 't',
-    category: null,
     topicIds: [],
     created_at,
     resolved_at: outcome === 'pending' ? null : `${created_at}`,

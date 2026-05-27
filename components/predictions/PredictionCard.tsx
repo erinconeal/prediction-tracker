@@ -66,7 +66,7 @@ export const PredictionCard = memo(function PredictionCard({
   const dtClass
     = 'font-normal uppercase tracking-wide text-muted';
   const ddClass = 'text-muted';
-  const categoryDdClass = 'text-muted';
+  const topicsDdClass = 'text-muted';
 
   return (
     <article
@@ -81,9 +81,9 @@ export const PredictionCard = memo(function PredictionCard({
           <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
             <dt className={dtClass}>Source</dt>
             <dd className={`min-w-0 ${ddClass}`}>{sourceBody}</dd>
-            <dt className={dtClass}>Category</dt>
-            <dd className={categoryDdClass}>
-              {p.category?.trim() ? p.category : '—'}
+            <dt className={dtClass}>Topics</dt>
+            <dd className={topicsDdClass}>
+              {p.topicIds.length > 0 ? `${p.topicIds.length} linked` : '—'}
             </dd>
             <dt className={dtClass}>Target date</dt>
             <dd className={ddClass}>

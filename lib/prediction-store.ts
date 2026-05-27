@@ -7,26 +7,18 @@ import type {
 } from '@/types/prediction';
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import { isPendingOutcome } from '@/lib/prediction-outcome';
-import {
-  predictionMatchesCategory,
-  predictionMatchesTopicSlug,
-} from '@/lib/prediction-topic-match';
+import { predictionMatchesTopicSlug } from '@/lib/prediction-topic-match';
 import {
   accuracyPercentFromRollup,
   rollupBySource,
 } from '@/lib/source-outcome-rollup';
-import {
-  getTopicBySlug,
-  primaryCategoryFromTopics,
-} from '@/lib/topic-store';
+import { getTopicBySlug } from '@/lib/topic-store';
 import { slugify } from '@/utils/slugify';
 
 export type ListPredictionsFilter = {
   source?: string;
   status?: Outcome;
-  /** Case-insensitive match on `category` or linked topic categories. */
-  category?: string;
-  /** Topic slug filter. */
+  /** Topic slug filter (bucket roll-up or curated exact match). */
   topic?: string;
   limit?: number;
   offset?: number;
@@ -50,59 +42,50 @@ function seed(): void {
     {
       source: 'Jane Analyst',
       text: 'Inflation will stay above 2% through Q4.',
-      category: 'Finance',
       topicIds: [tid('sp-hits-8000'), tid('housing-market-2026')],
       target_date: '2026-12-31',
     },
     {
       source: 'Tech Blogger',
       text: 'Vendor X ships the new chip before June.',
-      category: 'Tech',
       topicIds: [tid('ai-regulation-2026')],
       target_date: '2026-06-01',
     },
     {
       source: 'Jane Analyst',
       text: 'Unemployment dips below 4% this year.',
-      category: 'Finance',
       topicIds: [tid('housing-market-2026')],
     },
     {
       source: 'Jane Analyst',
       text: 'The Fed cuts rates at least twice before year-end.',
-      category: 'Finance',
       topicIds: [tid('fed-independence-2027')],
     },
     {
       source: 'Political Pundit',
       text: 'Democrats hold the Senate in 2026 midterms.',
-      category: 'Politics',
       topicIds: [tid('midterm-elections-2026')],
       target_date: '2026-11-01',
     },
     {
       source: 'Sports Analyst',
       text: 'Brazil wins the 2026 World Cup.',
-      category: 'Sports',
       topicIds: [tid('world-cup-2026-winner')],
       target_date: '2026-07-01',
     },
     {
       source: 'Climate Writer',
       text: 'At least four Atlantic hurricanes reach Category 3 in 2026.',
-      category: 'Weather',
       topicIds: [tid('atlantic-hurricane-season-2026')],
     },
     {
       source: 'History Buff',
       text: 'A 1930s-style depression begins before 2028.',
-      category: 'Historical',
       topicIds: [tid('great-depression-analog')],
     },
     {
       source: 'Tech Blogger',
       text: 'Still open: EV share of new US sales exceeds 25% by 2027.',
-      category: 'Tech',
       topicIds: [tid('ev-adoption-2030')],
       target_date: '2027-06-01',
     },
@@ -130,16 +113,12 @@ function createInternal(
 ): Prediction {
   const sourceSlug = slugify(input.source);
   const topicIds = input.topicIds ?? [];
-  const category
-    = primaryCategoryFromTopics(topicIds, input.category)
-      ?? (input.category?.trim() ? input.category.trim() : null);
 
   return {
     id: crypto.randomUUID(),
     source: input.source.trim(),
     sourceSlug,
     text: input.text.trim(),
-    category,
     topicIds: [...topicIds],
     created_at: createdAtIso,
     resolved_at: null,
@@ -241,7 +220,7 @@ function sortFiltered(
 export function filterAndSortPredictions(
   filter: Pick<
     ListPredictionsFilter,
-    'source' | 'status' | 'category' | 'topic' | 'sort'
+    'source' | 'status' | 'topic' | 'sort'
   > = {},
 ): Prediction[] {
   seed();
@@ -250,9 +229,6 @@ export function filterAndSortPredictions(
     if (filter.source && !matchesSource(p, filter.source)) return false;
     if (filter.status && p.outcome !== filter.status) return false;
     if (filter.topic && !predictionMatchesTopicSlug(p, filter.topic)) {
-      return false;
-    }
-    if (filter.category && !predictionMatchesCategory(p, filter.category)) {
       return false;
     }
     return true;

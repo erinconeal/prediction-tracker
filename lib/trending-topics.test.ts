@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest';
-import type { Category } from '@/types/category';
 import type { Prediction } from '@/types/prediction';
 import type { Topic } from '@/types/topic';
 import { rankTrendingTopics } from './trending-topics';
@@ -7,9 +6,9 @@ import { rankTrendingTopics } from './trending-topics';
 function topic(
   id: string,
   slug: string,
-  categories: Category[] = ['Tech'],
+  parentTopicIds: string[] = ['topic-tech'],
 ): Topic {
-  return { id, slug, name: slug, categories };
+  return { id, slug, name: slug, kind: 'curated', parentTopicIds };
 }
 
 function row(
@@ -21,7 +20,6 @@ function row(
     source: 'S',
     sourceSlug: 's',
     text: 't',
-    category: 'Tech',
     topicIds,
     created_at,
     resolved_at: null,
@@ -33,7 +31,7 @@ function row(
 describe('rankTrendingTopics', () => {
   const now = Date.parse('2024-06-15T12:00:00.000Z');
   const tA = topic('t-a', 'topic-a');
-  const tB = topic('t-b', 'topic-b', ['Finance']);
+  const tB = topic('t-b', 'topic-b', ['topic-finance']);
 
   test('ranks by recent count then total count', () => {
     const predictions = [

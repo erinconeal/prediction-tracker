@@ -1,47 +1,24 @@
-import type { Category } from '@/types/category';
-import { categoryFromSlug, isCategory } from '@/types/category';
 import type { Prediction } from '@/types/prediction';
 import { getTopicBySlug, getTopicsByIds } from '@/lib/topic-store';
 
+/**
+ * Match predictions for a topic slug.
+ * Curated topics: direct topicIds link.
+ * Bucket topics: direct link or linked curated topic rolls up under this bucket.
+ */
 export function predictionMatchesTopicSlug(
   p: Prediction,
   topicSlug: string,
 ): boolean {
   const topic = getTopicBySlug(topicSlug);
   if (!topic) return false;
-  return p.topicIds.includes(topic.id);
-}
 
-export function predictionMatchesCategory(
-  p: Prediction,
-  categoryFilter: string,
-): boolean {
-  const c = categoryFilter.trim().toLowerCase();
-  if (!c) return true;
+  if (p.topicIds.includes(topic.id)) return true;
 
-  if (p.category !== null && p.category.toLowerCase() === c) {
-    return true;
-  }
+  if (topic.kind === 'curated') return false;
 
   const linked = getTopicsByIds(p.topicIds);
-  return linked.some(t =>
-    t.categories.some(cat => cat.toLowerCase() === c),
+  return linked.some(
+    t => t.kind === 'curated' && t.parentTopicIds.includes(topic.id),
   );
-}
-
-export function predictionMatchesCategoryEnum(
-  p: Prediction,
-  category: Category,
-): boolean {
-  return predictionMatchesCategory(p, category);
-}
-
-export function normalizeCategoryFilter(
-  value: string | undefined,
-): Category | undefined {
-  if (!value?.trim()) return undefined;
-  const fromSlug = categoryFromSlug(value);
-  if (fromSlug) return fromSlug;
-  if (isCategory(value.trim())) return value.trim() as Category;
-  return undefined;
 }

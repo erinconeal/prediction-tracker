@@ -5,13 +5,13 @@ import { listTopics, type TrendingTopicDto } from '@/services/api';
 import { isAbortError } from '@/utils/is-abort-error';
 
 type UseTrendingTopicsOptions = {
-  category?: string;
+  bucket?: string;
   limit?: number;
   enabled?: boolean;
 };
 
 export function useTrendingTopics({
-  category,
+  bucket,
   limit = 6,
   enabled = true,
 }: UseTrendingTopicsOptions = {}) {
@@ -30,7 +30,7 @@ export function useTrendingTopics({
       try {
         const rows = await listTopics({
           trending: true,
-          category,
+          bucket,
           limit,
           signal: controller.signal,
         });
@@ -52,7 +52,7 @@ export function useTrendingTopics({
       controller.abort();
       setFetchLoading(false);
     };
-  }, [category, limit, enabled]);
+  }, [bucket, limit, enabled]);
 
   const idle = !enabled;
 

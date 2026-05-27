@@ -25,7 +25,6 @@ function parseQueryInt(value: string | null, fallback: number): number {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const source = searchParams.get('source') ?? undefined;
-  const category = searchParams.get('category') ?? undefined;
   const topic = searchParams.get('topic') ?? undefined;
   const statusParam = searchParams.get('status');
   let status: Outcome | undefined;
@@ -50,7 +49,6 @@ export async function GET(request: Request) {
   const data = listRows({
     source,
     status,
-    category: category?.trim() ? category.trim() : undefined,
     topic: topic?.trim() ? topic.trim() : undefined,
     limit,
     offset,
@@ -99,7 +97,6 @@ export async function POST(request: Request) {
   const input: CreatePredictionInput = {
     source,
     text,
-    category: typeof b.category === 'string' ? b.category : undefined,
     topicIds,
     target_date: typeof b.target_date === 'string' ? b.target_date : undefined,
   };
