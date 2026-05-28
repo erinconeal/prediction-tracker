@@ -23,7 +23,7 @@ export const OutcomeFilterButton = memo(function OutcomeFilterButton({
   return (
     <button
       type="button"
-      className="cursor-pointer inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       aria-label={`Filter browse forecasts by ${label}`}
       onClick={() => onFilter(outcome)}
     >
