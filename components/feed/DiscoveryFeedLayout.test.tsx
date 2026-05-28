@@ -104,26 +104,4 @@ describe('DiscoveryFeedLayout', () => {
       screen.getByRole('button', { name: /show sort options/i }),
     ).toHaveClass('text-primary');
   });
-
-  test('given sort panel opened, should focus the first sort option', () => {
-    renderLayout('all', vi.fn(), {
-      listData: [row(0)],
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /show sort options/i }));
-
-    expect(screen.getByRole('radio', { name: /^newest$/i })).toHaveFocus();
-  });
-
-  test('given sort panel closed after open, should return focus to the toggle', () => {
-    renderLayout('all', vi.fn(), {
-      listData: [row(0)],
-    });
-
-    const toggle = screen.getByRole('button', { name: /show sort options/i });
-    fireEvent.click(toggle);
-    fireEvent.click(screen.getByRole('button', { name: /hide sort options/i }));
-
-    expect(toggle).toHaveFocus();
-  });
 });

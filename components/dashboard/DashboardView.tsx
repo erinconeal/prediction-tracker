@@ -1,12 +1,11 @@
 'use client';
 
-import { Settings2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  PredictionSortTabs,
-  sortOptionLabel,
-} from '@/components/dashboard/PredictionSortTabs';
+  PredictionSortFilterPanel,
+  PredictionSortFilterToolbar,
+} from '@/components/predictions/PredictionSortFilterControls';
 import {
   TopicBucketTabs,
   type TopicBucketTab,
@@ -26,12 +25,14 @@ import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
 import { listTopics } from '@/services/api';
 import { rankTrendingTopics } from '@/lib/trending-topics';
 import type { Topic } from '@/types/topic';
+import { useCollapsibleSortFilters } from '@/hooks/useCollapsibleSortFilters';
 import { useFeaturedForecastSlotCount } from '@/hooks/useFeaturedForecastSlotCount';
 import { outcomeLabels } from '@/components/predictions/outcome-display';
 import type { Outcome, PredictionListSort } from '@/types/prediction';
 
 const PAGE_SIZE = 20;
 const HOME_SAMPLE_SIZE = 50;
+const HOME_SORT_CONTROLS_ID = 'prediction-sort-tabs';
 
 export function DashboardView() {
   const router = useRouter();
@@ -40,10 +41,12 @@ export function DashboardView() {
   const { topicTab, topicSlug, isFeedReady } = useHomeTopicQuery();
   const [listSort, setListSort] = useState<PredictionListSort>('newest');
   const [outcomeFilter, setOutcomeFilter] = useState<Outcome | 'all'>('all');
-  const [sortFiltersOpen, setSortFiltersOpen] = useState(false);
-  const sortToggleRef = useRef<HTMLButtonElement>(null);
-  const sortPanelRef = useRef<HTMLDivElement>(null);
-  const sortFiltersWasOpen = useRef(sortFiltersOpen);
+  const {
+    sortFiltersOpen,
+    toggleSortFilters,
+    sortToggleRef,
+    sortPanelRef,
+  } = useCollapsibleSortFilters();
 
   const isDefaultFeed
     = topicTab === 'All' && listSort === 'newest' && outcomeFilter === 'all';
@@ -157,21 +160,6 @@ export function DashboardView() {
     scrollBrowseForecastsIntoView();
   }, []);
 
-  useEffect(() => {
-    if (sortFiltersWasOpen.current === sortFiltersOpen) return;
-    sortFiltersWasOpen.current = sortFiltersOpen;
-
-    if (sortFiltersOpen) {
-      const firstRadio = sortPanelRef.current?.querySelector<HTMLInputElement>(
-        'input[type="radio"]',
-      );
-      firstRadio?.focus();
-      return;
-    }
-
-    sortToggleRef.current?.focus();
-  }, [sortFiltersOpen]);
-
   const trendingTopicsHeader = (
     <TrendingTopicsStrip
       topics={trendingEntries}
@@ -202,47 +190,15 @@ export function DashboardView() {
             >
               Browse forecasts
             </h2>
-            <div className="flex shrink-0 items-center gap-3">
-              {loading && data.length > 0
-                ? (
-                    <span
-                      className="text-xs text-muted"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      Updating…
-                    </span>
-                  )
-                : null}
-              {!sortFiltersOpen && listSort !== 'newest'
-                ? (
-                    <span className="text-sm text-muted">
-                      Sorted:
-                      {' '}
-                      <span className="font-medium text-foreground">
-                        {sortOptionLabel(listSort)}
-                      </span>
-                    </span>
-                  )
-                : null}
-              <button
-                ref={sortToggleRef}
-                type="button"
-                className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                  listSort !== 'newest'
-                    ? 'text-primary'
-                    : 'text-muted hover:text-foreground'
-                }`}
-                aria-expanded={sortFiltersOpen}
-                aria-controls="prediction-sort-tabs"
-                onClick={() => setSortFiltersOpen(open => !open)}
-              >
-                <Settings2 className="size-5" aria-hidden strokeWidth={1.75} />
-                <span className="sr-only">
-                  {sortFiltersOpen ? 'Hide sort options' : 'Show sort options'}
-                </span>
-              </button>
-            </div>
+            <PredictionSortFilterToolbar
+              controlsId={HOME_SORT_CONTROLS_ID}
+              listSort={listSort}
+              loading={loading}
+              hasLoadedRows={data.length > 0}
+              sortFiltersOpen={sortFiltersOpen}
+              toggleSortFilters={toggleSortFilters}
+              sortToggleRef={sortToggleRef}
+            />
           </div>
           {outcomeFilter !== 'all'
             ? (
@@ -299,23 +255,14 @@ export function DashboardView() {
           showLegend={false}
         />
 
-        <div
-          ref={sortPanelRef}
-          className={
-            sortFiltersOpen
-              ? 'animate-sort-filters-enter motion-reduce:animate-none'
-              : 'hidden'
-          }
-          hidden={!sortFiltersOpen}
-        >
-          <PredictionSortTabs
-            id="prediction-sort-tabs"
-            value={listSort}
-            onChange={setListSort}
-            disabled={loading && data.length === 0}
-            hideLegend
-          />
-        </div>
+        <PredictionSortFilterPanel
+          id={HOME_SORT_CONTROLS_ID}
+          listSort={listSort}
+          onChange={setListSort}
+          disabled={loading && data.length === 0}
+          sortFiltersOpen={sortFiltersOpen}
+          sortPanelRef={sortPanelRef}
+        />
 
         <PredictionGrid
           predictions={data}
