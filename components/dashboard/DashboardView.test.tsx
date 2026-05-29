@@ -187,7 +187,7 @@ describe('DashboardView', () => {
       expect(screen.getAllByText('Prediction 0').length).toBeGreaterThan(0);
     });
 
-    expect(document.getElementById('prediction-sort-tabs')).toBeInTheDocument();
+    expect(document.getElementById('home-browse-sort-tabs')).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /show sort options/i }),
