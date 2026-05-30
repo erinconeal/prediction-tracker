@@ -9,7 +9,6 @@ type PredictionGridProps = {
   predictions: Prediction[];
   loading: boolean;
   emptyMessage?: string;
-  outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
 };
 
@@ -17,7 +16,6 @@ export const PredictionGrid = memo(function PredictionGrid({
   predictions,
   loading,
   emptyMessage = 'No predictions in this view yet.',
-  outcomeFilter,
   onOutcomeFilter,
 }: PredictionGridProps) {
   if (loading && predictions.length === 0) {

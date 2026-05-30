@@ -26,9 +26,12 @@ Do **not** add local copies of `samplePrediction`, inline `next/link` mocks, or 
 
 ### Mock import order
 
-Side-effect mock modules must run **before** the module under test is loaded. Put the mock import **first** in the file (before React Testing Library and the subject import):
+Side-effect mock modules must run **before** the module under test is loaded. Put the mock import **first** in the file (before React Testing Library and the subject import). ESLint enforces this via `test-conventions/mock-import-first` on `*.{test,spec}.{ts,tsx}`.
+
+Copy-paste scaffold (keep the comment so contributors remember the convention without re-reading this section.):
 
 ```ts
+// Side-effect mock imports first — see test/README.md#mock-import-order
 import '@/test/mocks/api-service';
 import { renderHook } from '@testing-library/react';
 import { listPredictions } from '@/test/mocks/api-service';

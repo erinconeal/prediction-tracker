@@ -1,7 +1,7 @@
+import '@/test/mocks/use-topic-catalog';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import { buildPrediction } from '@/test/factories/prediction';
-import '@/test/mocks/use-topic-catalog';
 import { BrowseForecastCard } from './BrowseForecastCard';
 
 const TOPIC_AI = 'topic-ai-regulation-2026';

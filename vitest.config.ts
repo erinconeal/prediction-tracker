@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    include: ['**/*.{test,spec}.{ts,tsx}'],
+    include: ['**/*.{test,spec}.{ts,tsx}', 'eslint-rules/**/*.test.js'],
     clearMocks: true,
     setupFiles: ['./vitest.setup.ts'],
   },

@@ -1,6 +1,6 @@
+import '@/test/mocks/use-topic-catalog';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
-import '@/test/mocks/use-topic-catalog';
 import { ForecastCardMetaFooter } from './ForecastCardMetaFooter';
 
 const TOPIC_AI = 'topic-ai-regulation-2026';

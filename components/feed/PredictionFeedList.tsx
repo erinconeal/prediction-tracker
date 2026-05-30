@@ -8,7 +8,6 @@ type PredictionFeedListProps = {
   predictions: Prediction[];
   loading: boolean;
   emptyMessage?: string;
-  outcomeFilter: Outcome | 'all';
   onOutcomeFilter: (outcome: Outcome) => void;
 };
 
@@ -16,7 +15,6 @@ export const PredictionFeedList = memo(function PredictionFeedList({
   predictions,
   loading,
   emptyMessage = 'No predictions in this view yet.',
-  outcomeFilter,
   onOutcomeFilter,
 }: PredictionFeedListProps) {
   if (loading && predictions.length === 0) {
