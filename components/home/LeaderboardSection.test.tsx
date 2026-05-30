@@ -1,43 +1,13 @@
-import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+import { idleLeaderboard } from '@/test/factories/hook-results';
 import { LeaderboardSection } from './LeaderboardSection';
 import * as useLeaderboardModule from '@/hooks/useLeaderboard';
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
 
 vi.mock('@/hooks/useLeaderboard');
 
 const useLeaderboard = vi.mocked(useLeaderboardModule.useLeaderboard);
-
-const sampleRow = {
-  rank: 1,
-  source: 'Jane Analyst',
-  sourceSlug: 'jane-analyst',
-  total: 4,
-  resolved: 3,
-  scored: 3,
-  correct: 3,
-  accuracyPercent: 100,
-  pending: 1,
-  outcomeUnresolved: 0,
-  invalid: 0,
-  streakKind: 'correct' as const,
-  streakLength: 3,
-};
 
 describe('LeaderboardSection', () => {
   beforeEach(() => {
@@ -45,12 +15,22 @@ describe('LeaderboardSection', () => {
   });
 
   test('renders featured leader with source slug link', async () => {
-    useLeaderboard.mockReturnValue({
-      rows: [sampleRow],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    useLeaderboard.mockReturnValue(
+      idleLeaderboard({
+        rows: [buildLeaderboardRow({
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+          total: 4,
+          resolved: 3,
+          scored: 3,
+          correct: 3,
+          accuracyPercent: 100,
+          pending: 1,
+          streakKind: 'correct',
+          streakLength: 3,
+        })],
+      }),
+    );
 
     render(<LeaderboardSection limit={10} />);
 
@@ -63,12 +43,9 @@ describe('LeaderboardSection', () => {
 
   test('given error, retry calls refetch', async () => {
     const refetch = vi.fn().mockResolvedValue(undefined);
-    useLeaderboard.mockReturnValue({
-      rows: [],
-      loading: false,
-      error: 'offline',
-      refetch,
-    });
+    useLeaderboard.mockReturnValue(
+      idleLeaderboard({ rows: [], error: 'offline', refetch }),
+    );
 
     render(<LeaderboardSection />);
 
@@ -77,12 +54,7 @@ describe('LeaderboardSection', () => {
   });
 
   test('shows loading shell while fetching', () => {
-    useLeaderboard.mockReturnValue({
-      rows: [],
-      loading: true,
-      error: null,
-      refetch: vi.fn(),
-    });
+    useLeaderboard.mockReturnValue(idleLeaderboard({ loading: true }));
 
     render(<LeaderboardSection />);
 

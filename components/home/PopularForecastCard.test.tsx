@@ -1,61 +1,20 @@
-import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Prediction } from '@/types/prediction';
-import { getTopicsByIds } from '@/lib/topic-store';
+import { buildPrediction } from '@/test/factories/prediction';
+import '@/test/mocks/use-topic-catalog';
 import { PopularForecastCard } from './PopularForecastCard';
 
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-function primaryFromIds(ids: string[]) {
-  const linked = getTopicsByIds(ids);
-  const curated = linked.find(t => t.kind === 'curated');
-  if (curated) return curated;
-  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
-}
-
-function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
-  if (topic.kind !== 'curated') return [];
-  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
-}
-
-vi.mock('@/hooks/useTopicCatalog', () => ({
-  useTopicCatalog: () => ({
-    topics: [],
-    loading: false,
-    getTopicsByIds,
-    getPrimaryTopicForPrediction: primaryFromIds,
-    getParentBucketTopics: parentBucketsFromTopic,
-  }),
-}));
-
-function prediction(overrides: Partial<Prediction> = {}): Prediction {
-  return {
+const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =>
+  buildPrediction({
     id: 'p-1',
     source: 'Jane Analyst',
     sourceSlug: 'jane',
     text: 'Will rates fall this year?',
     topicIds: ['topic-finance'],
     created_at: '2024-06-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
     outcome: 'pending',
     ...overrides,
-  };
-}
+  });
 
 describe('PopularForecastCard', () => {
   beforeEach(() => {
@@ -65,8 +24,8 @@ describe('PopularForecastCard', () => {
   test('given a forecast, should show primary topic link in footer', () => {
     render(
       <PopularForecastCard
-        prediction={prediction()}
-        statsContext={[prediction()]}
+        prediction={cardPrediction()}
+        statsContext={[cardPrediction()]}
       />,
     );
 
@@ -78,8 +37,8 @@ describe('PopularForecastCard', () => {
   test('given topicIds on the prediction, should render topic footer link', () => {
     render(
       <PopularForecastCard
-        prediction={prediction({ topicIds: ['topic-ai-regulation-2026'] })}
-        statsContext={[prediction({ topicIds: ['topic-ai-regulation-2026'] })]}
+        prediction={cardPrediction({ topicIds: ['topic-ai-regulation-2026'] })}
+        statsContext={[cardPrediction({ topicIds: ['topic-ai-regulation-2026'] })]}
       />,
     );
 
@@ -91,9 +50,9 @@ describe('PopularForecastCard', () => {
   test('given no scored predictions for the source, should show unavailable accuracy badge', () => {
     render(
       <PopularForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         statsContext={[
-          prediction({ id: 'p-pending', outcome: 'pending', resolved_at: null }),
+          cardPrediction({ id: 'p-pending', outcome: 'pending', resolved_at: null }),
         ]}
       />,
     );
@@ -106,12 +65,12 @@ describe('PopularForecastCard', () => {
 
   test('given scored source stats, should expose accuracy percent in aria-label', () => {
     const statsContext = [
-      prediction({
+      cardPrediction({
         id: 'p-1',
         outcome: 'correct',
         resolved_at: '2024-07-01T00:00:00.000Z',
       }),
-      prediction({
+      cardPrediction({
         id: 'p-2',
         outcome: 'incorrect',
         resolved_at: '2024-07-02T00:00:00.000Z',
@@ -120,7 +79,7 @@ describe('PopularForecastCard', () => {
 
     render(
       <PopularForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         statsContext={statsContext}
       />,
     );
@@ -132,12 +91,12 @@ describe('PopularForecastCard', () => {
 
   test('given a forecast, should show source accuracy badge', () => {
     const statsContext = [
-      prediction({
+      cardPrediction({
         id: 'p-1',
         outcome: 'correct',
         resolved_at: '2024-07-01T00:00:00.000Z',
       }),
-      prediction({
+      cardPrediction({
         id: 'p-2',
         outcome: 'incorrect',
         resolved_at: '2024-07-02T00:00:00.000Z',
@@ -146,7 +105,7 @@ describe('PopularForecastCard', () => {
 
     render(
       <PopularForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         statsContext={statsContext}
       />,
     );
@@ -157,8 +116,8 @@ describe('PopularForecastCard', () => {
   test('exposes title and source links; accuracy badge is not a button', () => {
     render(
       <PopularForecastCard
-        prediction={prediction()}
-        statsContext={[prediction()]}
+        prediction={cardPrediction()}
+        statsContext={[cardPrediction()]}
       />,
     );
 

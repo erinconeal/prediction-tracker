@@ -1,25 +1,17 @@
+import '@/test/mocks/api-service';
 import { renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as api from '@/services/api';
+import { beforeEach, describe, expect, test } from 'vitest';
+import { listTopics } from '@/test/mocks/api-service';
 import { useTrendingTopics } from './useTrendingTopics';
 import { TrendingTopicDto } from '@/services/api';
-
-vi.mock('@/services/api', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@/services/api')>();
-  return {
-    ...mod,
-    listTopics: vi.fn(),
-  };
-});
-
-const listTopics = vi.mocked(api.listTopics);
 
 function trendingTopic(overrides: Partial<TrendingTopicDto> = {}): TrendingTopicDto {
   return {
     id: 't-1',
     slug: 'ai',
     name: 'AI',
-    categories: ['Tech'],
+    kind: 'curated',
+    parentTopicIds: ['topic-tech'],
     count: 1,
     recentCount: 0,
     ...overrides,

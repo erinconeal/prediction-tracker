@@ -1,5 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { buildPrediction } from '@/test/factories/prediction';
+import { idlePredictionFeed } from '@/test/factories/hook-results';
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { useDiscoveryFeedPage } from './useDiscoveryFeedPage';
 
@@ -15,15 +17,7 @@ describe('useDiscoveryFeedPage', () => {
   });
 
   test('given a topic scope, should use one scoped prediction feed request', () => {
-    mockUsePredictionFeed.mockReturnValue({
-      data: [],
-      loading: false,
-      loadingMore: false,
-      error: null,
-      hasMore: false,
-      refetch: vi.fn(),
-      loadMore: vi.fn(),
-    });
+    mockUsePredictionFeed.mockReturnValue(idlePredictionFeed());
 
     renderHook(() =>
       useDiscoveryFeedPage({ topicSlug: 'finance' }),
@@ -37,20 +31,16 @@ describe('useDiscoveryFeedPage', () => {
   });
 
   test('given outcome filter, should filter list client-side without a second fetch', async () => {
-    mockUsePredictionFeed.mockReturnValue({
+    mockUsePredictionFeed.mockReturnValue(idlePredictionFeed({
       data: [
-        {
+        buildPrediction({
           id: '1',
           source: 'S',
           sourceSlug: 's',
           text: 'pending one',
           topicIds: ['topic-finance'],
-          created_at: '2024-01-01T00:00:00.000Z',
-          resolved_at: null,
-          target_date: null,
-          outcome: 'pending',
-        },
-        {
+        }),
+        buildPrediction({
           id: '2',
           source: 'S',
           sourceSlug: 's',
@@ -58,17 +48,10 @@ describe('useDiscoveryFeedPage', () => {
           topicIds: ['topic-finance'],
           created_at: '2024-01-02T00:00:00.000Z',
           resolved_at: '2024-01-03T00:00:00.000Z',
-          target_date: null,
           outcome: 'correct',
-        },
+        }),
       ],
-      loading: false,
-      loadingMore: false,
-      error: null,
-      hasMore: false,
-      refetch: vi.fn(),
-      loadMore: vi.fn(),
-    });
+    }));
 
     const { result } = renderHook(() =>
       useDiscoveryFeedPage({ topicSlug: 'finance' }),

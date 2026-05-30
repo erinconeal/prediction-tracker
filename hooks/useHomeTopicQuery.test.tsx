@@ -1,20 +1,16 @@
+import '@/test/mocks/next-navigation';
 import { renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
+import {
+  mockReplace,
+  resetNextNavigationMocks,
+  setMockSearchParams,
+} from '@/test/mocks/next-navigation';
 import { useHomeTopicQuery } from './useHomeTopicQuery';
-
-const mockReplace = vi.fn();
-let mockSearchParams = new URLSearchParams();
-
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ replace: mockReplace }),
-  useSearchParams: () => mockSearchParams,
-  usePathname: () => '/',
-}));
 
 describe('useHomeTopicQuery', () => {
   beforeEach(() => {
-    mockReplace.mockReset();
-    mockSearchParams = new URLSearchParams();
+    resetNextNavigationMocks();
   });
 
   test('given no topic query, should resolve to All tab and feed ready', () => {
@@ -30,7 +26,7 @@ describe('useHomeTopicQuery', () => {
   });
 
   test('given finance slug, should resolve Finance tab and finance topic slug', () => {
-    mockSearchParams = new URLSearchParams('topic=finance');
+    setMockSearchParams(new URLSearchParams('topic=finance'));
 
     const { result } = renderHook(() => useHomeTopicQuery());
 
@@ -40,7 +36,7 @@ describe('useHomeTopicQuery', () => {
   });
 
   test('given curated topic slug, should mark feed not ready and redirect', async () => {
-    mockSearchParams = new URLSearchParams('topic=ai-regulation-2026');
+    setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
 
     const { result } = renderHook(() => useHomeTopicQuery());
 
@@ -56,7 +52,7 @@ describe('useHomeTopicQuery', () => {
   });
 
   test('given unknown topic slug, should strip query and mark feed not ready until replace', async () => {
-    mockSearchParams = new URLSearchParams('topic=not-a-real-slug');
+    setMockSearchParams(new URLSearchParams('topic=not-a-real-slug'));
 
     const { result } = renderHook(() => useHomeTopicQuery());
 

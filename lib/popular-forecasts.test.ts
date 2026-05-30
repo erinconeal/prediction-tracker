@@ -1,23 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+import { buildPredictionWithId } from '@/test/factories/prediction';
 import { pickPopularForecastsFromFeed } from './popular-forecasts';
 
 function prediction(
   id: string,
   topicIds: string[],
   createdAt: string,
-): Prediction {
-  return {
-    id,
-    source: 'Source',
-    sourceSlug: 'source',
-    text: `Prediction ${id}`,
-    topicIds,
-    created_at: createdAt,
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
+) {
+  return buildPredictionWithId(id, { topicIds, created_at: createdAt });
 }
 
 describe('pickPopularForecastsFromFeed', () => {

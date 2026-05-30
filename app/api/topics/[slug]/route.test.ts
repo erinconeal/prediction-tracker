@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-
-async function loadRouteModule() {
-  vi.resetModules();
-  return import('./route');
-}
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/topics/[slug] route', () => {
   beforeEach(() => {
@@ -11,7 +7,7 @@ describe('GET /api/topics/[slug] route', () => {
   });
 
   test('given a known slug, should return topic detail with prediction count', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(new Request('http://localhost/api/topics/x'), {
       params: Promise.resolve({ slug: 'ai-regulation-2026' }),
     });
@@ -27,7 +23,7 @@ describe('GET /api/topics/[slug] route', () => {
   });
 
   test('given an unknown slug, should respond with 404', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(new Request('http://localhost/api/topics/x'), {
       params: Promise.resolve({ slug: 'not-a-real-topic' }),
     });

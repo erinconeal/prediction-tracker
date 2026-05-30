@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+import { buildPrediction } from '@/test/factories/prediction';
 import {
   ApiError,
   createPrediction,
@@ -8,21 +8,6 @@ import {
   listPredictions,
   updatePredictionOutcome,
 } from './api';
-
-function samplePrediction(overrides: Partial<Prediction> = {}): Prediction {
-  return {
-    id: 'p-1',
-    source: 'Alice',
-    sourceSlug: 'alice',
-    text: 'It will rain',
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-    ...overrides,
-  };
-}
 
 function jsonResponse(body: unknown, init?: ResponseInit): Response {
   const bodyText
@@ -46,7 +31,7 @@ describe('listPredictions', () => {
   });
 
   test('given default filters, should GET /api/predictions with no-store and Accept header', async () => {
-    const row = samplePrediction();
+    const row = buildPrediction();
     fetchMock.mockResolvedValue(jsonResponse([row]));
 
     await listPredictions({});
@@ -99,7 +84,7 @@ describe('listPredictions', () => {
   });
 
   test('given ok JSON array, should return predictions', async () => {
-    const row = samplePrediction({ id: 'x' });
+    const row = buildPrediction({ id: 'x' });
     fetchMock.mockResolvedValue(jsonResponse([row]));
 
     const result = await listPredictions({});
@@ -165,7 +150,7 @@ describe('getPrediction', () => {
   });
 
   test('should GET encoded id', async () => {
-    const row = samplePrediction({ id: 'abc' });
+    const row = buildPrediction({ id: 'abc' });
     fetchMock.mockResolvedValue(jsonResponse(row));
 
     const result = await getPrediction('abc');
@@ -214,7 +199,7 @@ describe('createPrediction', () => {
   });
 
   test('given 201 with prediction JSON, should return parsed prediction', async () => {
-    const created = samplePrediction({ id: 'new' });
+    const created = buildPrediction({ id: 'new' });
     fetchMock.mockResolvedValue(jsonResponse(created, { status: 201 }));
 
     const input = {
@@ -265,7 +250,7 @@ describe('updatePredictionOutcome', () => {
   });
 
   test('given ok response, should PATCH encoded id with outcome body', async () => {
-    const updated = samplePrediction({ id: 'a/b', outcome: 'correct' });
+    const updated = buildPrediction({ id: 'a/b', outcome: 'correct' });
     fetchMock.mockResolvedValue(jsonResponse(updated));
 
     const result = await updatePredictionOutcome('a/b', 'correct');

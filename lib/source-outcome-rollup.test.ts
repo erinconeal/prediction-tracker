@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Prediction } from '@/types/prediction';
+import { buildPrediction } from '@/test/factories/prediction';
 import {
   accuracyPercentFromRollup,
   addPredictionToRollup,
@@ -8,18 +9,13 @@ import {
 } from './source-outcome-rollup';
 
 function row(overrides: Partial<Prediction> = {}): Prediction {
-  return {
+  return buildPrediction({
     id: '1',
     source: 'Jane',
     sourceSlug: 'jane',
     text: 'Prediction text',
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
     ...overrides,
-  };
+  });
 }
 
 describe('emptySourceOutcomeRollup', () => {

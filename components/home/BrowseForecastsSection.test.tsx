@@ -1,40 +1,12 @@
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import type { Prediction } from '@/types/prediction';
+import { buildPredictionWithId } from '@/test/factories/prediction';
 import {
   BrowseForecastsSection,
   HOME_BROWSE_SORT_CONTROLS_ID,
 } from './BrowseForecastsSection';
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-function prediction(id: string): Prediction {
-  return {
-    id,
-    source: 'Source',
-    sourceSlug: 'source',
-    text: `Prediction ${id}`,
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
-}
 
 function defaultProps(
   overrides: Partial<ComponentProps<typeof BrowseForecastsSection>> = {},
@@ -63,7 +35,7 @@ describe('BrowseForecastsSection', () => {
   test('given loaded section, should use Browse forecasts as section title', () => {
     render(
       <BrowseForecastsSection
-        {...defaultProps({ predictions: [prediction('a')] })}
+        {...defaultProps({ predictions: [buildPredictionWithId('a')] })}
       />,
     );
 
@@ -89,7 +61,7 @@ describe('BrowseForecastsSection', () => {
     render(
       <BrowseForecastsSection
         {...defaultProps({
-          predictions: [prediction('a')],
+          predictions: [buildPredictionWithId('a')],
           hasMore: true,
           onLoadMore,
         })}
@@ -103,7 +75,7 @@ describe('BrowseForecastsSection', () => {
   test('given loaded section, should hide sort tabs until toggled', () => {
     render(
       <BrowseForecastsSection
-        {...defaultProps({ predictions: [prediction('a')] })}
+        {...defaultProps({ predictions: [buildPredictionWithId('a')] })}
       />,
     );
 

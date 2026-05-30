@@ -1,68 +1,28 @@
-import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+import { buildPrediction } from '@/test/factories/prediction';
+import '@/test/mocks/use-topic-catalog';
 import { BrowseForecastCard } from './BrowseForecastCard';
-import { getTopicsByIds } from '@/lib/topic-store';
-
-// mock next/link to allow testing of links in child components
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-function primaryFromIds(ids: string[]) {
-  const linked = getTopicsByIds(ids);
-  const curated = linked.find(t => t.kind === 'curated');
-  if (curated) return curated;
-  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
-}
-
-function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
-  if (topic.kind !== 'curated') return [];
-  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
-}
-
-vi.mock('@/hooks/useTopicCatalog', () => ({
-  useTopicCatalog: () => ({
-    getTopicsByIds,
-    getPrimaryTopicForPrediction: primaryFromIds,
-    getParentBucketTopics: parentBucketsFromTopic,
-  }),
-}));
 
 const TOPIC_AI = 'topic-ai-regulation-2026';
 
-function prediction(overrides: Partial<Prediction> = {}): Prediction {
-  return {
+const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =>
+  buildPrediction({
     id: 'p-1',
     source: 'Jane Analyst',
     sourceSlug: 'jane',
     text: 'Will rates fall this year?',
     topicIds: ['topic-finance'],
     created_at: '2024-06-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
     outcome: 'incorrect',
     ...overrides,
-  };
-}
+  });
 
 describe('BrowseForecastCard', () => {
   test('exposes separate links for title, topic, and source without a wrapping card link', () => {
     const { container } = render(
       <BrowseForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -85,7 +45,7 @@ describe('BrowseForecastCard', () => {
     const onOutcomeFilter = vi.fn();
     render(
       <BrowseForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         onOutcomeFilter={onOutcomeFilter}
       />,
     );
@@ -102,7 +62,7 @@ describe('BrowseForecastCard', () => {
   test('outcome filter button does not use aria-pressed (filter state is in page header)', () => {
     render(
       <BrowseForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -117,7 +77,7 @@ describe('BrowseForecastCard', () => {
   test('track record corner is not used', () => {
     render(
       <BrowseForecastCard
-        prediction={prediction()}
+        prediction={cardPrediction()}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -128,7 +88,7 @@ describe('BrowseForecastCard', () => {
   test('shows target or added timing between title and footer', () => {
     const { rerender } = render(
       <BrowseForecastCard
-        prediction={prediction({ target_date: '2025-03-15T00:00:00.000Z' })}
+        prediction={cardPrediction({ target_date: '2025-03-15T00:00:00.000Z' })}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -137,7 +97,7 @@ describe('BrowseForecastCard', () => {
 
     rerender(
       <BrowseForecastCard
-        prediction={prediction({ target_date: null })}
+        prediction={cardPrediction({ target_date: null })}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -148,7 +108,7 @@ describe('BrowseForecastCard', () => {
   test('topic in footer is shown when prediction has topics', () => {
     render(
       <BrowseForecastCard
-        prediction={prediction({ topicIds: [TOPIC_AI] })}
+        prediction={cardPrediction({ topicIds: [TOPIC_AI] })}
         onOutcomeFilter={vi.fn()}
       />,
     );
@@ -161,7 +121,7 @@ describe('BrowseForecastCard', () => {
   test('topic in footer is not shown when prediction has no topics', () => {
     render(
       <BrowseForecastCard
-        prediction={prediction({ topicIds: [] })}
+        prediction={cardPrediction({ topicIds: [] })}
         onOutcomeFilter={vi.fn()}
       />,
     );

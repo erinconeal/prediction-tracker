@@ -1,6 +1,17 @@
+import '@/test/mocks/use-topic-catalog';
 import { render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
-import type { Topic } from '@/types/topic';
+import {
+  buildTopic,
+  curatedAiTopic,
+  parentPoliticsTopic,
+  parentTechTopic,
+} from '@/test/factories/topic';
+import { idleDiscoveryFeedPage } from '@/test/factories/hook-results';
+import {
+  resetTopicCatalogMockForTests,
+  setMockGetParentBucketTopics,
+} from '@/test/mocks/use-topic-catalog';
 import { TopicFeedView } from './TopicFeedView';
 import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
 
@@ -31,99 +42,31 @@ vi.mock('@/hooks/useTrendingTopics', () => ({
     mockUseTrendingTopics(options),
 }));
 
-const mockGetParentBucketTopics = vi.fn<() => Topic[]>(() => []);
-
-vi.mock('@/hooks/useTopicCatalog', () => ({
-  useTopicCatalog: () => ({
-    topics: [],
-    loading: false,
-    getTopicsByIds: () => [],
-    getPrimaryTopicForPrediction: () => null,
-    getParentBucketTopics: mockGetParentBucketTopics,
-  }),
-}));
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-  }: {
-    children: React.ReactNode;
-    href: string;
-  }) => <a href={href}>{children}</a>,
-}));
-
 const mockUseDiscoveryFeedPage = vi.mocked(useDiscoveryFeedPage);
 
-const curatedTopic: Topic = {
-  id: 'topic-ai',
-  slug: 'ai-regulation-2026',
-  name: 'AI regulation 2026',
-  kind: 'curated',
-  parentTopicIds: ['topic-tech', 'topic-politics'],
-};
-
-const parentTech: Topic = {
-  id: 'topic-tech',
-  slug: 'technology',
-  name: 'Technology',
-  kind: 'bucket',
-  parentTopicIds: [],
-};
-
-const parentPolitics: Topic = {
-  id: 'topic-politics',
-  slug: 'politics',
-  name: 'Politics',
-  kind: 'bucket',
-  parentTopicIds: [],
-};
-
-function idleFeed() {
-  return {
-    listSort: 'newest' as const,
-    setListSort: vi.fn(),
-    outcomeFilter: 'all' as const,
-    setOutcomeFilter: vi.fn(),
-    handleOutcomeFilter: vi.fn(),
-    clearOutcomeFilter: vi.fn(),
-    listData: [],
-    scopeData: [],
-    loading: false,
-    loadingMore: false,
-    error: null,
-    hasMore: false,
-    refetch: vi.fn(),
-    loadMore: vi.fn(),
-    recentResolutions: [],
-    platformStats: { trackedCount: 0, averageAccuracyPercent: null },
-  };
-}
-
-const bucketTopic: Topic = {
+const bucketTopic = buildTopic({
   id: 'topic-finance',
   slug: 'finance',
   name: 'Finance',
   kind: 'bucket',
   parentTopicIds: [],
-};
+});
 
 describe('TopicFeedView', () => {
   beforeEach(() => {
+    resetTopicCatalogMockForTests();
     mockUseDiscoveryFeedPage.mockReset();
-    mockUseDiscoveryFeedPage.mockReturnValue(idleFeed());
+    mockUseDiscoveryFeedPage.mockReturnValue(idleDiscoveryFeedPage());
     mockUseTrendingTopics.mockClear();
     mockUseTrendingTopics.mockReturnValue({
       data: [],
       loading: false,
       error: null,
     });
-    mockGetParentBucketTopics.mockReset();
-    mockGetParentBucketTopics.mockReturnValue([]);
   });
 
   test('given a curated topic, should load feed via discovery scope hook', () => {
-    render(<TopicFeedView topic={curatedTopic} />);
+    render(<TopicFeedView topic={curatedAiTopic} />);
 
     expect(mockUseDiscoveryFeedPage).toHaveBeenCalledWith({
       topicSlug: 'ai-regulation-2026',
@@ -150,9 +93,9 @@ describe('TopicFeedView', () => {
   });
 
   test('given parent bucket topics, should render ordered breadcrumb links', () => {
-    mockGetParentBucketTopics.mockReturnValue([parentTech, parentPolitics]);
+    setMockGetParentBucketTopics(() => [parentTechTopic, parentPoliticsTopic]);
 
-    render(<TopicFeedView topic={curatedTopic} />);
+    render(<TopicFeedView topic={curatedAiTopic} />);
 
     const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
     const trail = within(nav).getByRole('list');

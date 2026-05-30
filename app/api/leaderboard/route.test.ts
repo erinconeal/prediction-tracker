@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-
-async function loadRouteModule() {
-  vi.resetModules();
-  return import('./route');
-}
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/leaderboard route', () => {
   beforeEach(() => {
@@ -11,7 +7,7 @@ describe('GET /api/leaderboard route', () => {
   });
 
   test('should return JSON array of leaderboard rows', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(new Request('http://localhost/api/leaderboard'));
     const body = (await response.json()) as Array<{
       rank: number;

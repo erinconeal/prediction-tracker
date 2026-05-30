@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-
-async function loadRouteModule() {
-  vi.resetModules();
-  return import('./route');
-}
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/predictions route', () => {
   beforeEach(() => {
@@ -11,7 +7,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given no query params, should return a non-empty list of prediction rows', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions');
 
     const response = await GET(request);
@@ -39,7 +35,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given known status filter, should return only matching outcomes', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions?status=correct');
 
     const response = await GET(request);
@@ -51,7 +47,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given unknown status filter, should ignore it instead of erroring', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const allRequest = new Request('http://localhost/api/predictions');
     const unknownStatusRequest = new Request(
       'http://localhost/api/predictions?status=nope',
@@ -67,7 +63,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given source query by slug, should filter by source', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const request = new Request(
       'http://localhost/api/predictions?source=jane-analyst',
     );
@@ -84,7 +80,7 @@ describe('GET /api/predictions route', () => {
     const { predictionMatchesTopicSlug } = await import(
       '@/lib/prediction-topic-match',
     );
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const request = new Request(
       'http://localhost/api/predictions?topic=ai-regulation-2026',
     );
@@ -105,7 +101,7 @@ describe('GET /api/predictions route', () => {
     const { predictionMatchesTopicSlug } = await import(
       '@/lib/prediction-topic-match',
     );
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const request = new Request(
       'http://localhost/api/predictions?topic=finance',
     );
@@ -121,7 +117,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given limit and offset, should return stable page slices', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const first = await GET(
       new Request('http://localhost/api/predictions?limit=1&offset=0'),
     );
@@ -139,7 +135,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given sort=recently_resolved, should list resolved rows before pending', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(
       new Request('http://localhost/api/predictions?sort=recently_resolved'),
     );
@@ -164,7 +160,7 @@ describe('GET /api/predictions route', () => {
   });
 
   test('given unknown sort param, should behave like default ordering', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const defaultReq = new Request('http://localhost/api/predictions');
     const weirdSortReq = new Request(
       'http://localhost/api/predictions?sort=not-a-sort',
@@ -182,7 +178,7 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given invalid JSON body, should return 400', async () => {
-    const { POST } = await loadRouteModule();
+    const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -197,7 +193,7 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given missing required strings, should return 400 validation error', async () => {
-    const { POST } = await loadRouteModule();
+    const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -212,7 +208,7 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given unknown topicIds, should return 400', async () => {
-    const { POST } = await loadRouteModule();
+    const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -235,7 +231,7 @@ describe('POST /api/predictions route', () => {
     const topic = listTopics().find(t => t.slug === 'ai-regulation-2026');
     expect(topic).toBeDefined();
 
-    const { POST } = await loadRouteModule();
+    const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -258,7 +254,7 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given valid payload, should create row and return 201', async () => {
-    const { POST } = await loadRouteModule();
+    const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

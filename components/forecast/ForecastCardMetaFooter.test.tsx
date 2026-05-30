@@ -1,43 +1,7 @@
-import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
-import { getTopicsByIds } from '@/lib/topic-store';
+import { describe, expect, test } from 'vitest';
+import '@/test/mocks/use-topic-catalog';
 import { ForecastCardMetaFooter } from './ForecastCardMetaFooter';
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-function primaryFromIds(ids: string[]) {
-  const linked = getTopicsByIds(ids);
-  const curated = linked.find(t => t.kind === 'curated');
-  if (curated) return curated;
-  return linked.find(t => t.kind === 'bucket') ?? linked[0] ?? null;
-}
-
-function parentBucketsFromTopic(topic: { kind: string; parentTopicIds: string[] }) {
-  if (topic.kind !== 'curated') return [];
-  return getTopicsByIds(topic.parentTopicIds).filter(t => t.kind === 'bucket');
-}
-
-vi.mock('@/hooks/useTopicCatalog', () => ({
-  useTopicCatalog: () => ({
-    getTopicsByIds,
-    getPrimaryTopicForPrediction: primaryFromIds,
-    getParentBucketTopics: parentBucketsFromTopic,
-  }),
-}));
 
 const TOPIC_AI = 'topic-ai-regulation-2026';
 const TOPIC_HOUSING = 'topic-housing-market-2026';

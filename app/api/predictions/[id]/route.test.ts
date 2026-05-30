@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 async function loadRoutes() {
-  vi.resetModules();
-  const collection = await import('../route');
-  const item = await import('./route');
-  return { ...collection, ...item };
+  return loadRouteModule(async () => {
+    const collection = await import('../route');
+    const item = await import('./route');
+    return { ...collection, ...item };
+  });
 }
 
 describe('GET /api/predictions/[id] route', () => {

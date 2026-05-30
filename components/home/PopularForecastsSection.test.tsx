@@ -1,44 +1,20 @@
-import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+import { buildPredictionWithId } from '@/test/factories/prediction';
 import { PopularForecastsSection } from './PopularForecastsSection';
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-function prediction(id: string): Prediction {
-  return {
-    id,
-    source: 'Source',
-    sourceSlug: 'source',
-    text: `Prediction ${id}`,
-    topicIds: ['topic-tech'],
-    created_at: '2024-06-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
-}
 
 describe('PopularForecastsSection', () => {
   test('given loaded forecasts, should use Featured forecasts as section title', () => {
     render(
       <PopularForecastsSection
-        predictions={[prediction('a')]}
-        statsContext={[prediction('a')]}
+        predictions={[buildPredictionWithId('a', {
+          topicIds: ['topic-tech'],
+          created_at: '2024-06-01T00:00:00.000Z',
+        })]}
+        statsContext={[buildPredictionWithId('a', {
+          topicIds: ['topic-tech'],
+          created_at: '2024-06-01T00:00:00.000Z',
+        })]}
         slotCount={4}
       />,
     );
@@ -55,12 +31,27 @@ describe('PopularForecastsSection', () => {
     render(
       <PopularForecastsSection
         predictions={[
-          prediction('a'),
-          prediction('b'),
-          prediction('c'),
-          prediction('d'),
+          buildPredictionWithId('a', {
+            topicIds: ['topic-tech'],
+            created_at: '2024-06-01T00:00:00.000Z',
+          }),
+          buildPredictionWithId('b', {
+            topicIds: ['topic-tech'],
+            created_at: '2024-06-01T00:00:00.000Z',
+          }),
+          buildPredictionWithId('c', {
+            topicIds: ['topic-tech'],
+            created_at: '2024-06-01T00:00:00.000Z',
+          }),
+          buildPredictionWithId('d', {
+            topicIds: ['topic-tech'],
+            created_at: '2024-06-01T00:00:00.000Z',
+          }),
         ]}
-        statsContext={[prediction('a')]}
+        statsContext={[buildPredictionWithId('a', {
+          topicIds: ['topic-tech'],
+          created_at: '2024-06-01T00:00:00.000Z',
+        })]}
         slotCount={2}
       />,
     );

@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import type { Topic } from '@/types/topic';
+import { buildPrediction } from '@/test/factories/prediction';
+import { buildTopic } from '@/test/factories/topic';
 import { rankTrendingTopics } from './trending-topics';
 
 function topic(
@@ -8,24 +10,21 @@ function topic(
   slug: string,
   parentTopicIds: string[] = ['topic-tech'],
 ): Topic {
-  return { id, slug, name: slug, kind: 'curated', parentTopicIds };
+  return buildTopic({ id, slug, name: slug, kind: 'curated', parentTopicIds });
 }
 
 function row(
   topicIds: string[],
   created_at: string,
 ): Prediction {
-  return {
+  return buildPrediction({
     id: 'x',
     source: 'S',
     sourceSlug: 's',
     text: 't',
     topicIds,
     created_at,
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
+  });
 }
 
 describe('rankTrendingTopics', () => {

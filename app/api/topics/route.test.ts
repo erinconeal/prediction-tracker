@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-
-async function loadRouteModule() {
-  vi.resetModules();
-  return import('./route');
-}
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/topics route', () => {
   beforeEach(() => {
@@ -11,7 +7,7 @@ describe('GET /api/topics route', () => {
   });
 
   test('given no query params, should return a non-empty topic list', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(new Request('http://localhost/api/topics'));
     const body = (await response.json()) as Array<{
       id: string;
@@ -25,7 +21,7 @@ describe('GET /api/topics route', () => {
   });
 
   test('given trending=true, should return topics with counts', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(
       new Request('http://localhost/api/topics?trending=true&limit=3'),
     );
@@ -47,7 +43,7 @@ describe('GET /api/topics route', () => {
   });
 
   test('given unknown bucket slug, should return an empty array', async () => {
-    const { GET } = await loadRouteModule();
+    const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(
       new Request('http://localhost/api/topics?bucket=not-a-bucket'),
     );

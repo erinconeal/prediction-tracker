@@ -14,7 +14,7 @@ const SCOPE_BATCH_SIZE = 80;
 
 export type DiscoveryFeedScope = { topicSlug: string };
 
-type UseDiscoveryFeedPageResult = {
+export type UseDiscoveryFeedPageResult = {
   listSort: PredictionListSort;
   setListSort: (sort: PredictionListSort) => void;
   outcomeFilter: Outcome | 'all';

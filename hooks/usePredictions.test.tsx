@@ -1,45 +1,13 @@
+import '@/test/mocks/api-service';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useMemo } from 'react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import type { Prediction, PredictionFilters } from '@/types/prediction';
-import * as api from '@/services/api';
+import { ApiError } from '@/services/api';
+import { buildPrediction } from '@/test/factories/prediction';
+import { createDeferred } from '@/test/helpers/deferred';
+import { listPredictions } from '@/test/mocks/api-service';
 import { usePredictions } from './usePredictions';
-
-vi.mock('@/services/api', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@/services/api')>();
-  return {
-    ...mod,
-    listPredictions: vi.fn(),
-  };
-});
-
-const listPredictions = vi.mocked(api.listPredictions);
-
-function samplePrediction(overrides: Partial<Prediction> = {}): Prediction {
-  return {
-    id: 'p-1',
-    source: 'Alice',
-    sourceSlug: 'alice',
-    text: 'It will rain',
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-    ...overrides,
-  };
-}
-
-function createDeferred<T>(): {
-  promise: Promise<T>;
-  resolve: (value: T) => void;
-} {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((res) => {
-    resolve = res;
-  });
-  return { promise, resolve };
-}
 
 describe('usePredictions', () => {
   beforeEach(() => {
@@ -47,7 +15,7 @@ describe('usePredictions', () => {
   });
 
   test('given successful listPredictions, should expose data and clear loading', async () => {
-    const row = samplePrediction();
+    const row = buildPrediction();
     listPredictions.mockResolvedValue([row]);
 
     const { result } = renderHook(() => usePredictions({}));
@@ -65,7 +33,7 @@ describe('usePredictions', () => {
   });
 
   test('given ApiError from listPredictions, should set error and stop loading', async () => {
-    listPredictions.mockRejectedValue(new api.ApiError('Server broke', 500));
+    listPredictions.mockRejectedValue(new ApiError('Server broke', 500));
 
     const { result } = renderHook(() => usePredictions({}));
 
@@ -103,7 +71,7 @@ describe('usePredictions', () => {
     await waitFor(() => expect(listPredictions).toHaveBeenCalledTimes(2));
 
     await act(async () => {
-      effectWork.resolve([samplePrediction({ id: 'stale', text: 'old' })]);
+      effectWork.resolve([buildPrediction({ id: 'stale', text: 'old' })]);
     });
 
     await act(async () => {
@@ -113,7 +81,7 @@ describe('usePredictions', () => {
     expect(result.current.data.some(p => p.id === 'stale')).toBe(false);
 
     await act(async () => {
-      refetchWork.resolve([samplePrediction({ id: 'fresh', text: 'new' })]);
+      refetchWork.resolve([buildPrediction({ id: 'fresh', text: 'new' })]);
     });
 
     await waitFor(() =>
@@ -129,7 +97,7 @@ describe('usePredictions', () => {
   });
 
   test('given refetch after success, should pass current filters to listPredictions', async () => {
-    listPredictions.mockResolvedValue([samplePrediction()]);
+    listPredictions.mockResolvedValue([buildPrediction()]);
 
     const { result, rerender } = renderHook(
       ({ source }: { source: string }) => {
@@ -147,7 +115,7 @@ describe('usePredictions', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    listPredictions.mockResolvedValue([samplePrediction({ id: 'b' })]);
+    listPredictions.mockResolvedValue([buildPrediction({ id: 'b' })]);
     rerender({ source: 'B' });
 
     await waitFor(() =>

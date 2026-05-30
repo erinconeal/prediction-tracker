@@ -1,79 +1,22 @@
-import type { ReactNode } from 'react';
+import '@/test/mocks/api-service';
+import '@/test/mocks/next-navigation';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Prediction } from '@/types/prediction';
-import * as api from '@/services/api';
+import { beforeEach, describe, expect, test } from 'vitest';
 import type { PredictionFilters } from '@/types/prediction';
+import { ApiError } from '@/services/api';
+import { buildIndexedPrediction } from '@/test/factories/prediction';
+import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+import {
+  listLeaderboard,
+  listPredictions,
+  listTopics,
+} from '@/test/mocks/api-service';
+import {
+  mockReplace,
+  resetNextNavigationMocks,
+  setMockSearchParams,
+} from '@/test/mocks/next-navigation';
 import { DashboardView } from './DashboardView';
-
-const mockReplace = vi.fn();
-let mockSearchParams = new URLSearchParams();
-
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), replace: mockReplace }),
-  useSearchParams: () => mockSearchParams,
-  usePathname: () => '/',
-}));
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
-vi.mock('@/services/api', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@/services/api')>();
-  return {
-    ...mod,
-    listPredictions: vi.fn(),
-    listLeaderboard: vi.fn(),
-    listTopics: vi.fn(),
-  };
-});
-
-const listTopics = vi.mocked(api.listTopics);
-
-const listPredictions = vi.mocked(api.listPredictions);
-const listLeaderboard = vi.mocked(api.listLeaderboard);
-
-function row(i: number): Prediction {
-  return {
-    id: `id-${i}`,
-    source: 'Source',
-    sourceSlug: 'source',
-    text: `Prediction ${i}`,
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
-}
-
-const leaderboardRow = {
-  rank: 1,
-  source: 'Source',
-  sourceSlug: 'source',
-  total: 1,
-  resolved: 0,
-  scored: 0,
-  correct: 0,
-  accuracyPercent: null as number | null,
-  pending: 1,
-  outcomeUnresolved: 0,
-  invalid: 0,
-  streakKind: null as 'correct' | 'incorrect' | null,
-  streakLength: 0,
-};
 
 function outcomeFilterInBrowseCard(predictionTitle: RegExp, outcomeLabel: string) {
   const browseSection = screen
@@ -95,9 +38,8 @@ describe('DashboardView', () => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
     listTopics.mockReset();
-    mockReplace.mockReset();
-    mockSearchParams = new URLSearchParams();
-    listLeaderboard.mockResolvedValue([leaderboardRow]);
+    resetNextNavigationMocks();
+    listLeaderboard.mockResolvedValue([buildLeaderboardRow()]);
     listTopics.mockResolvedValue([]);
   });
 
@@ -105,9 +47,9 @@ describe('DashboardView', () => {
     let allowSuccess = false;
     listPredictions.mockImplementation(async () => {
       if (!allowSuccess) {
-        throw new api.ApiError('offline', 503);
+        throw new ApiError('offline', 503);
       }
-      return [row(0)];
+      return [buildIndexedPrediction(0)];
     });
 
     render(<DashboardView />);
@@ -132,10 +74,10 @@ describe('DashboardView', () => {
   });
 
   test('given full first page, load more should request next offset', async () => {
-    const page1 = Array.from({ length: 50 }, (_, i) => row(i));
+    const page1 = Array.from({ length: 50 }, (_, i) => buildIndexedPrediction(i));
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if ((filters?.offset ?? 0) === 0) return page1;
-      return [row(99)];
+      return [buildIndexedPrediction(99)];
     });
 
     render(<DashboardView />);
@@ -161,7 +103,7 @@ describe('DashboardView', () => {
   });
 
   test('given loaded dashboard, should use distinct hero and list section titles', async () => {
-    listPredictions.mockResolvedValue([row(0)]);
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -179,7 +121,7 @@ describe('DashboardView', () => {
   });
 
   test('given loaded dashboard, sort tabs should be hidden until toggled', async () => {
-    listPredictions.mockResolvedValue([row(0)]);
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -202,7 +144,7 @@ describe('DashboardView', () => {
   });
 
   test('given non-default sort with collapsed panel, should show visible sorted label', async () => {
-    listPredictions.mockResolvedValue([row(0)]);
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -224,11 +166,11 @@ describe('DashboardView', () => {
   test('clicking an outcome filter on a browse card should filter by status', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === 'incorrect') {
-        return [{ ...row(0), outcome: 'incorrect', text: 'Wrong take' }];
+        return [{ ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' }];
       }
       return [
-        { ...row(0), outcome: 'incorrect', text: 'Wrong take' },
-        { ...row(1), outcome: 'correct', text: 'Right take' },
+        { ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' },
+        { ...buildIndexedPrediction(1), outcome: 'correct', text: 'Right take' },
       ];
     });
 
@@ -263,11 +205,11 @@ describe('DashboardView', () => {
   test('clicking active outcome filter again should clear status filter', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === 'incorrect') {
-        return [{ ...row(0), outcome: 'incorrect', text: 'Wrong take' }];
+        return [{ ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' }];
       }
       return [
-        { ...row(0), outcome: 'incorrect', text: 'Wrong take' },
-        { ...row(1), outcome: 'correct', text: 'Right take' },
+        { ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' },
+        { ...buildIndexedPrediction(1), outcome: 'correct', text: 'Right take' },
       ];
     });
 
@@ -305,14 +247,14 @@ describe('DashboardView', () => {
   test('changing topic tab while outcome filter is active should clear outcome filter', async () => {
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.status === 'incorrect') {
-        return [{ ...row(0), outcome: 'incorrect', text: 'Wrong take' }];
+        return [{ ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' }];
       }
       if (filters?.topic === 'finance') {
-        return [{ ...row(1), text: 'Finance only' }];
+        return [{ ...buildIndexedPrediction(1), text: 'Finance only' }];
       }
       return [
-        { ...row(0), outcome: 'incorrect', text: 'Wrong take' },
-        { ...row(1), outcome: 'correct', text: 'Right take' },
+        { ...buildIndexedPrediction(0), outcome: 'incorrect', text: 'Wrong take' },
+        { ...buildIndexedPrediction(1), outcome: 'correct', text: 'Right take' },
       ];
     });
 
@@ -344,7 +286,7 @@ describe('DashboardView', () => {
 
     expect(mockReplace).toHaveBeenCalledWith('/?topic=finance', { scroll: false });
 
-    mockSearchParams = new URLSearchParams('topic=finance');
+    setMockSearchParams(new URLSearchParams('topic=finance'));
     rerender(<DashboardView />);
 
     await waitFor(() => {
@@ -356,12 +298,12 @@ describe('DashboardView', () => {
   });
 
   test('given topic=finance in URL, should activate Finance tab and filter browse feed', async () => {
-    mockSearchParams = new URLSearchParams('topic=finance');
+    setMockSearchParams(new URLSearchParams('topic=finance'));
     listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
       if (filters?.topic === 'finance') {
-        return [{ ...row(1), text: 'Finance only' }];
+        return [{ ...buildIndexedPrediction(1), text: 'Finance only' }];
       }
-      return [row(0)];
+      return [buildIndexedPrediction(0)];
     });
 
     render(<DashboardView />);
@@ -377,8 +319,8 @@ describe('DashboardView', () => {
   });
 
   test('given All topic tab selected, should remove topic from URL', async () => {
-    mockSearchParams = new URLSearchParams('topic=finance');
-    listPredictions.mockResolvedValue([row(0)]);
+    setMockSearchParams(new URLSearchParams('topic=finance'));
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -392,8 +334,8 @@ describe('DashboardView', () => {
   });
 
   test('given curated topic slug in URL, should redirect to topic page', async () => {
-    mockSearchParams = new URLSearchParams('topic=ai-regulation-2026');
-    listPredictions.mockResolvedValue([row(0)]);
+    setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -408,8 +350,8 @@ describe('DashboardView', () => {
   });
 
   test('given unknown topic slug in URL, should strip topic from URL and show All tab', async () => {
-    mockSearchParams = new URLSearchParams('topic=not-a-real-slug');
-    listPredictions.mockResolvedValue([row(0)]);
+    setMockSearchParams(new URLSearchParams('topic=not-a-real-slug'));
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 
@@ -433,7 +375,7 @@ describe('DashboardView', () => {
         recentCount: 2,
       },
     ]);
-    listPredictions.mockResolvedValue([row(0)]);
+    listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
 
     render(<DashboardView />);
 

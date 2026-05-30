@@ -1,23 +1,7 @@
-import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { getTopicBySlug } from '@/lib/topic-store';
 import { ForecastTopicLink } from './ForecastTopicLink';
-
-vi.mock('next/link', () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
 
 describe('ForecastTopicLink', () => {
   test('given a topic, should link to the topic feed with browse label', () => {

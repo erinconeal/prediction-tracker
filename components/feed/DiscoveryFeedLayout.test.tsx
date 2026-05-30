@@ -1,21 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import type { Prediction, PredictionListSort } from '@/types/prediction';
+import { buildIndexedPrediction } from '@/test/factories/prediction';
 import { DiscoveryFeedLayout } from './DiscoveryFeedLayout';
-
-function row(i: number): Prediction {
-  return {
-    id: `id-${i}`,
-    source: 'Source',
-    sourceSlug: 'source',
-    text: `Prediction ${i}`,
-    topicIds: [],
-    created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
-    target_date: null,
-    outcome: 'pending',
-  };
-}
 
 function renderLayout(
   outcomeFilter: 'all' | 'incorrect',
@@ -73,7 +60,7 @@ describe('DiscoveryFeedLayout', () => {
 
   test('given loaded feed, sort tabs should be hidden until toggled', () => {
     renderLayout('all', vi.fn(), {
-      listData: [row(0)],
+      listData: [buildIndexedPrediction(0)],
     });
 
     expect(document.getElementById('discovery-prediction-sort-tabs'))
@@ -94,7 +81,7 @@ describe('DiscoveryFeedLayout', () => {
   test('given non-default sort with collapsed panel, should show visible sorted label', () => {
     renderLayout('all', vi.fn(), {
       listSort: 'source_accuracy',
-      listData: [row(0)],
+      listData: [buildIndexedPrediction(0)],
     });
 
     expect(screen.getByText(/sorted:/i)).toHaveTextContent('Most accurate source');

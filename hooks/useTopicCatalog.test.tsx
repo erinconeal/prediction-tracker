@@ -1,21 +1,12 @@
+import '@/test/mocks/api-service';
 import { renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { listTopics as listTopicsFromStore } from '@/lib/topic-store';
-import * as api from '@/services/api';
+import { listTopics } from '@/test/mocks/api-service';
 import {
   resetTopicCatalogCacheForTests,
   useTopicCatalog,
 } from './useTopicCatalog';
-
-vi.mock('@/services/api', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('@/services/api')>();
-  return {
-    ...mod,
-    listTopics: vi.fn(),
-  };
-});
-
-const listTopics = vi.mocked(api.listTopics);
 
 describe('useTopicCatalog', () => {
   beforeEach(() => {

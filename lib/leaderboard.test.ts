@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Prediction } from '@/types/prediction';
+import { buildPrediction } from '@/test/factories/prediction';
 import { computeLeaderboard } from './leaderboard';
 
 function row(
@@ -8,17 +9,15 @@ function row(
   id: string,
   created_at = '2026-01-01T00:00:00.000Z',
 ): Prediction {
-  return {
+  return buildPrediction({
     id,
     source,
     sourceSlug: source.toLowerCase().replace(/\s+/g, '-'),
     text: 't',
-    topicIds: [],
     created_at,
     resolved_at: outcome === 'pending' ? null : `${created_at}`,
-    target_date: null,
     outcome,
-  };
+  });
 }
 
 describe('computeLeaderboard', () => {
