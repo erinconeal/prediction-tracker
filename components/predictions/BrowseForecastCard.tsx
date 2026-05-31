@@ -6,7 +6,7 @@ import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
 import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
 import { OutcomeFilterButton } from '@/components/predictions/OutcomeFilterButton';
-import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
+import { browseForecastTiming } from '@/lib/browse-forecast-timing';
 import type { Outcome, Prediction } from '@/types/prediction';
 import { truncateWithEllipsis } from '@/utils/truncate-text';
 
@@ -21,9 +21,7 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
   onOutcomeFilter,
   className = '',
 }: BrowseForecastCardProps) {
-  const timingLine = p.target_date
-    ? `Target ${formatMonthYear(p.target_date)}`
-    : `Added ${formatIsoDate(p.created_at)}`;
+  const timing = browseForecastTiming(p);
 
   return (
     <ForecastCardShell
@@ -47,7 +45,11 @@ export const BrowseForecastCard = memo(function BrowseForecastCard({
         />
       )}
       afterTitle={(
-        <p className="text-xs text-muted">{timingLine}</p>
+        <p className="text-xs text-muted">
+          {timing.prefix}
+          {' '}
+          <time dateTime={timing.dateTime}>{timing.dateLabel}</time>
+        </p>
       )}
       footer={(
         <ForecastCardMetaFooter topicIds={p.topicIds} />

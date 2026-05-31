@@ -85,24 +85,22 @@ describe('BrowseForecastCard', () => {
     expect(screen.queryByText('Track record')).not.toBeInTheDocument();
   });
 
-  test('shows target or added timing between title and footer', () => {
-    const { rerender } = render(
+  test('shows timing line with semantic time element between title and footer', () => {
+    render(
       <BrowseForecastCard
-        prediction={cardPrediction({ target_date: '2025-03-15T00:00:00.000Z' })}
+        prediction={cardPrediction({
+          target_date: null,
+          outcome: 'incorrect',
+          resolved_at: '2024-07-15T00:00:00.000Z',
+        })}
         onOutcomeFilter={vi.fn()}
       />,
     );
 
-    expect(screen.getByText(/target mar 2025/i)).toBeInTheDocument();
-
-    rerender(
-      <BrowseForecastCard
-        prediction={cardPrediction({ target_date: null })}
-        onOutcomeFilter={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByText(/^Added /i)).toBeInTheDocument();
+    const time = screen.getByText('Jul 15, 2024');
+    expect(time.tagName).toBe('TIME');
+    expect(time).toHaveAttribute('datetime', '2024-07-15T00:00:00.000Z');
+    expect(time.closest('p')).toHaveTextContent('Resolved Jul 15, 2024');
   });
 
   test('topic in footer is shown when prediction has topics', () => {
