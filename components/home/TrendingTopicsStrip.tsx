@@ -1,5 +1,6 @@
 'use client';
 
+import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { topicPagePath } from '@/lib/topic-path';
@@ -7,31 +8,11 @@ import type { TrendingTopicEntry } from '@/lib/trending-topics';
 
 type TrendingTopicsStripProps = {
   topics: TrendingTopicEntry[];
-  activeSlug?: string | null;
   loading?: boolean;
   /** When true, styles for the top row inside the hero marketing card. */
   embedded?: boolean;
   className?: string;
 };
-
-function TrendIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      className={`block size-3.5 shrink-0 ${className}`.trim()}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden
-    >
-      <path
-        d="M2 11l4-4 3 3 5-6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
 
 function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
   return (
@@ -122,14 +103,12 @@ type TrendingTopicsScrollerProps = {
   embedded: boolean;
   loading: boolean;
   topics: TrendingTopicEntry[];
-  activeSlug: string | null;
 };
 
 function TrendingTopicsScroller({
   embedded,
   loading,
   topics,
-  activeSlug,
 }: TrendingTopicsScrollerProps) {
   const scrollRef = useRef<HTMLUListElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -232,30 +211,28 @@ function TrendingTopicsScroller({
               ref={scrollRef}
               className={`${scrollListClass} flex-nowrap ${listPadClass}`.trim()}
             >
-              {topics.map(({ topic, count }) => {
-                const isActive = activeSlug === topic.slug;
+              {topics.map(({ topic, count }, index) => {
+                const isLead = index === 0;
                 return (
                   <li
                     key={topic.id}
-                    className={`flex shrink-0 items-center ${isActive ? 'pl-5' : ''}`}
+                    className="flex shrink-0 items-center"
                   >
                     <Link
                       href={topicPagePath(topic.slug)}
-                      className={`${topicLinkClass} ${
-                        isActive
-                          ? 'text-interactive'
+                      className={`${topicLinkClass} gap-1.5 ${
+                        isLead
+                          ? 'font-semibold text-interactive'
                           : 'text-muted hover:text-foreground'
                       }`}
-                      aria-current={isActive ? 'page' : undefined}
                     >
-                      {isActive
+                      {isLead
                         ? (
-                            <span
-                              className="pointer-events-none absolute right-[calc(100%+0.375rem)] top-1/2 inline-flex size-3.5 -translate-y-1/2 items-center justify-center"
+                            <TrendingUp
+                              className="size-3.5 shrink-0 text-interactive"
                               aria-hidden
-                            >
-                              <TrendIcon />
-                            </span>
+                              strokeWidth={1.75}
+                            />
                           )
                         : null}
                       {topic.name}
@@ -278,7 +255,6 @@ function TrendingTopicsScroller({
 
 export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
   topics,
-  activeSlug = null,
   loading = false,
   embedded = false,
   className = '',
@@ -313,7 +289,6 @@ export const TrendingTopicsStrip = memo(function TrendingTopicsStrip({
         embedded={embedded}
         loading={loading}
         topics={topics}
-        activeSlug={activeSlug}
       />
     </nav>
   );

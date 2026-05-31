@@ -57,9 +57,9 @@ describe('PopularForecastCard', () => {
       />,
     );
 
-    expect(screen.getByText('— accurate')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
     expect(
-      screen.getByLabelText(/source accuracy unavailable/i),
+      screen.getByLabelText(/source accuracy unavailable for this source/i),
     ).toBeInTheDocument();
   });
 
@@ -85,7 +85,7 @@ describe('PopularForecastCard', () => {
     );
 
     expect(
-      screen.getByLabelText(/source accuracy 50 percent/i),
+      screen.getByLabelText(/source accuracy 50 percent, mixed track record/i),
     ).toBeInTheDocument();
   });
 
@@ -110,7 +110,7 @@ describe('PopularForecastCard', () => {
       />,
     );
 
-    expect(screen.getByText('50% accurate')).toBeInTheDocument();
+    expect(screen.getByText('50% —')).toBeInTheDocument();
   });
 
   test('exposes title and source links; accuracy badge is not a button', () => {
@@ -130,7 +130,7 @@ describe('PopularForecastCard', () => {
     );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
     expect(
-      screen.getByLabelText(/source accuracy unavailable/i),
+      screen.getByLabelText(/source accuracy unavailable for this source/i),
     ).not.toHaveAttribute('role', 'button');
   });
 });

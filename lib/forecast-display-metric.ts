@@ -9,7 +9,7 @@ export type ForecastDisplayMetric = {
 };
 
 /**
- * Maps source accuracy into Featured badge tone. Not market odds —
+ * Maps source accuracy into Popular badge tone. Not market odds —
  * encodes track-record strength for the consensus source.
  */
 export function forecastDisplayMetricFromStats(
@@ -26,13 +26,41 @@ export function forecastDisplayMetricFromStats(
   return { percent, trend: 'flat' };
 }
 
-export function trendAriaLabel(trend: ForecastTrend): string {
-  switch (trend) {
+export type SourceAccuracyBadgeTone = ForecastTrend | 'unknown';
+
+export function sourceAccuracyBadgeTone(
+  metric: ForecastDisplayMetric,
+): SourceAccuracyBadgeTone {
+  if (metric.percent === null) return 'unknown';
+  return metric.trend;
+}
+
+const TREND_GLYPH: Record<ForecastTrend, string> = {
+  up: '↑',
+  down: '↓',
+  flat: '—',
+};
+
+export function sourceAccuracyBadgeVisibleText(
+  metric: ForecastDisplayMetric,
+): string {
+  if (metric.percent === null) return '—';
+  return `${metric.percent}% ${TREND_GLYPH[metric.trend]}`;
+}
+
+export function sourceAccuracyBadgeAriaLabel(
+  metric: ForecastDisplayMetric,
+): string {
+  if (metric.percent === null) {
+    return 'Source accuracy unavailable for this source';
+  }
+
+  switch (metric.trend) {
     case 'up':
-      return 'trending up';
+      return `Source accuracy ${metric.percent} percent, strong track record`;
     case 'down':
-      return 'trending down';
+      return `Source accuracy ${metric.percent} percent, weak track record`;
     default:
-      return 'steady';
+      return `Source accuracy ${metric.percent} percent, mixed track record`;
   }
 }

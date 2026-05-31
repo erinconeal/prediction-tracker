@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { forecastDisplayMetricFromStats } from './forecast-display-metric';
+import {
+  forecastDisplayMetricFromStats,
+  sourceAccuracyBadgeAriaLabel,
+  sourceAccuracyBadgeVisibleText,
+} from './forecast-display-metric';
 import type { SourceAccuracyStats } from './source-stats';
 
 function stats(accuracy: number | null): SourceAccuracyStats {
@@ -43,5 +47,33 @@ describe('forecastDisplayMetricFromStats', () => {
       percent: null,
       trend: 'flat',
     });
+  });
+});
+
+describe('sourceAccuracyBadgeVisibleText', () => {
+  test('formats high, low, mid, and unavailable metrics', () => {
+    expect(
+      sourceAccuracyBadgeVisibleText({ percent: 82, trend: 'up' }),
+    ).toBe('82% ↑');
+    expect(
+      sourceAccuracyBadgeVisibleText({ percent: 14, trend: 'down' }),
+    ).toBe('14% ↓');
+    expect(
+      sourceAccuracyBadgeVisibleText({ percent: 49, trend: 'flat' }),
+    ).toBe('49% —');
+    expect(
+      sourceAccuracyBadgeVisibleText({ percent: null, trend: 'flat' }),
+    ).toBe('—');
+  });
+});
+
+describe('sourceAccuracyBadgeAriaLabel', () => {
+  test('describes track record strength without market trend language', () => {
+    expect(
+      sourceAccuracyBadgeAriaLabel({ percent: 82, trend: 'up' }),
+    ).toBe('Source accuracy 82 percent, strong track record');
+    expect(
+      sourceAccuracyBadgeAriaLabel({ percent: null, trend: 'flat' }),
+    ).toBe('Source accuracy unavailable for this source');
   });
 });

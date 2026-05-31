@@ -109,15 +109,12 @@ describe('DashboardView', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { level: 2, name: 'Featured forecasts' }),
+        screen.getByRole('heading', { level: 2, name: 'Popular forecasts' }),
       ).toBeInTheDocument();
     });
     expect(
       screen.getByRole('heading', { level: 2, name: 'Browse forecasts' }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: 'Popular forecasts' }),
-    ).not.toBeInTheDocument();
   });
 
   test('given loaded dashboard, sort tabs should be hidden until toggled', async () => {

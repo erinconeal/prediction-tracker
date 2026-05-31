@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { featuredForecastSlotCount } from '@/lib/featured-forecast-columns';
+import { popularForecastSlotCount } from '@/lib/popular-forecast-columns';
 
 function subscribe(onStoreChange: () => void) {
   const cleanups: (() => void)[] = [];
@@ -23,13 +23,13 @@ function subscribe(onStoreChange: () => void) {
 }
 
 function getSnapshot() {
-  return featuredForecastSlotCount(window.innerWidth);
+  return popularForecastSlotCount(window.innerWidth);
 }
 
 function getServerSnapshot() {
   return 1;
 }
 
-export function useFeaturedForecastSlotCount(): number {
+export function usePopularForecastSlotCount(): number {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

@@ -1,4 +1,4 @@
-/** Shared discovery-card shell for Featured and Browse forecast grids. */
+/** Shared discovery-card shell for Popular and Browse forecast grids. */
 export const forecastCardShellClass
   = 'flex min-h-full flex-col rounded-xl border border-border bg-surface-elevated p-5 shadow-[0_2px_12px_rgb(0_0_0/0.05)]';
 

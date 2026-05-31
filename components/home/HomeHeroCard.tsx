@@ -27,7 +27,7 @@ export const HomeHeroCard = memo(function HomeHeroCard({
   return (
     <section
       className={`${HERO_CARD_SHELL_CLASS} ${className}`.trim()}
-      aria-labelledby="featured-forecasts-heading"
+      aria-labelledby="popular-forecasts-heading"
     >
       {header}
       <PopularForecastsSection

@@ -18,7 +18,7 @@ import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
 import { listTopics } from '@/services/api';
 import { rankTrendingTopics } from '@/lib/trending-topics';
 import type { Topic } from '@/types/topic';
-import { useFeaturedForecastSlotCount } from '@/hooks/useFeaturedForecastSlotCount';
+import { usePopularForecastSlotCount } from '@/hooks/usePopularForecastSlotCount';
 import type { Outcome, PredictionListSort } from '@/types/prediction';
 
 const PAGE_SIZE = 20;
@@ -103,14 +103,14 @@ export function DashboardView() {
     return rankTrendingTopics(curated, homeSample.data, { limit: 6 });
   }, [trendingApi.data, catalogTopics, homeSample.data]);
 
-  const featuredSlotCount = useFeaturedForecastSlotCount();
+  const popularSlotCount = usePopularForecastSlotCount();
 
   const popularForecasts = useMemo(
     () =>
       pickPopularForecastsFromFeed(homeSample.data, {
-        max: featuredSlotCount,
+        max: popularSlotCount,
       }),
-    [homeSample.data, featuredSlotCount],
+    [homeSample.data, popularSlotCount],
   );
 
   const emptyMessage = browseEmptyMessage(topicTab, outcomeFilter);
@@ -161,7 +161,7 @@ export function DashboardView() {
           popularForecasts={popularForecasts}
           statsContext={homeSample.data}
           loading={homeSample.loading}
-          slotCount={featuredSlotCount}
+          slotCount={popularSlotCount}
         />
       </HomeHeroBand>
 

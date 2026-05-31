@@ -4,7 +4,7 @@ import { buildPredictionWithId } from '@/test/factories/prediction';
 import { PopularForecastsSection } from './PopularForecastsSection';
 
 describe('PopularForecastsSection', () => {
-  test('given loaded forecasts, should use Featured forecasts as section title', () => {
+  test('given loaded forecasts, should use Popular forecasts as section title', () => {
     render(
       <PopularForecastsSection
         predictions={[buildPredictionWithId('a', {
@@ -20,11 +20,8 @@ describe('PopularForecastsSection', () => {
     );
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'Featured forecasts' }),
+      screen.getByRole('heading', { level: 2, name: 'Popular forecasts' }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: 'Popular forecasts' }),
-    ).not.toBeInTheDocument();
   });
 
   test('given more predictions than slots, should render only one row', () => {
@@ -59,7 +56,7 @@ describe('PopularForecastsSection', () => {
     expect(screen.getAllByRole('article')).toHaveLength(2);
   });
 
-  test('given loading, should expose busy state for featured forecasts', () => {
+  test('given loading, should expose busy state for popular forecasts', () => {
     render(
       <PopularForecastsSection
         predictions={[]}
@@ -69,7 +66,7 @@ describe('PopularForecastsSection', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Loading featured forecasts')).toHaveAttribute(
+    expect(screen.getByLabelText('Loading popular forecasts')).toHaveAttribute(
       'aria-busy',
       'true',
     );

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { memo } from 'react';
 import { PopularForecastCard } from '@/components/home/PopularForecastCard';
-import { FEATURED_FORECAST_GRID_CLASS } from '@/lib/featured-forecast-columns';
+import { POPULAR_FORECAST_GRID_CLASS } from '@/lib/popular-forecast-columns';
 import type { Prediction } from '@/types/prediction';
 
 type PopularForecastsSectionProps = {
@@ -18,9 +18,9 @@ type PopularForecastsSectionProps = {
 function PopularForecastsSkeleton({ slotCount }: { slotCount: number }) {
   return (
     <ul
-      className={FEATURED_FORECAST_GRID_CLASS}
+      className={POPULAR_FORECAST_GRID_CLASS}
       aria-busy="true"
-      aria-label="Loading featured forecasts"
+      aria-label="Loading popular forecasts"
     >
       {Array.from({ length: slotCount }, (_, i) => (
         <li key={i}>
@@ -44,10 +44,10 @@ export const PopularForecastsSection = memo(function PopularForecastsSection({
     <div className={`px-5 pb-6 pt-2 sm:px-8 sm:pb-8 ${className}`.trim()}>
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2
-          id="featured-forecasts-heading"
+          id="popular-forecasts-heading"
           className="font-serif text-xl font-normal tracking-tight text-foreground sm:text-2xl"
         >
-          Featured forecasts
+          Popular forecasts
         </h2>
         <Link
           href={seeAllHref}
@@ -67,7 +67,7 @@ export const PopularForecastsSection = memo(function PopularForecastsSection({
               <p className="text-sm text-muted">No forecasts to highlight yet.</p>
             )
           : (
-              <ul className={FEATURED_FORECAST_GRID_CLASS}>
+              <ul className={POPULAR_FORECAST_GRID_CLASS}>
                 {visiblePredictions.map(p => (
                   <li key={p.id}>
                     <PopularForecastCard

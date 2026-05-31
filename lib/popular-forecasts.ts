@@ -2,10 +2,10 @@ import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import { primaryBucketTopicForPrediction } from '@/lib/topic-store';
 import type { Prediction } from '@/types/prediction';
 
-import { FEATURED_FORECAST_MAX_SLOTS } from '@/lib/featured-forecast-columns';
+import { POPULAR_FORECAST_MAX_SLOTS } from '@/lib/popular-forecast-columns';
 
 /** Upper bound when the viewport fits four columns (xl). */
-export const DEFAULT_POPULAR_FORECAST_COUNT = FEATURED_FORECAST_MAX_SLOTS;
+export const DEFAULT_POPULAR_FORECAST_COUNT = POPULAR_FORECAST_MAX_SLOTS;
 
 /**
  * Picks hero “popular forecast” cards: newest first, preferring one row per
