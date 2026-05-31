@@ -1,4 +1,4 @@
-import { isPendingOutcome } from '@/lib/prediction-outcome';
+import { isScoredOutcome } from '@/lib/prediction-outcome';
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import type { Prediction } from '@/types/prediction';
 
@@ -7,13 +7,17 @@ export type RecentResolution = {
   resolvedAt: string;
 };
 
-/** Terminal predictions sorted by resolution time (newest first). */
-export function pickRecentResolutions(
+/**
+ * Scored resolutions only (correct/incorrect per constitution §7.2).
+ * Unresolved, invalid, and pending predictions are excluded even when `resolved_at` is set.
+ * Sorted by resolution time (newest first).
+ */
+export function pickRecentScoredResolutions(
   predictions: Prediction[],
   limit = 5,
 ): RecentResolution[] {
   const resolved = predictions.filter(
-    p => !isPendingOutcome(p.outcome) && p.resolved_at,
+    p => isScoredOutcome(p.outcome) && p.resolved_at,
   );
   resolved.sort((a, b) => {
     const ta = a.resolved_at ? Date.parse(a.resolved_at) : 0;

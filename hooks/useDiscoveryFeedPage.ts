@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { computeFeedPlatformStats } from '@/lib/feed-platform-stats';
-import { pickRecentResolutions } from '@/lib/recent-resolutions';
+import { pickRecentScoredResolutions } from '@/lib/recent-resolutions';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
 import type { RecentResolution } from '@/lib/recent-resolutions';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
@@ -90,7 +90,7 @@ export function useDiscoveryFeedPage(
   }, []);
 
   const recentResolutions = useMemo(
-    () => pickRecentResolutions(scopeData, 5),
+    () => pickRecentScoredResolutions(scopeData, 5),
     [scopeData],
   );
 

@@ -17,3 +17,35 @@ export function formatMonthYear(iso: string): string {
     year: 'numeric',
   });
 }
+
+function startOfLocalDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Relative resolution time for sidebar copy (e.g. "2h ago", "Yesterday"). */
+export function formatResolvedRelativeTime(
+  iso: string,
+  now: Date = new Date(),
+): string {
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return iso;
+
+  const diffMs = now.getTime() - then.getTime();
+  if (diffMs < 0) return formatIsoDate(iso);
+
+  const diffMins = Math.floor(diffMs / 60_000);
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+
+  const dayDiff = Math.round(
+    (startOfLocalDay(now).getTime() - startOfLocalDay(then).getTime())
+    / 86_400_000,
+  );
+
+  if (dayDiff === 0) {
+    const diffHours = Math.floor(diffMs / 3_600_000);
+    return `${diffHours}h ago`;
+  }
+  if (dayDiff === 1) return 'Yesterday';
+  return formatIsoDate(iso);
+}
