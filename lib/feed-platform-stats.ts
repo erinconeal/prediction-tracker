@@ -1,9 +1,12 @@
+import { formatCompactCount } from '@/lib/format-compact-count';
 import {
   accuracyPercentFromRollup,
   addPredictionToRollup,
   emptySourceOutcomeRollup,
 } from '@/lib/source-outcome-rollup';
 import type { Prediction } from '@/types/prediction';
+
+export { formatCompactCount } from '@/lib/format-compact-count';
 
 export type FeedPlatformStats = {
   trackedCount: number;
@@ -24,11 +27,7 @@ export function computeFeedPlatformStats(
 }
 
 export function formatTrackedCount(n: number): string {
-  if (n >= 1000) {
-    const k = n / 1000;
-    return k >= 10 ? `${Math.round(k)}k` : `${k.toFixed(1)}k`;
-  }
-  return String(n);
+  return formatCompactCount(n);
 }
 
 export function formatAccuracyPercent(value: number | null): string {

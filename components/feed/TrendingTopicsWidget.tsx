@@ -3,6 +3,7 @@
 import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
+import { formatCompactCount } from '@/lib/format-compact-count';
 import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicDto } from '@/services/api';
 
@@ -52,8 +53,8 @@ export const TrendingTopicsWidget = memo(function TrendingTopicsWidget({
                       className="flex items-center justify-between gap-2 rounded-lg bg-white/10 px-3 py-2.5 text-sm font-medium transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-interactive"
                     >
                       <span className="min-w-0 truncate">{t.name}</span>
-                      <span className="shrink-0 text-xs text-white/80">
-                        {formatCount(t.count)}
+                      <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-semibold tabular-nums text-interactive">
+                        {formatCompactCount(t.count)}
                       </span>
                     </Link>
                   </li>
@@ -69,8 +70,3 @@ export const TrendingTopicsWidget = memo(function TrendingTopicsWidget({
     </section>
   );
 });
-
-function formatCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
-}
