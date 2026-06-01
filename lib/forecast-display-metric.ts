@@ -12,11 +12,11 @@ export type ForecastDisplayMetric = {
  * Maps source accuracy into Popular badge tone. Not market odds —
  * encodes track-record strength for the consensus source.
  */
-export function forecastDisplayMetricFromStats(
-  stats: SourceAccuracyStats,
+export function forecastDisplayMetricFromAccuracyPercent(
+  accuracyPercent: number | null,
 ): ForecastDisplayMetric {
   const percent
-    = stats.accuracy === null ? null : Math.round(stats.accuracy);
+    = accuracyPercent === null ? null : Math.round(accuracyPercent);
 
   if (percent === null) {
     return { percent: null, trend: 'flat' };
@@ -24,6 +24,12 @@ export function forecastDisplayMetricFromStats(
   if (percent >= 60) return { percent, trend: 'up' };
   if (percent < 40) return { percent, trend: 'down' };
   return { percent, trend: 'flat' };
+}
+
+export function forecastDisplayMetricFromStats(
+  stats: SourceAccuracyStats,
+): ForecastDisplayMetric {
+  return forecastDisplayMetricFromAccuracyPercent(stats.accuracy);
 }
 
 export type SourceAccuracyBadgeTone = ForecastTrend | 'unknown';
