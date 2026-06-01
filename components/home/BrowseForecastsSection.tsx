@@ -147,7 +147,6 @@ export const BrowseForecastsSection = memo(function BrowseForecastsSection({
         predictions={predictions}
         loading={loading}
         emptyMessage={emptyMessage}
-        outcomeFilter={outcomeFilter}
         onOutcomeFilter={onOutcomeFilter}
       />
 

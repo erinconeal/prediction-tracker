@@ -133,7 +133,6 @@ export function DiscoveryFeedLayout({
           predictions={listData}
           loading={loading}
           emptyMessage={emptyMessage}
-          outcomeFilter={outcomeFilter}
           onOutcomeFilter={onOutcomeFilter}
         />
 
