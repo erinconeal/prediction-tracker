@@ -127,4 +127,41 @@ describe('BrowseForecastCard', () => {
     expect(screen.queryByRole('link', { name: /browse finance forecasts/i })).not.toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });
+
+  test('hideSourceHeader omits source link and shows title with read-only outcome badge', () => {
+    render(
+      <BrowseForecastCard
+        prediction={cardPrediction()}
+        hideSourceHeader
+        readOnlyOutcome
+      />,
+    );
+
+    expect(screen.queryByRole('link', { name: /jane analyst/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /will rates fall/i }),
+    ).toHaveAttribute('href', '/predictions/p-1');
+    expect(screen.getByText('Incorrect')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: /filter browse forecasts by incorrect/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('readOnlyOutcome shows Resolved timing for scored terminal rows', () => {
+    render(
+      <BrowseForecastCard
+        prediction={cardPrediction({
+          outcome: 'correct',
+          resolved_at: '2024-07-15T00:00:00.000Z',
+        })}
+        hideSourceHeader
+        readOnlyOutcome
+      />,
+    );
+
+    const time = screen.getByText('Jul 15, 2024');
+    expect(time.closest('p')).toHaveTextContent('Resolved Jul 15, 2024');
+  });
 });
