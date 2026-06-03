@@ -8,9 +8,9 @@ export function buildPrediction(overrides: Partial<Prediction> = {}): Prediction
     text: 'It will rain',
     topicIds: [],
     created_at: '2024-01-01T00:00:00.000Z',
-    resolved_at: null,
+    finished_at: null,
     target_date: null,
-    outcome: 'pending',
+    outcome: 'still_open',
     ...overrides,
   };
 }

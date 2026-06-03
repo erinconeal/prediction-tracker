@@ -22,8 +22,8 @@ function startOfLocalDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-/** Relative resolution time for sidebar copy (e.g. "2h ago", "Yesterday"). */
-export function formatResolvedRelativeTime(
+/** Relative finish time for sidebar copy (e.g. "2h ago", "Yesterday"). */
+export function formatFinishedRelativeTime(
   iso: string,
   now: Date = new Date(),
 ): string {

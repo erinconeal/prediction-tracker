@@ -85,7 +85,7 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
           activeBucketSlug={topic.kind === 'bucket' ? topic.slug : undefined}
           trendingTopics={trending.data}
           trendingLoading={trending.loading}
-          recentResolutions={feed.recentResolutions}
+          recentlyJudgedScored={feed.recentlyJudgedScored}
           platformStats={feed.platformStats}
           showBucketFilters={topic.kind === 'bucket'}
         />

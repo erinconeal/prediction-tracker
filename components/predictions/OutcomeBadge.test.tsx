@@ -10,7 +10,7 @@ describe('OutcomeBadge', () => {
       'aria-hidden',
     );
 
-    rerender(<OutcomeBadge outcome="pending" />);
-    expect(screen.getByText('Pending')).toBeVisible();
+    rerender(<OutcomeBadge outcome="still_open" />);
+    expect(screen.getByText('Still open')).toBeVisible();
   });
 });

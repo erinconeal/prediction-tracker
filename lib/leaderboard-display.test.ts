@@ -18,7 +18,7 @@ describe('leaderboardDisplayStats', () => {
   test('given mixed scored and unscored, counts only sources with scored > 0', () => {
     const stats = leaderboardDisplayStats([
       ...credibleLeaderboardRows().slice(0, 3),
-      buildLeaderboardRow({ source: 'D', scored: 0, pending: 2 }),
+      buildLeaderboardRow({ source: 'D', scored: 0, stillOpen: 2 }),
     ]);
     expect(stats).toEqual({
       distinctSourcesWithScored: 3,

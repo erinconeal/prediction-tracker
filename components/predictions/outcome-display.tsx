@@ -1,4 +1,5 @@
 import type { Outcome } from '@/types/prediction';
+import { OUTCOME_STILL_OPEN_LABEL } from '@/lib/lifecycle-copy';
 import {
   Check,
   CircleQuestionMark,
@@ -9,7 +10,7 @@ import {
 } from 'lucide-react';
 
 export const outcomeStyles: Record<Outcome, string> = {
-  pending:
+  still_open:
     'border border-warning/40 bg-warning/15 text-foreground',
   correct: 'bg-success/15 text-success',
   incorrect: 'bg-error/15 text-error',
@@ -20,7 +21,7 @@ export const outcomeStyles: Record<Outcome, string> = {
 
 /** Interactive browse filter chips only (hover/active); static badges use `outcomeStyles`. */
 export const outcomeFilterButtonStyles: Record<Outcome, string> = {
-  pending:
+  still_open:
     'border border-warning/40 bg-warning/15 text-foreground hover:bg-warning/25 active:bg-warning/30',
   correct:
     'bg-success/15 text-success hover:bg-success/25 active:bg-success/30',
@@ -33,16 +34,16 @@ export const outcomeFilterButtonStyles: Record<Outcome, string> = {
 };
 
 export const outcomeLabels: Record<Outcome, string> = {
-  pending: 'Pending',
+  still_open: OUTCOME_STILL_OPEN_LABEL,
   correct: 'Correct',
   incorrect: 'Incorrect',
   unresolved: 'Unresolved',
   invalid: 'Invalid',
 };
 
-/** Circular outcome icon backgrounds for compact list rows (e.g. recent resolutions). */
+/** Circular outcome icon backgrounds for compact list rows (e.g. recently judged widget). */
 export const outcomeIconCircleStyles: Record<Outcome, string> = {
-  pending: 'bg-warning/15 text-foreground',
+  still_open: 'bg-warning/15 text-foreground',
   correct: 'bg-success/15 text-success',
   incorrect: 'bg-error/15 text-error',
   unresolved: 'bg-info/15 text-info',
@@ -51,7 +52,7 @@ export const outcomeIconCircleStyles: Record<Outcome, string> = {
 
 /** Outcome label accent colors paired with `outcomeLabels`. */
 export const outcomeAccentTextStyles: Record<Outcome, string> = {
-  pending: 'text-foreground',
+  still_open: 'text-foreground',
   correct: 'text-success',
   incorrect: 'text-error',
   unresolved: 'text-info',
@@ -59,7 +60,7 @@ export const outcomeAccentTextStyles: Record<Outcome, string> = {
 };
 
 const OUTCOME_GLYPHS: Record<Outcome, LucideIcon> = {
-  pending: Clock,
+  still_open: Clock,
   correct: Check,
   incorrect: X,
   unresolved: CircleQuestionMark,

@@ -37,7 +37,7 @@ export function idleDiscoveryFeedPage(
     hasMore: false,
     refetch: vi.fn(),
     loadMore: vi.fn(),
-    recentResolutions: [],
+    recentlyJudgedScored: [],
     platformStats: { trackedCount: 0, averageAccuracyPercent: null },
     ...overrides,
   };

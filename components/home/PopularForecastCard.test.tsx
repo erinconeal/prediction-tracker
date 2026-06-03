@@ -12,7 +12,7 @@ const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =
     text: 'Will rates fall this year?',
     topicIds: ['topic-finance'],
     created_at: '2024-06-01T00:00:00.000Z',
-    outcome: 'pending',
+    outcome: 'still_open',
     ...overrides,
   });
 
@@ -52,7 +52,7 @@ describe('PopularForecastCard', () => {
       <PopularForecastCard
         prediction={cardPrediction()}
         statsContext={[
-          cardPrediction({ id: 'p-pending', outcome: 'pending', resolved_at: null }),
+          cardPrediction({ id: 'p-still-open', outcome: 'still_open', finished_at: null }),
         ]}
       />,
     );
@@ -68,12 +68,12 @@ describe('PopularForecastCard', () => {
       cardPrediction({
         id: 'p-1',
         outcome: 'correct',
-        resolved_at: '2024-07-01T00:00:00.000Z',
+        finished_at: '2024-07-01T00:00:00.000Z',
       }),
       cardPrediction({
         id: 'p-2',
         outcome: 'incorrect',
-        resolved_at: '2024-07-02T00:00:00.000Z',
+        finished_at: '2024-07-02T00:00:00.000Z',
       }),
     ];
 
@@ -94,12 +94,12 @@ describe('PopularForecastCard', () => {
       cardPrediction({
         id: 'p-1',
         outcome: 'correct',
-        resolved_at: '2024-07-01T00:00:00.000Z',
+        finished_at: '2024-07-01T00:00:00.000Z',
       }),
       cardPrediction({
         id: 'p-2',
         outcome: 'incorrect',
-        resolved_at: '2024-07-02T00:00:00.000Z',
+        finished_at: '2024-07-02T00:00:00.000Z',
       }),
     ];
 

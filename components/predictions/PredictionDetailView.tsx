@@ -6,6 +6,13 @@ import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import { usePrediction } from '@/hooks/usePrediction';
 import { usePredictions } from '@/hooks/usePredictions';
 import { topicPagePath } from '@/lib/topic-path';
+import { InfoPopover } from '@/components/ui/InfoPopover';
+import {
+  STAT_NO_LONGER_OPEN,
+  STAT_NO_LONGER_OPEN_HINT,
+  TIMELINE_FINISHED_LABEL,
+  formatStillOpenCount,
+} from '@/lib/lifecycle-copy';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
 import { updatePredictionOutcome } from '@/services/api';
 import type { TerminalOutcome } from '@/types/prediction';
@@ -144,11 +151,26 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
                 </li>
               )
             : null}
+          {p.finished_at
+            ? (
+                <li className="relative pb-6">
+                  <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-border ring-4 ring-background" />
+                  <p className="text-sm font-medium text-foreground">
+                    {TIMELINE_FINISHED_LABEL}
+                  </p>
+                  <p className="text-sm text-muted">
+                    <time dateTime={p.finished_at}>
+                      {formatIsoDate(p.finished_at)}
+                    </time>
+                  </p>
+                </li>
+              )
+            : null}
           <li className="relative">
             <span className="absolute -left-[calc(0.5rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-border ring-4 ring-background" />
             <p className="text-sm font-medium text-foreground">Outcome</p>
             <p className="text-sm text-muted">
-              {p.outcome === 'pending'
+              {p.outcome === 'still_open'
                 ? 'Still open — choose an outcome when the claim can be evaluated.'
                 : p.outcome === 'correct'
                   ? 'Recorded as correct against the evaluation criteria you apply for this tracker.'
@@ -179,11 +201,16 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
                   </p>
                 </div>
                 <div className={statCard}>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                    Resolved
-                  </p>
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                      {STAT_NO_LONGER_OPEN}
+                    </p>
+                    <InfoPopover label={`About ${STAT_NO_LONGER_OPEN}`}>
+                      {STAT_NO_LONGER_OPEN_HINT}
+                    </InfoPopover>
+                  </div>
                   <p className="mt-1 text-2xl font-semibold text-foreground">
-                    {stats.resolved}
+                    {stats.noLongerOpen}
                   </p>
                 </div>
                 <div className={statCard}>
@@ -199,7 +226,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
                     {stats.scored}
                     {' '}
                     scored (correct + incorrect).
-                    {stats.pending > 0 ? ` ${stats.pending} pending.` : ''}
+                    {stats.stillOpen > 0 ? ` ${formatStillOpenCount(stats.stillOpen)}.` : ''}
                     {stats.outcomeUnresolved > 0
                       ? ` ${stats.outcomeUnresolved} unresolved.`
                       : ''}
@@ -221,7 +248,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
         </p>
       </section>
 
-      {p.outcome === 'pending'
+      {p.outcome === 'still_open'
         ? (
             <section className="flex flex-wrap gap-3">
               <button

@@ -1,17 +1,17 @@
 import type { Prediction } from '@/types/prediction';
 import {
-  isPendingOutcome,
   isScoredOutcome,
+  isStillOpenOutcome,
 } from '@/lib/prediction-outcome';
 
 /** Per-source counts for constitution-aligned accuracy (§7.2–7.3). */
 export type SourceOutcomeRollup = {
   total: number;
-  pending: number;
+  stillOpen: number;
   /** correct + incorrect — accuracy denominator. */
   scored: number;
   correct: number;
-  /** Terminal `unresolved` outcome count (not pending). */
+  /** Terminal `unresolved` outcome count (not still_open). */
   outcomeUnresolved: number;
   invalid: number;
 };
@@ -19,7 +19,7 @@ export type SourceOutcomeRollup = {
 export function emptySourceOutcomeRollup(): SourceOutcomeRollup {
   return {
     total: 0,
-    pending: 0,
+    stillOpen: 0,
     scored: 0,
     correct: 0,
     outcomeUnresolved: 0,
@@ -32,8 +32,8 @@ export function addPredictionToRollup(
   p: Prediction,
 ): void {
   r.total += 1;
-  if (isPendingOutcome(p.outcome)) {
-    r.pending += 1;
+  if (isStillOpenOutcome(p.outcome)) {
+    r.stillOpen += 1;
     return;
   }
   if (p.outcome === 'unresolved') {

@@ -6,7 +6,7 @@ import type {
   TerminalOutcome,
 } from '@/types/prediction';
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
-import { isPendingOutcome } from '@/lib/prediction-outcome';
+import { isStillOpenOutcome } from '@/lib/prediction-outcome';
 import { predictionMatchesTopicSlug } from '@/lib/prediction-topic-match';
 import {
   accuracyPercentFromRollup,
@@ -100,11 +100,11 @@ function seed(): void {
   predictions[0]!.outcome = 'correct';
   predictions[1]!.outcome = 'incorrect';
   predictions[2]!.outcome = 'correct';
-  predictions[0]!.resolved_at = iso(new Date(now.getTime() - 1 * 3600000));
-  predictions[1]!.resolved_at = iso(new Date(now.getTime() - 2 * 3600000));
-  predictions[2]!.resolved_at = iso(new Date(now.getTime() - 3 * 3600000));
+  predictions[0]!.finished_at = iso(new Date(now.getTime() - 1 * 3600000));
+  predictions[1]!.finished_at = iso(new Date(now.getTime() - 2 * 3600000));
+  predictions[2]!.finished_at = iso(new Date(now.getTime() - 3 * 3600000));
   predictions[3]!.outcome = 'unresolved';
-  predictions[3]!.resolved_at = iso(new Date(now.getTime() - 4 * 3600000));
+  predictions[3]!.finished_at = iso(new Date(now.getTime() - 4 * 3600000));
 }
 
 function createInternal(
@@ -121,11 +121,11 @@ function createInternal(
     text: input.text.trim(),
     topicIds: [...topicIds],
     created_at: createdAtIso,
-    resolved_at: null,
+    finished_at: null,
     target_date: input.target_date?.trim()
       ? normalizeTargetDate(input.target_date.trim())
       : null,
-    outcome: 'pending',
+    outcome: 'still_open',
   };
 }
 
@@ -180,16 +180,16 @@ function compareBySourceAccuracy(
   return comparePredictionsNewestFirst(a, b);
 }
 
-function compareRecentlyResolved(a: Prediction, b: Prediction): number {
-  const aPending = isPendingOutcome(a.outcome);
-  const bPending = isPendingOutcome(b.outcome);
-  if (aPending !== bPending) return aPending ? 1 : -1;
-  if (!aPending && !bPending) {
-    const ra = a.resolved_at
-      ? new Date(a.resolved_at).getTime()
+function compareRecentlyFinished(a: Prediction, b: Prediction): number {
+  const aStillOpen = isStillOpenOutcome(a.outcome);
+  const bStillOpen = isStillOpenOutcome(b.outcome);
+  if (aStillOpen !== bStillOpen) return aStillOpen ? 1 : -1;
+  if (!aStillOpen && !bStillOpen) {
+    const ra = a.finished_at
+      ? new Date(a.finished_at).getTime()
       : Number.NEGATIVE_INFINITY;
-    const rb = b.resolved_at
-      ? new Date(b.resolved_at).getTime()
+    const rb = b.finished_at
+      ? new Date(b.finished_at).getTime()
       : Number.NEGATIVE_INFINITY;
     const t = rb - ra;
     if (t !== 0) return t;
@@ -210,7 +210,7 @@ function sortFiltered(
     const keys = sourceSortKeyMap(filtered);
     return copy.sort((a, b) => compareBySourceAccuracy(a, b, keys));
   }
-  return copy.sort(compareRecentlyResolved);
+  return copy.sort(compareRecentlyFinished);
 }
 
 /**
@@ -269,6 +269,6 @@ export function updatePredictionOutcome(
   if (!row) return null;
   if (row.outcome === outcome) return row;
   row.outcome = outcome;
-  row.resolved_at = new Date().toISOString();
+  row.finished_at = new Date().toISOString();
   return row;
 }

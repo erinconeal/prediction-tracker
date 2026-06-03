@@ -3,23 +3,23 @@ import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
 import { formatLeaderboardAccuracyContext } from './leaderboard-row-context';
 
 describe('formatLeaderboardAccuracyContext', () => {
-  test('given scored row with pending, should include both', () => {
+  test('given scored row with stillOpen, should include both', () => {
     const text = formatLeaderboardAccuracyContext(
       buildLeaderboardRow({
         scored: 5,
-        pending: 2,
+        stillOpen: 2,
         outcomeUnresolved: 0,
         invalid: 0,
       }),
     );
-    expect(text).toBe('5 scored (correct + incorrect) · 2 pending');
+    expect(text).toBe('5 scored (correct + incorrect) · 2 still open');
   });
 
   test('given unresolved and invalid, should surface both', () => {
     const text = formatLeaderboardAccuracyContext(
       buildLeaderboardRow({
         scored: 3,
-        pending: 0,
+        stillOpen: 0,
         outcomeUnresolved: 1,
         invalid: 2,
       }),

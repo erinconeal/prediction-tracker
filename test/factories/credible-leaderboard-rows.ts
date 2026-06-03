@@ -106,7 +106,7 @@ export function thinLeaderboardRows(): LeaderboardRow[] {
       scored: 2,
       correct: 2,
       accuracyPercent: 100,
-      pending: 1,
+      stillOpen: 1,
     }),
     buildLeaderboardRow({
       rank: 2,
@@ -120,9 +120,9 @@ export function thinLeaderboardRows(): LeaderboardRow[] {
     buildLeaderboardRow({
       rank: 3,
       source: 'Pending Only',
-      sourceSlug: 'pending-only',
+      sourceSlug: 'still-open-only',
       scored: 0,
-      pending: 3,
+      stillOpen: 3,
       accuracyPercent: null,
       total: 3,
     }),

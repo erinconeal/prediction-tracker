@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import { ConstitutionBody } from '@/components/about/ConstitutionBody';
+import { LifecycleLanguage } from '@/components/about/LifecycleLanguage';
 import { MethodologyTableOfContents } from '@/components/about/MethodologyTableOfContents';
 import {
   readConstitutionMarkdown,
   readLeadingAtxHeadingText,
   stripLeadingAtxHeading,
 } from '@/lib/constitution';
-import { extractMethodologyToc } from '@/lib/methodology-toc';
+import {
+  extractMethodologyToc,
+  methodologyTocWithLifecycleGlossary,
+} from '@/lib/methodology-toc';
 
 export const metadata: Metadata = {
   title: 'About — Methodology',
@@ -18,7 +22,7 @@ export default async function AboutPage() {
   const raw = await readConstitutionMarkdown();
   const documentTitle = readLeadingAtxHeadingText(raw);
   const markdown = stripLeadingAtxHeading(raw);
-  const toc = extractMethodologyToc(markdown);
+  const toc = methodologyTocWithLifecycleGlossary(extractMethodologyToc(markdown));
 
   return (
     <div className="space-y-8 scroll-smooth">
@@ -40,6 +44,8 @@ export default async function AboutPage() {
           follow these rules.
         </p>
       </header>
+
+      <LifecycleLanguage />
 
       <div className="grid gap-8 xl:grid-cols-[minmax(12rem,14rem)_minmax(0,1fr)] xl:items-start">
         <MethodologyTableOfContents entries={toc} />

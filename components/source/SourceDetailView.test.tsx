@@ -23,14 +23,14 @@ describe('SourceDetailView', () => {
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
           outcome: 'correct',
-          resolved_at: '2024-06-01T00:00:00.000Z',
+          finished_at: '2024-06-01T00:00:00.000Z',
         }),
         buildPrediction({
           id: 'p-2',
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
           outcome: 'incorrect',
-          resolved_at: '2024-06-02T00:00:00.000Z',
+          finished_at: '2024-06-02T00:00:00.000Z',
         }),
       ],
       loading: false,
@@ -59,14 +59,14 @@ describe('SourceDetailView', () => {
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
           outcome: 'correct',
-          resolved_at: '2024-06-01T00:00:00.000Z',
+          finished_at: '2024-06-01T00:00:00.000Z',
         }),
         buildPrediction({
           id: 'p-2',
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
           outcome: 'incorrect',
-          resolved_at: '2024-06-02T00:00:00.000Z',
+          finished_at: '2024-06-02T00:00:00.000Z',
         }),
       ],
       loading: false,
@@ -78,11 +78,11 @@ describe('SourceDetailView', () => {
 
     const sidebar = screen.getByRole('complementary', { name: 'Source statistics' });
     expect(within(sidebar).getByText('Total predictions')).toBeInTheDocument();
-    expect(within(sidebar).getByText('Resolved')).toBeInTheDocument();
+    expect(within(sidebar).getByText('No longer open')).toBeInTheDocument();
     expect(within(sidebar).getByRole('progressbar')).toBeInTheDocument();
     expect(
       within(sidebar).getByRole('link', { name: 'How we score' }),
-    ).toHaveAttribute('href', '/about');
+    ).toHaveAttribute('href', '/about#lifecycle-language');
   });
 
   test('given empty predictions, should humanize slug for title and omit progressbar', () => {
@@ -127,11 +127,11 @@ describe('SourceDetailView', () => {
     mockUsePredictions.mockReturnValue({
       data: [
         buildPrediction({
-          id: 'p-pending',
+          id: 'p-still-open',
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
-          text: 'Pending forecast text',
-          outcome: 'pending',
+          text: 'Open forecast text',
+          outcome: 'still_open',
         }),
       ],
       loading: false,
@@ -142,8 +142,8 @@ describe('SourceDetailView', () => {
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
     expect(
-      screen.getByRole('link', { name: /pending forecast text/i }),
-    ).toHaveAttribute('href', '/predictions/p-pending');
+      screen.getByRole('link', { name: /open forecast text/i }),
+    ).toHaveAttribute('href', '/predictions/p-still-open');
     expect(screen.queryByRole('button', { name: /mark correct/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /jane analyst/i })).not.toBeInTheDocument();
   });

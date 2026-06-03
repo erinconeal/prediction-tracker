@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   if (
     sortParam === 'newest'
     || sortParam === 'source_accuracy'
-    || sortParam === 'recently_resolved'
+    || sortParam === 'recently_finished'
   ) {
     sort = sortParam;
   }

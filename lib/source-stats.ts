@@ -8,15 +8,15 @@ import {
 export type SourceAccuracyStats = {
   name: string;
   total: number;
-  pending: number;
+  stillOpen: number;
   /** Correct + incorrect — constitution §7.2 denominator. */
   scored: number;
   correct: number;
-  /** Terminal `unresolved` (§6.3), not pre-resolution `pending`. */
+  /** Terminal `unresolved` (§6.3), not pre-resolution `still_open`. */
   outcomeUnresolved: number;
   invalid: number;
-  /** Non-pending count (any terminal outcome). */
-  resolved: number;
+  /** Non-still-open count (any terminal outcome). */
+  noLongerOpen: number;
   /** One decimal percent; null when `scored === 0`. */
   accuracy: number | null;
 };
@@ -48,18 +48,18 @@ export function computeSourceAccuracyStats(
     addPredictionToRollup(rollup, p);
   }
 
-  const resolved = rollup.total - rollup.pending;
+  const noLongerOpen = rollup.total - rollup.stillOpen;
   const accuracy = accuracyPercentFromRollup(rollup);
 
   return {
     name,
     total: rollup.total,
-    pending: rollup.pending,
+    stillOpen: rollup.stillOpen,
     scored: rollup.scored,
     correct: rollup.correct,
     outcomeUnresolved: rollup.outcomeUnresolved,
     invalid: rollup.invalid,
-    resolved,
+    noLongerOpen,
     accuracy,
   };
 }

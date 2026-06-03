@@ -8,12 +8,18 @@ import {
   outcomeIconCircleStyles,
   outcomeLabels,
 } from '@/components/predictions/outcome-display';
-import type { RecentResolution } from '@/lib/recent-resolutions';
-import { formatResolvedRelativeTime } from '@/utils/format-date';
+import { InfoPopover } from '@/components/ui/InfoPopover';
+import {
+  WIDGET_RECENTLY_JUDGED,
+  WIDGET_RECENTLY_JUDGED_EMPTY,
+  WIDGET_RECENTLY_JUDGED_HINT,
+} from '@/lib/lifecycle-copy';
+import type { RecentlyJudgedScored } from '@/lib/recently-judged-scored';
+import { formatFinishedRelativeTime } from '@/utils/format-date';
 import { truncateWithEllipsis } from '@/utils/truncate-text';
 
-type RecentResolutionsWidgetProps = {
-  items: RecentResolution[];
+type RecentlyJudgedWidgetProps = {
+  items: RecentlyJudgedScored[];
   className?: string;
 };
 
@@ -23,28 +29,33 @@ function quotedExcerpt(text: string): string {
   return `"${truncateWithEllipsis(text, QUOTED_EXCERPT_MAX)}"`;
 }
 
-export const RecentResolutionsWidget = memo(function RecentResolutionsWidget({
+export const RecentlyJudgedWidget = memo(function RecentlyJudgedWidget({
   items,
   className = '',
-}: RecentResolutionsWidgetProps) {
+}: RecentlyJudgedWidgetProps) {
   return (
     <section
       className={`rounded-xl border border-border bg-surface-elevated p-4 shadow-sm ${className}`.trim()}
-      aria-labelledby="recent-resolutions-heading"
+      aria-labelledby="recently-judged-heading"
     >
-      <h2
-        id="recent-resolutions-heading"
-        className="text-sm font-semibold text-foreground"
-      >
-        Recent resolutions
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2
+          id="recently-judged-heading"
+          className="min-w-0 text-sm font-semibold text-foreground"
+        >
+          {WIDGET_RECENTLY_JUDGED}
+        </h2>
+        <InfoPopover label={`About ${WIDGET_RECENTLY_JUDGED}`}>
+          {WIDGET_RECENTLY_JUDGED_HINT}
+        </InfoPopover>
+      </div>
       {items.length === 0
         ? (
-            <p className="mt-3 text-sm text-muted">No resolved forecasts yet.</p>
+            <p className="mt-3 text-sm text-muted">{WIDGET_RECENTLY_JUDGED_EMPTY}</p>
           )
         : (
             <ul className="mt-3 space-y-4">
-              {items.map(({ prediction: p, resolvedAt }) => (
+              {items.map(({ prediction: p, finishedAt }) => (
                 <li key={p.id} className="list-none">
                   <Link
                     href={`/predictions/${p.id}`}
@@ -63,9 +74,7 @@ export const RecentResolutionsWidget = memo(function RecentResolutionsWidget({
                       <span className="mt-1 block text-xs text-muted">
                         {p.source}
                         {' · '}
-                        Resolved
-                        {' '}
-                        {formatResolvedRelativeTime(resolvedAt)}
+                        {formatFinishedRelativeTime(finishedAt)}
                         {' · '}
                         <span
                           className={`font-semibold ${outcomeAccentTextStyles[p.outcome]}`}

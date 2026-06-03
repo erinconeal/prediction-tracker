@@ -27,7 +27,7 @@ describe('GET /api/predictions route', () => {
           typeof row.id === 'string'
           && typeof row.source === 'string'
           && typeof row.text === 'string'
-          && ['pending', 'correct', 'incorrect', 'unresolved', 'invalid'].includes(
+          && ['still_open', 'correct', 'incorrect', 'unresolved', 'invalid'].includes(
             row.outcome,
           ),
       ),
@@ -134,28 +134,28 @@ describe('GET /api/predictions route', () => {
     expect(a[0]!.id).not.toBe(b[0]!.id);
   });
 
-  test('given sort=recently_resolved, should list resolved rows before pending', async () => {
+  test('given sort=recently_finished, should list resolved rows before still_open', async () => {
     const { GET } = await loadRouteModule(() => import('./route'));
     const response = await GET(
-      new Request('http://localhost/api/predictions?sort=recently_resolved'),
+      new Request('http://localhost/api/predictions?sort=recently_finished'),
     );
     const body = (await response.json()) as Array<{
       outcome: string;
-      resolved_at: string | null;
+      finished_at: string | null;
     }>;
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThanOrEqual(4);
-    const firstPendingIndex = body.findIndex(r => r.outcome === 'pending');
-    let lastResolvedIndex = -1;
+    const firstStillOpenIndex = body.findIndex(r => r.outcome === 'still_open');
+    let lastFinishedIndex = -1;
     for (let i = 0; i < body.length; i++) {
-      if (body[i]!.outcome !== 'pending') lastResolvedIndex = i;
+      if (body[i]!.outcome !== 'still_open') lastFinishedIndex = i;
     }
-    expect(firstPendingIndex).toBeGreaterThan(lastResolvedIndex);
+    expect(firstStillOpenIndex).toBeGreaterThan(lastFinishedIndex);
     expect(
       body
-        .filter(r => r.outcome !== 'pending')
-        .every(r => typeof r.resolved_at === 'string'),
+        .filter(r => r.outcome !== 'still_open')
+        .every(r => typeof r.finished_at === 'string'),
     ).toBe(true);
   });
 
@@ -250,7 +250,7 @@ describe('POST /api/predictions route', () => {
 
     expect(response.status).toBe(201);
     expect(body.topicIds).toEqual([topic!.id]);
-    expect(body.outcome).toBe('pending');
+    expect(body.outcome).toBe('still_open');
   });
 
   test('given valid payload, should create row and return 201', async () => {
@@ -282,7 +282,7 @@ describe('POST /api/predictions route', () => {
     expect(body.text).toBe('New prediction text');
     expect(body.topicIds).toEqual([]);
     expect(body.sourceSlug).toBe('new-source');
-    expect(body.outcome).toBe('pending');
+    expect(body.outcome).toBe('still_open');
     expect(body.target_date).toBe('2026-12-31T00:00:00.000Z');
   });
 });

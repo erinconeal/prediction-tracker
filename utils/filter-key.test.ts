@@ -37,8 +37,8 @@ describe('getFilterKey', () => {
   });
 
   test('given non-default sort, should include sort in key', () => {
-    expect(getFilterKey({ sort: 'recently_resolved' })).toBe(
-      JSON.stringify({ sort: 'recently_resolved' }),
+    expect(getFilterKey({ sort: 'recently_finished' })).toBe(
+      JSON.stringify({ sort: 'recently_finished' }),
     );
   });
 });

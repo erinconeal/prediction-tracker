@@ -75,7 +75,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const request = new Request('http://localhost/api/predictions/x', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ outcome: 'pending' }),
+      body: JSON.stringify({ outcome: 'still_open' }),
     });
 
     const response = await PATCH(request, { params: Promise.resolve({ id: 'x' }) });
@@ -128,13 +128,13 @@ describe('PATCH /api/predictions/[id] route', () => {
     const body = (await response.json()) as {
       id: string;
       outcome: string;
-      resolved_at: string | null;
+      finished_at: string | null;
     };
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
     expect(body.outcome).toBe('unresolved');
-    expect(typeof body.resolved_at).toBe('string');
+    expect(typeof body.finished_at).toBe('string');
   });
 
   test('given existing id and incorrect outcome, should patch and return updated row', async () => {
@@ -163,12 +163,12 @@ describe('PATCH /api/predictions/[id] route', () => {
     const body = (await response.json()) as {
       id: string;
       outcome: string;
-      resolved_at: string | null;
+      finished_at: string | null;
     };
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
     expect(body.outcome).toBe('incorrect');
-    expect(typeof body.resolved_at).toBe('string');
+    expect(typeof body.finished_at).toBe('string');
   });
 });

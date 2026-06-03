@@ -1,9 +1,11 @@
 /**
  * Lifecycle storage values aligned with `constitution.md` §5–§6:
- * `pending` = pre-resolution; `correct`/`incorrect`/`unresolved`/`invalid` = terminal outcomes.
+ * `still_open` = pre-resolution; `correct`/`incorrect`/`unresolved`/`invalid` = terminal outcomes.
  */
+import { isTerminalOutcome } from '@/lib/prediction-outcome';
+
 export const OUTCOMES = [
-  'pending',
+  'still_open',
   'correct',
   'incorrect',
   'unresolved',
@@ -12,20 +14,17 @@ export const OUTCOMES = [
 
 export type Outcome = (typeof OUTCOMES)[number];
 
-/** Terminal outcomes (PATCH body); excludes `pending`. */
-export type TerminalOutcome = Exclude<Outcome, 'pending'>;
-
-const TERMINAL_SET = new Set<string>([
-  'correct',
-  'incorrect',
-  'unresolved',
-  'invalid',
-]);
+/** Terminal outcomes (PATCH body); excludes `still_open`. */
+export type TerminalOutcome = Exclude<Outcome, 'still_open'>;
 
 export function isTerminalOutcomeValue(
   value: unknown,
 ): value is TerminalOutcome {
-  return typeof value === 'string' && TERMINAL_SET.has(value);
+  return (
+    typeof value === 'string'
+    && (OUTCOMES as readonly string[]).includes(value)
+    && isTerminalOutcome(value as Outcome)
+  );
 }
 
 export type Prediction = {
@@ -36,8 +35,8 @@ export type Prediction = {
   /** Linked topics (many-to-many). */
   topicIds: string[];
   created_at: string;
-  /** Set when a terminal outcome is assigned; `null` while `pending`. */
-  resolved_at: string | null;
+  /** Set when a terminal outcome is assigned; `null` while `still_open`. */
+  finished_at: string | null;
   target_date: string | null;
   outcome: Outcome;
 };
@@ -46,7 +45,7 @@ export type Prediction = {
 export type PredictionListSort
   = | 'newest'
     | 'source_accuracy'
-    | 'recently_resolved';
+    | 'recently_finished';
 
 export type PredictionFilters = {
   /** Matches `source` display name or `sourceSlug` (e.g. URL segment). */

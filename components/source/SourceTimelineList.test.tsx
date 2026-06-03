@@ -5,7 +5,7 @@ import { buildPrediction } from '@/test/factories/prediction';
 import { SourceTimelineList } from './SourceTimelineList';
 
 describe('SourceTimelineList', () => {
-  test('renders title link, resolved timing, and topic footer without mark buttons', () => {
+  test('renders title link, outcome badge, and topic footer without mark buttons', () => {
     render(
       <SourceTimelineList
         loading={false}
@@ -17,7 +17,7 @@ describe('SourceTimelineList', () => {
             sourceSlug: 'jane-analyst',
             topicIds: ['topic-finance'],
             outcome: 'correct',
-            resolved_at: '2024-07-15T00:00:00.000Z',
+            finished_at: '2024-07-15T00:00:00.000Z',
           }),
         ]}
       />,
@@ -26,9 +26,8 @@ describe('SourceTimelineList', () => {
     expect(
       screen.getByRole('link', { name: /rates will fall/i }),
     ).toHaveAttribute('href', '/predictions/p-timeline');
-    const time = screen.getByText('Jul 15, 2024');
-    expect(time.tagName).toBe('TIME');
-    expect(time.closest('p')).toHaveTextContent('Resolved Jul 15, 2024');
+    expect(screen.getByText('Correct')).toBeInTheDocument();
+    expect(screen.queryByText('Jul 15, 2024')).not.toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /browse finance forecasts/i }),
     ).toBeInTheDocument();

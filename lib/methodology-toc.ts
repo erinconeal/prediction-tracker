@@ -1,5 +1,10 @@
 export type MethodologyTocLevel = 2 | 3 | 4 | 5 | 6;
 
+import {
+  LIFECYCLE_GLOSSARY_ANCHOR,
+  LIFECYCLE_GLOSSARY_HEADING,
+} from '@/lib/lifecycle-copy';
+
 export type MethodologyTocEntry = {
   level: MethodologyTocLevel;
   text: string;
@@ -66,4 +71,17 @@ export function extractMethodologyToc(markdown: string): MethodologyTocEntry[] {
   }
 
   return entries;
+}
+
+export const LIFECYCLE_GLOSSARY_TOC_ENTRY: MethodologyTocEntry = {
+  level: 2,
+  text: LIFECYCLE_GLOSSARY_HEADING,
+  id: LIFECYCLE_GLOSSARY_ANCHOR,
+};
+
+/** Prepends the lifecycle glossary anchor before constitution headings. */
+export function methodologyTocWithLifecycleGlossary(
+  constitutionEntries: readonly MethodologyTocEntry[],
+): MethodologyTocEntry[] {
+  return [LIFECYCLE_GLOSSARY_TOC_ENTRY, ...constitutionEntries];
 }

@@ -13,15 +13,15 @@ export type LeaderboardRow = {
   /** Canonical route slug from the newest prediction for this source. */
   sourceSlug: string;
   total: number;
-  /** Count with a terminal outcome (not `pending`). */
-  resolved: number;
+  /** Count with a terminal outcome (not `still_open`). */
+  noLongerOpen: number;
   /** Correct + incorrect — denominator for constitution §7.2 accuracy. */
   scored: number;
   correct: number;
   /** One decimal; null when `scored === 0`. */
   accuracyPercent: number | null;
-  pending: number;
-  /** Terminal `unresolved` outcome (§6.3), not pre-resolution `pending`. */
+  stillOpen: number;
+  /** Terminal `unresolved` outcome (§6.3), not pre-resolution `still_open`. */
   outcomeUnresolved: number;
   invalid: number;
   /**
@@ -86,16 +86,16 @@ function rowFromRollup(
   sourceSlug: string,
   r: SourceOutcomeRollup,
 ) {
-  const resolved = r.total - r.pending;
+  const noLongerOpen = r.total - r.stillOpen;
   return {
     source,
     sourceSlug,
     total: r.total,
-    resolved,
+    noLongerOpen,
     scored: r.scored,
     correct: r.correct,
     accuracyPercent: accuracyPercentFromRollup(r),
-    pending: r.pending,
+    stillOpen: r.stillOpen,
     outcomeUnresolved: r.outcomeUnresolved,
     invalid: r.invalid,
   };
@@ -146,11 +146,11 @@ export function computeLeaderboard(
       source: r.source,
       sourceSlug: r.sourceSlug,
       total: r.total,
-      resolved: r.resolved,
+      noLongerOpen: r.noLongerOpen,
       scored: r.scored,
       correct: r.correct,
       accuracyPercent: r.accuracyPercent,
-      pending: r.pending,
+      stillOpen: r.stillOpen,
       outcomeUnresolved: r.outcomeUnresolved,
       invalid: r.invalid,
       streakKind: streak?.kind ?? null,

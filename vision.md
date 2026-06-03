@@ -94,8 +94,8 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 * topicIds (array) — many-to-many links to topics; browse filters by topic slug with bucket roll-up (bucket slug matches direct links and curated children)
 * created_at
 * target_date (optional)
-* outcome: `pending` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
-* resolved_at (set when a terminal outcome is assigned)
+* outcome: `still_open` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
+* finished_at (set when a terminal outcome is assigned)
 
 **Discovery APIs (MVP):**
 
@@ -166,7 +166,7 @@ The project is successful if:
 
   * Add and view predictions
   * Filter predictions by source, status, and topic (bucket or curated slug)
-  * Browse topic feed pages with sidebar context (trending, recent resolutions)
+  * Browse topic feed pages with sidebar context (trending, recently judged correct/incorrect)
   * See accuracy metrics per source
   * Understand trends over time via charts (optional, as necessary)
 

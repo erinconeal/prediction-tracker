@@ -37,7 +37,7 @@ describe('useDiscoveryFeedPage', () => {
           id: '1',
           source: 'S',
           sourceSlug: 's',
-          text: 'pending one',
+          text: 'still open one',
           topicIds: ['topic-finance'],
         }),
         buildPrediction({
@@ -47,7 +47,7 @@ describe('useDiscoveryFeedPage', () => {
           text: 'correct one',
           topicIds: ['topic-finance'],
           created_at: '2024-01-02T00:00:00.000Z',
-          resolved_at: '2024-01-03T00:00:00.000Z',
+          finished_at: '2024-01-03T00:00:00.000Z',
           outcome: 'correct',
         }),
       ],

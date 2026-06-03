@@ -7,7 +7,6 @@ import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSour
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
 import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import { OutcomeFilterButton } from '@/components/predictions/OutcomeFilterButton';
-import { browseForecastTiming } from '@/lib/browse-forecast-timing';
 import type { Outcome, Prediction } from '@/types/prediction';
 import { truncateWithEllipsis } from '@/utils/truncate-text';
 
@@ -40,7 +39,6 @@ export const BrowseForecastCard = memo(function BrowseForecastCard(
     hideSourceHeader = false,
   } = props;
 
-  const timing = browseForecastTiming(p);
   const titleText = truncateWithEllipsis(p.text, 160);
   const titleLink = (
     <ForecastCardTitle
@@ -83,13 +81,6 @@ export const BrowseForecastCard = memo(function BrowseForecastCard(
       header={header}
       title={title}
       wrapTitleInHeading={hideSourceHeader === false}
-      afterTitle={(
-        <p className="text-xs text-muted">
-          {timing.prefix}
-          {' '}
-          <time dateTime={timing.dateTime}>{timing.dateLabel}</time>
-        </p>
-      )}
       footer={(
         <ForecastCardMetaFooter topicIds={p.topicIds} />
       )}

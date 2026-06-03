@@ -3,9 +3,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { computeFeedPlatformStats } from '@/lib/feed-platform-stats';
-import { pickRecentScoredResolutions } from '@/lib/recent-resolutions';
+import { pickRecentlyJudgedScored } from '@/lib/recently-judged-scored';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
-import type { RecentResolution } from '@/lib/recent-resolutions';
+import type { RecentlyJudgedScored } from '@/lib/recently-judged-scored';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
 
 const LIST_PAGE_SIZE = 20;
@@ -29,7 +29,7 @@ export type UseDiscoveryFeedPageResult = {
   hasMore: boolean;
   refetch: () => Promise<void>;
   loadMore: () => Promise<void>;
-  recentResolutions: RecentResolution[];
+  recentlyJudgedScored: RecentlyJudgedScored[];
   platformStats: FeedPlatformStats;
 };
 
@@ -89,8 +89,8 @@ export function useDiscoveryFeedPage(
     setVisibleCount(LIST_PAGE_SIZE);
   }, []);
 
-  const recentResolutions = useMemo(
-    () => pickRecentScoredResolutions(scopeData, 5),
+  const recentlyJudgedScored = useMemo(
+    () => pickRecentlyJudgedScored(scopeData, 5),
     [scopeData],
   );
 
@@ -119,7 +119,7 @@ export function useDiscoveryFeedPage(
     hasMore,
     refetch,
     loadMore,
-    recentResolutions,
+    recentlyJudgedScored,
     platformStats,
   };
 }

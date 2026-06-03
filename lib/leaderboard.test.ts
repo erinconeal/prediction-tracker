@@ -15,7 +15,7 @@ function row(
     sourceSlug: source.toLowerCase().replace(/\s+/g, '-'),
     text: 't',
     created_at,
-    resolved_at: outcome === 'pending' ? null : `${created_at}`,
+    finished_at: outcome === 'still_open' ? null : `${created_at}`,
     outcome,
   });
 }
@@ -29,7 +29,7 @@ describe('computeLeaderboard', () => {
         row('B', 'correct', '3'),
         row('B', 'correct', '4'),
         row('B', 'incorrect', '5'),
-        row('C', 'pending', '6'),
+        row('C', 'still_open', '6'),
       ],
       10,
     );
@@ -100,8 +100,8 @@ describe('computeLeaderboard', () => {
     });
   });
 
-  test('given only pending, should have null streak', () => {
-    const rows = computeLeaderboard([row('Solo', 'pending', '1')], 10);
+  test('given only stillOpen, should have null streak', () => {
+    const rows = computeLeaderboard([row('Solo', 'still_open', '1')], 10);
     expect(rows[0]).toMatchObject({
       streakKind: null,
       streakLength: 0,
@@ -113,7 +113,7 @@ describe('computeLeaderboard', () => {
       [
         row('Ghost', 'unresolved', '1'),
         row('Ghost', 'invalid', '2'),
-        row('Ghost', 'pending', '3'),
+        row('Ghost', 'still_open', '3'),
       ],
       10,
     );
@@ -121,8 +121,8 @@ describe('computeLeaderboard', () => {
       source: 'Ghost',
       accuracyPercent: null,
       scored: 0,
-      resolved: 2,
-      pending: 1,
+      noLongerOpen: 2,
+      stillOpen: 1,
     });
   });
 

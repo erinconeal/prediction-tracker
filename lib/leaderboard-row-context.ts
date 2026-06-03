@@ -1,9 +1,10 @@
+import { formatStillOpenCount } from '@/lib/lifecycle-copy';
 import type { LeaderboardRow } from '@/lib/leaderboard';
 
 /** Shared §7.3 rollup fields for leaderboard rows and source stats. */
 export type AccuracyContextCounts = Pick<
   LeaderboardRow,
-  'scored' | 'pending' | 'outcomeUnresolved' | 'invalid'
+  'scored' | 'stillOpen' | 'outcomeUnresolved' | 'invalid'
 >;
 
 /**
@@ -12,7 +13,7 @@ export type AccuracyContextCounts = Pick<
 export function formatLeaderboardAccuracyContext(row: AccuracyContextCounts): string {
   const segments = [
     `${row.scored} scored (correct + incorrect)`,
-    row.pending > 0 ? `${row.pending} pending` : null,
+    row.stillOpen > 0 ? formatStillOpenCount(row.stillOpen) : null,
     row.outcomeUnresolved > 0 ? `${row.outcomeUnresolved} unresolved` : null,
     row.invalid > 0 ? `${row.invalid} invalid` : null,
   ].filter((segment): segment is string => segment !== null);

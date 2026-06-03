@@ -75,10 +75,10 @@ describe('listPredictions', () => {
   test('given non-default sort, should append sort query parameter', async () => {
     fetchMock.mockResolvedValue(jsonResponse([]));
 
-    await listPredictions({ sort: 'recently_resolved', limit: 10, offset: 0 });
+    await listPredictions({ sort: 'recently_finished', limit: 10, offset: 0 });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/predictions?limit=10&offset=0&sort=recently_resolved',
+      '/api/predictions?limit=10&offset=0&sort=recently_finished',
       expect.anything(),
     );
   });

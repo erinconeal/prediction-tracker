@@ -85,22 +85,20 @@ describe('BrowseForecastCard', () => {
     expect(screen.queryByText('Track record')).not.toBeInTheDocument();
   });
 
-  test('shows timing line with semantic time element between title and footer', () => {
+  test('does not show a timing subtitle under the title', () => {
     render(
       <BrowseForecastCard
         prediction={cardPrediction({
           target_date: null,
           outcome: 'incorrect',
-          resolved_at: '2024-07-15T00:00:00.000Z',
+          finished_at: '2024-07-15T00:00:00.000Z',
         })}
         onOutcomeFilter={vi.fn()}
       />,
     );
 
-    const time = screen.getByText('Jul 15, 2024');
-    expect(time.tagName).toBe('TIME');
-    expect(time).toHaveAttribute('datetime', '2024-07-15T00:00:00.000Z');
-    expect(time.closest('p')).toHaveTextContent('Resolved Jul 15, 2024');
+    expect(screen.queryByText('Jul 15, 2024')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Incorrect ·/)).not.toBeInTheDocument();
   });
 
   test('topic in footer is shown when prediction has topics', () => {
@@ -149,19 +147,19 @@ describe('BrowseForecastCard', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('readOnlyOutcome shows Resolved timing for scored terminal rows', () => {
+  test('readOnlyOutcome shows outcome badge without a timing subtitle', () => {
     render(
       <BrowseForecastCard
         prediction={cardPrediction({
           outcome: 'correct',
-          resolved_at: '2024-07-15T00:00:00.000Z',
+          finished_at: '2024-07-15T00:00:00.000Z',
         })}
         hideSourceHeader
         readOnlyOutcome
       />,
     );
 
-    const time = screen.getByText('Jul 15, 2024');
-    expect(time.closest('p')).toHaveTextContent('Resolved Jul 15, 2024');
+    expect(screen.getByText('Correct')).toBeInTheDocument();
+    expect(screen.queryByText('Jul 15, 2024')).not.toBeInTheDocument();
   });
 });

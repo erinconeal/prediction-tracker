@@ -3,17 +3,17 @@
 import { memo } from 'react';
 import { TopicBucketPills } from '@/components/feed/TopicBucketPills';
 import { PlatformStatsWidget } from '@/components/feed/PlatformStatsWidget';
-import { RecentResolutionsWidget } from '@/components/feed/RecentResolutionsWidget';
+import { RecentlyJudgedWidget } from '@/components/feed/RecentlyJudgedWidget';
 import { TrendingTopicsWidget } from '@/components/feed/TrendingTopicsWidget';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
-import type { RecentResolution } from '@/lib/recent-resolutions';
+import type { RecentlyJudgedScored } from '@/lib/recently-judged-scored';
 import type { TrendingTopicDto } from '@/services/api';
 
 type FeedSidebarProps = {
   activeBucketSlug?: string;
   trendingTopics: TrendingTopicDto[];
   trendingLoading?: boolean;
-  recentResolutions: RecentResolution[];
+  recentlyJudgedScored: RecentlyJudgedScored[];
   platformStats: FeedPlatformStats;
   showBucketFilters?: boolean;
   className?: string;
@@ -23,7 +23,7 @@ export const FeedSidebar = memo(function FeedSidebar({
   activeBucketSlug,
   trendingTopics,
   trendingLoading = false,
-  recentResolutions,
+  recentlyJudgedScored,
   platformStats,
   showBucketFilters = true,
   className = '',
@@ -39,7 +39,7 @@ export const FeedSidebar = memo(function FeedSidebar({
           )
         : null}
       <TrendingTopicsWidget topics={trendingTopics} loading={trendingLoading} />
-      <RecentResolutionsWidget items={recentResolutions} />
+      <RecentlyJudgedWidget items={recentlyJudgedScored} />
       <PlatformStatsWidget stats={platformStats} />
     </aside>
   );

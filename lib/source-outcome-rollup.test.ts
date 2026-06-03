@@ -22,7 +22,7 @@ describe('emptySourceOutcomeRollup', () => {
   test('should return zeroed rollup', () => {
     expect(emptySourceOutcomeRollup()).toEqual({
       total: 0,
-      pending: 0,
+      stillOpen: 0,
       scored: 0,
       correct: 0,
       outcomeUnresolved: 0,
@@ -32,12 +32,12 @@ describe('emptySourceOutcomeRollup', () => {
 });
 
 describe('addPredictionToRollup', () => {
-  test('given pending, should increment total and pending only', () => {
+  test('given stillOpen, should increment total and stillOpen only', () => {
     const r = emptySourceOutcomeRollup();
-    addPredictionToRollup(r, row({ outcome: 'pending' }));
+    addPredictionToRollup(r, row({ outcome: 'still_open' }));
     expect(r).toMatchObject({
       total: 1,
-      pending: 1,
+      stillOpen: 1,
       scored: 0,
       correct: 0,
       outcomeUnresolved: 0,
@@ -50,7 +50,7 @@ describe('addPredictionToRollup', () => {
     addPredictionToRollup(r, row({ outcome: 'correct' }));
     expect(r).toMatchObject({
       total: 1,
-      pending: 0,
+      stillOpen: 0,
       scored: 1,
       correct: 1,
       outcomeUnresolved: 0,
@@ -63,7 +63,7 @@ describe('addPredictionToRollup', () => {
     addPredictionToRollup(r, row({ outcome: 'incorrect' }));
     expect(r).toMatchObject({
       total: 1,
-      pending: 0,
+      stillOpen: 0,
       scored: 1,
       correct: 0,
       outcomeUnresolved: 0,
@@ -76,7 +76,7 @@ describe('addPredictionToRollup', () => {
     addPredictionToRollup(r, row({ outcome: 'unresolved' }));
     expect(r).toMatchObject({
       total: 1,
-      pending: 0,
+      stillOpen: 0,
       scored: 0,
       correct: 0,
       outcomeUnresolved: 1,
@@ -89,7 +89,7 @@ describe('addPredictionToRollup', () => {
     addPredictionToRollup(r, row({ outcome: 'invalid' }));
     expect(r).toMatchObject({
       total: 1,
-      pending: 0,
+      stillOpen: 0,
       scored: 0,
       correct: 0,
       outcomeUnresolved: 0,
@@ -120,17 +120,17 @@ describe('rollupBySource', () => {
     const m = rollupBySource([
       row({ id: 'a', source: 'A', outcome: 'correct' }),
       row({ id: 'b', source: 'A', outcome: 'incorrect' }),
-      row({ id: 'c', source: 'B', outcome: 'pending' }),
+      row({ id: 'c', source: 'B', outcome: 'still_open' }),
     ]);
     expect(m.get('A')).toMatchObject({
       total: 2,
-      pending: 0,
+      stillOpen: 0,
       scored: 2,
       correct: 1,
     });
     expect(m.get('B')).toMatchObject({
       total: 1,
-      pending: 1,
+      stillOpen: 1,
       scored: 0,
       correct: 0,
     });
