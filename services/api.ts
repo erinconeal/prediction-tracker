@@ -4,7 +4,7 @@ import type {
   PredictionFilters,
   TerminalOutcome,
 } from '@/types/prediction';
-import type { LeaderboardRow } from '@/lib/leaderboard';
+import type { LeaderboardPage, LeaderboardRow } from '@/lib/leaderboard';
 import type { Topic } from '@/types/topic';
 
 const BASE = '/api/predictions';
@@ -180,12 +180,21 @@ export async function listTopics(
   return result as Topic[] | TrendingTopicDto[];
 }
 
+export type { LeaderboardPage, LeaderboardRow };
+
+export type ListLeaderboardOptions = {
+  limit?: number;
+  offset?: number;
+  signal?: AbortSignal;
+};
+
 export async function listLeaderboard(
-  limit = 8,
-  signal?: AbortSignal,
-): Promise<LeaderboardRow[]> {
+  options: ListLeaderboardOptions = {},
+): Promise<LeaderboardPage> {
+  const { limit = 8, offset = 0, signal } = options;
   const params = new URLSearchParams();
   if (limit !== 8) params.set('limit', String(limit));
+  if (offset !== 0) params.set('offset', String(offset));
   const q = params.toString();
   const url = q ? `${LEADERBOARD_BASE}?${q}` : LEADERBOARD_BASE;
   const response = await fetch(url, {
@@ -209,14 +218,18 @@ export async function listLeaderboard(
     );
   }
   const result = await parseJson<unknown>(response);
-  if (!Array.isArray(result)) {
+  if (
+    !result
+    || typeof result !== 'object'
+    || !Array.isArray((result as LeaderboardPage).rows)
+  ) {
     throw new ApiError(
-      'Leaderboard response must be a JSON array',
+      'Leaderboard response must be a paginated page object',
       response.status,
       result,
     );
   }
-  return result as LeaderboardRow[];
+  return result as LeaderboardPage;
 }
 
 export async function createPrediction(

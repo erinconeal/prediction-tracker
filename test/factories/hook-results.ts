@@ -48,6 +48,9 @@ export function idleLeaderboard(
 ): UseLeaderboardResult {
   return {
     rows: [] as LeaderboardRow[],
+    rankedCount: null,
+    showFullRankings: false,
+    displayStats: null,
     loading: false,
     error: null,
     refetch: vi.fn(),

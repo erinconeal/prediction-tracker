@@ -8,10 +8,17 @@ import {
   insufficientLeaderboardMessage,
   leaderboardDisplayStats,
   sourcesByScoredVolume,
+  type LeaderboardDisplayStats,
 } from '@/lib/leaderboard-display';
 
-export function LeaderboardInsufficientPanel({ rows }: { rows: LeaderboardRow[] }) {
-  const stats = leaderboardDisplayStats(rows);
+export function LeaderboardInsufficientPanel({
+  rows,
+  displayStats,
+}: {
+  rows: LeaderboardRow[];
+  displayStats?: LeaderboardDisplayStats;
+}) {
+  const stats = displayStats ?? leaderboardDisplayStats(rows);
   const preview = sourcesByScoredVolume(rows);
 
   return (

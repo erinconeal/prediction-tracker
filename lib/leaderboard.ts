@@ -5,6 +5,11 @@ import {
   rollupBySource,
   type SourceOutcomeRollup,
 } from '@/lib/source-outcome-rollup';
+import {
+  platformLeaderboardDisplayStats,
+  shouldShowFullLeaderboardFromStats,
+  type LeaderboardDisplayStats,
+} from '@/lib/leaderboard-display';
 import type { Prediction } from '@/types/prediction';
 
 export type LeaderboardRow = {
@@ -31,6 +36,21 @@ export type LeaderboardRow = {
    */
   streakKind: 'correct' | 'incorrect' | null;
   streakLength: number;
+};
+
+export type LeaderboardPage = {
+  rows: LeaderboardRow[];
+  /** All sources in the ranking (including zero scored). */
+  total: number;
+  /** Sources with at least one scored prediction. */
+  rankedCount: number;
+  offset: number;
+  limit: number;
+  hasMore: boolean;
+  /** Platform-wide gating stats computed before pagination. */
+  displayStats: LeaderboardDisplayStats;
+  /** Whether full rankings UI should render (server-computed). */
+  showFullRankings: boolean;
 };
 
 function groupPredictionsBySource(predictions: Prediction[]) {
@@ -101,48 +121,32 @@ function rowFromRollup(
   };
 }
 
-/**
- * Ranks sources for a “top performers” rail: higher accuracy (§7.2) first, then more
- * scored predictions. Sources with no scored rows sort last.
- */
-export function computeLeaderboard(
-  predictions: Prediction[],
-  limit = 8,
-): LeaderboardRow[] {
-  const sortedGlobal = [...predictions].sort(comparePredictionsNewestFirst);
-  const globalRankById = new Map(
-    sortedGlobal.map((p, index) => [p.id, index]),
-  );
+type LeaderboardSortRow = ReturnType<typeof rowFromRollup>;
 
-  const bySource = rollupBySource(predictions);
-  const bySourcePredictions = groupPredictionsBySource(predictions);
-  const rows = [...bySource.entries()].map(([source, rollup]) =>
-    rowFromRollup(
-      source,
-      sourceSlugForSource(
-        source,
-        bySourcePredictions.get(source) ?? [],
-        globalRankById,
-      ),
-      rollup,
-    ),
-  );
-
-  rows.sort((a, b) => {
+function sortLeaderboardRows(rows: LeaderboardSortRow[]): LeaderboardSortRow[] {
+  return [...rows].sort((a, b) => {
     const ar = a.accuracyPercent ?? -1;
     const br = b.accuracyPercent ?? -1;
     if (br !== ar) return br - ar;
     if (b.scored !== a.scored) return b.scored - a.scored;
     return b.total - a.total;
   });
+}
 
-  return rows.slice(0, limit).map((r, i) => {
+function buildLeaderboardRows(
+  sorted: LeaderboardSortRow[],
+  offset: number,
+  limit: number,
+  bySourcePredictions: Map<string, Prediction[]>,
+  globalRankById: Map<string, number>,
+): LeaderboardRow[] {
+  return sorted.slice(offset, offset + limit).map((r, i) => {
     const streak = scoredOutcomeStreak(
       bySourcePredictions.get(r.source) ?? [],
       globalRankById,
     );
     return {
-      rank: i + 1,
+      rank: offset + i + 1,
       source: r.source,
       sourceSlug: r.sourceSlug,
       total: r.total,
@@ -157,4 +161,68 @@ export function computeLeaderboard(
       streakLength: streak?.length ?? 0,
     };
   });
+}
+
+/**
+ * Ranks sources for a “top performers” rail: higher accuracy (§7.2) first, then more
+ * scored predictions. Sources with no scored rows sort last.
+ */
+export function computeLeaderboardPage(
+  predictions: Prediction[],
+  options: { limit?: number; offset?: number } = {},
+): LeaderboardPage {
+  const limit = Math.min(50, Math.max(1, options.limit ?? 8));
+  const offset = Math.max(0, options.offset ?? 0);
+
+  const sortedGlobal = [...predictions].sort(comparePredictionsNewestFirst);
+  const globalRankById = new Map(
+    sortedGlobal.map((p, index) => [p.id, index]),
+  );
+
+  const bySource = rollupBySource(predictions);
+  const bySourcePredictions = groupPredictionsBySource(predictions);
+  const sorted = sortLeaderboardRows(
+    [...bySource.entries()].map(([source, rollup]) =>
+      rowFromRollup(
+        source,
+        sourceSlugForSource(
+          source,
+          bySourcePredictions.get(source) ?? [],
+          globalRankById,
+        ),
+        rollup,
+      ),
+    ),
+  );
+
+  const rankedCount = sorted.filter(r => r.scored > 0).length;
+  const total = sorted.length;
+  const displayStats = platformLeaderboardDisplayStats(sorted);
+  const showFullRankings = shouldShowFullLeaderboardFromStats(displayStats);
+  const rows = buildLeaderboardRows(
+    sorted,
+    offset,
+    limit,
+    bySourcePredictions,
+    globalRankById,
+  );
+
+  return {
+    rows,
+    total,
+    rankedCount,
+    offset,
+    limit,
+    hasMore: offset + rows.length < total,
+    displayStats,
+    showFullRankings,
+  };
+}
+
+/** Convenience wrapper returning only the row slice (home preview). */
+export function computeLeaderboard(
+  predictions: Prediction[],
+  limit = 8,
+): LeaderboardRow[] {
+  return computeLeaderboardPage(predictions, { limit, offset: 0 }).rows;
 }

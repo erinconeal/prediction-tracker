@@ -1,12 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApiError, listLeaderboard } from '@/services/api';
+import type { LeaderboardDisplayStats } from '@/lib/leaderboard-display';
 import type { LeaderboardRow } from '@/lib/leaderboard';
-import { isAbortError } from '@/utils/is-abort-error';
+import { loadLeaderboardPageWithOutcome } from '@/hooks/leaderboard-fetch';
 
 export type UseLeaderboardResult = {
   rows: LeaderboardRow[];
+  rankedCount: number | null;
+  showFullRankings: boolean;
+  displayStats: LeaderboardDisplayStats | null;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -16,6 +19,9 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
   const genRef = useRef(0);
   const refetchAbortRef = useRef<AbortController | null>(null);
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
+  const [rankedCount, setRankedCount] = useState<number | null>(null);
+  const [showFullRankings, setShowFullRankings] = useState(false);
+  const [displayStats, setDisplayStats] = useState<LeaderboardDisplayStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,20 +32,27 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
     async function load(): Promise<void> {
       setLoading(true);
       setError(null);
-      try {
-        const data = await listLeaderboard(limit, controller.signal);
-        if (genRef.current !== gen) return;
-        setRows(data);
-      }
-      catch (e: unknown) {
-        if (isAbortError(e)) return;
-        if (genRef.current !== gen) return;
-        setError(e instanceof ApiError ? e.message : 'Something went wrong');
+      const outcome = await loadLeaderboardPageWithOutcome({
+        limit,
+        offset: 0,
+        signal: controller.signal,
+      });
+      if (genRef.current !== gen) return;
+      if (!outcome.ok) {
+        if (outcome.aborted) return;
+        setError(outcome.error);
         setRows([]);
+        setRankedCount(null);
+        setShowFullRankings(false);
+        setDisplayStats(null);
+        setLoading(false);
+        return;
       }
-      finally {
-        if (genRef.current === gen) setLoading(false);
-      }
+      setRows(outcome.page.rows);
+      setRankedCount(outcome.page.rankedCount);
+      setShowFullRankings(outcome.page.showFullRankings);
+      setDisplayStats(outcome.page.displayStats);
+      setLoading(false);
     }
 
     void load();
@@ -59,23 +72,35 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
 
     setLoading(true);
     setError(null);
-    try {
-      const data = await listLeaderboard(limit, controller.signal);
-      if (genRef.current !== gen) return;
-      setRows(data);
+    const outcome = await loadLeaderboardPageWithOutcome({
+      limit,
+      offset: 0,
+      signal: controller.signal,
+    });
+    if (genRef.current !== gen) return;
+    if (!outcome.ok) {
+      if (outcome.aborted) return;
+      setError(outcome.error);
     }
-    catch (e: unknown) {
-      if (isAbortError(e)) return;
-      if (genRef.current !== gen) return;
-      setError(e instanceof ApiError ? e.message : 'Something went wrong');
+    else {
+      setRows(outcome.page.rows);
+      setRankedCount(outcome.page.rankedCount);
+      setShowFullRankings(outcome.page.showFullRankings);
+      setDisplayStats(outcome.page.displayStats);
     }
-    finally {
-      if (genRef.current === gen) setLoading(false);
-      if (refetchAbortRef.current === controller) {
-        refetchAbortRef.current = null;
-      }
+    if (genRef.current === gen) setLoading(false);
+    if (refetchAbortRef.current === controller) {
+      refetchAbortRef.current = null;
     }
   }, [limit]);
 
-  return { rows, loading, error, refetch };
+  return {
+    rows,
+    rankedCount,
+    showFullRankings,
+    displayStats,
+    loading,
+    error,
+    refetch,
+  };
 }

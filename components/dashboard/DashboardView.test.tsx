@@ -39,7 +39,20 @@ describe('DashboardView', () => {
     listLeaderboard.mockReset();
     listTopics.mockReset();
     resetNextNavigationMocks();
-    listLeaderboard.mockResolvedValue([buildLeaderboardRow()]);
+    listLeaderboard.mockResolvedValue({
+      rows: [buildLeaderboardRow()],
+      total: 1,
+      rankedCount: 1,
+      offset: 0,
+      limit: 8,
+      hasMore: false,
+      displayStats: {
+        distinctSourcesWithScored: 1,
+        totalScored: 1,
+        topSourceScored: 1,
+      },
+      showFullRankings: false,
+    });
     listTopics.mockResolvedValue([]);
   });
 

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export function LeaderboardSectionHeader() {
   return (
-    <div>
+    <div className="space-y-1">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2
           id="leaderboard-heading"

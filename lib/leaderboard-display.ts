@@ -29,14 +29,30 @@ export function leaderboardDisplayStats(
   };
 }
 
-export function shouldShowFullLeaderboard(rows: LeaderboardRow[]): boolean {
-  if (rows.length === 0) return false;
-  const stats = leaderboardDisplayStats(rows);
+export function shouldShowFullLeaderboardFromStats(
+  stats: LeaderboardDisplayStats,
+): boolean {
   return (
     stats.distinctSourcesWithScored >= LEADERBOARD_MIN_SOURCES_WITH_SCORED
     && stats.totalScored >= LEADERBOARD_MIN_TOTAL_SCORED
     && stats.topSourceScored >= LEADERBOARD_MIN_TOP_SOURCE_SCORED
   );
+}
+
+export function platformLeaderboardDisplayStats(
+  rows: Array<Pick<LeaderboardRow, 'scored'>>,
+): LeaderboardDisplayStats {
+  const withScored = rows.filter(r => r.scored > 0);
+  return {
+    distinctSourcesWithScored: withScored.length,
+    totalScored: rows.reduce((sum, r) => sum + r.scored, 0),
+    topSourceScored: rows[0]?.scored ?? 0,
+  };
+}
+
+export function shouldShowFullLeaderboard(rows: LeaderboardRow[]): boolean {
+  if (rows.length === 0) return false;
+  return shouldShowFullLeaderboardFromStats(leaderboardDisplayStats(rows));
 }
 
 /** Top sources by scored volume (honest preview when rankings are gated). */
@@ -65,7 +81,3 @@ export function insufficientLeaderboardMessage(
     `and the leader having ${LEADERBOARD_MIN_TOP_SOURCE_SCORED}+ scored (${stats.topSourceScored} so far).`,
   ].join(' ');
 }
-
-/** Section-level constitution §7.3 time-range disclosure for leaderboard accuracy. */
-export const LEADERBOARD_ACCURACY_TIME_RANGE_LABEL
-  = 'All predictions on record (no date filter).';

@@ -33,6 +33,18 @@ function tid(slug: string): string {
   return t.id;
 }
 
+function applySeedOutcome(
+  index: number,
+  outcome: TerminalOutcome,
+  hoursAgo: number,
+  now: Date,
+  iso: (d: Date) => string,
+): void {
+  const row = predictions[index]!;
+  row.outcome = outcome;
+  row.finished_at = iso(new Date(now.getTime() - hoursAgo * 3600000));
+}
+
 function seed(): void {
   if (predictions.length > 0) return;
   const now = new Date();
@@ -89,6 +101,46 @@ function seed(): void {
       topicIds: [tid('ev-adoption-2030')],
       target_date: '2027-06-01',
     },
+    {
+      source: 'Jane Analyst',
+      text: 'Core CPI cools below 3% before September.',
+      topicIds: [tid('sp-hits-8000')],
+    },
+    {
+      source: 'Jane Analyst',
+      text: 'Mortgage rates fall below 6% this year.',
+      topicIds: [tid('housing-market-2026')],
+    },
+    {
+      source: 'Jane Analyst',
+      text: 'Payrolls growth slows for three straight months.',
+      topicIds: [tid('housing-market-2026')],
+    },
+    {
+      source: 'Tech Blogger',
+      text: 'Major cloud vendor announces on-device AI chips.',
+      topicIds: [tid('ai-regulation-2026')],
+    },
+    {
+      source: 'Tech Blogger',
+      text: 'Open-source model beats proprietary benchmark on coding tasks.',
+      topicIds: [tid('ai-regulation-2026')],
+    },
+    {
+      source: 'Political Pundit',
+      text: 'Governor race flips in a Sun Belt state.',
+      topicIds: [tid('midterm-elections-2026')],
+    },
+    {
+      source: 'Sports Analyst',
+      text: 'France reaches the World Cup final.',
+      topicIds: [tid('world-cup-2026-winner')],
+    },
+    {
+      source: 'Climate Writer',
+      text: 'Global temperature record broken again in 2026.',
+      topicIds: [tid('atlantic-hurricane-season-2026')],
+    },
   ];
 
   samples.forEach((input, i) => {
@@ -97,14 +149,34 @@ function seed(): void {
     );
   });
 
-  predictions[0]!.outcome = 'correct';
-  predictions[1]!.outcome = 'incorrect';
-  predictions[2]!.outcome = 'correct';
-  predictions[0]!.finished_at = iso(new Date(now.getTime() - 1 * 3600000));
-  predictions[1]!.finished_at = iso(new Date(now.getTime() - 2 * 3600000));
-  predictions[2]!.finished_at = iso(new Date(now.getTime() - 3 * 3600000));
+  // Jane Analyst — 5 scored (4 correct, 1 incorrect); newest three correct for streak
+  applySeedOutcome(0, 'incorrect', 50, now, iso);
+  applySeedOutcome(2, 'correct', 40, now, iso);
+  applySeedOutcome(9, 'correct', 12, now, iso);
+  applySeedOutcome(10, 'correct', 8, now, iso);
+  applySeedOutcome(11, 'correct', 4, now, iso);
   predictions[3]!.outcome = 'unresolved';
-  predictions[3]!.finished_at = iso(new Date(now.getTime() - 4 * 3600000));
+  predictions[3]!.finished_at = iso(new Date(now.getTime() - 35 * 3600000));
+
+  // Tech Blogger — 3 scored (2 correct, 1 incorrect); index 8 stays still_open
+  applySeedOutcome(1, 'incorrect', 45, now, iso);
+  applySeedOutcome(12, 'correct', 20, now, iso);
+  applySeedOutcome(13, 'correct', 15, now, iso);
+
+  // Political Pundit — 2 scored (1 correct, 1 incorrect)
+  applySeedOutcome(4, 'correct', 30, now, iso);
+  applySeedOutcome(14, 'incorrect', 25, now, iso);
+
+  // Sports Analyst — 2 scored (1 correct, 1 incorrect)
+  applySeedOutcome(5, 'correct', 28, now, iso);
+  applySeedOutcome(15, 'incorrect', 22, now, iso);
+
+  // Climate Writer — 2 scored (1 correct, 1 incorrect)
+  applySeedOutcome(6, 'correct', 26, now, iso);
+  applySeedOutcome(16, 'incorrect', 18, now, iso);
+
+  // History Buff — 1 scored (incorrect keeps Jane as accuracy leader)
+  applySeedOutcome(7, 'incorrect', 32, now, iso);
 }
 
 function createInternal(

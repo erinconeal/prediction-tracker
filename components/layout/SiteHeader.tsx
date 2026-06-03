@@ -17,6 +17,15 @@ export function SiteHeader() {
           <ul className="flex flex-wrap items-center gap-1">
             <li>
               <Link
+                href="/leaderboard"
+                className={emphasisLinkClassName}
+                title="Sources ranked by prediction accuracy"
+              >
+                Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/about"
                 className={emphasisLinkClassName}
                 title="Scoring constitution and methodology"

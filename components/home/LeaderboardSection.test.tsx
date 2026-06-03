@@ -19,7 +19,10 @@ describe('LeaderboardSection', () => {
 
   test('renders insufficient-data UI when rankings are not credible', () => {
     useLeaderboard.mockReturnValue(
-      idleLeaderboard({ rows: thinLeaderboardRows() }),
+      idleLeaderboard({
+        rows: thinLeaderboardRows(),
+        showFullRankings: false,
+      }),
     );
 
     render(<LeaderboardSection limit={10} />);
@@ -40,7 +43,10 @@ describe('LeaderboardSection', () => {
 
   test('renders full leaderboard with leading source and ledger when credible', () => {
     useLeaderboard.mockReturnValue(
-      idleLeaderboard({ rows: credibleLeaderboardRows() }),
+      idleLeaderboard({
+        rows: credibleLeaderboardRows(),
+        showFullRankings: true,
+      }),
     );
 
     render(<LeaderboardSection limit={10} />);
@@ -57,13 +63,16 @@ describe('LeaderboardSection', () => {
     expect(
       screen.getByLabelText(/source accuracy 80 percent, strong track record/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /view full leaderboard/i }),
+    ).toHaveAttribute('href', '/leaderboard');
   });
 
   test('renders incorrect streak on credible leaderboard', () => {
     useLeaderboard.mockReturnValue(
       idleLeaderboard({
         rows: credibleLeaderboardRows().map((r, i) =>
-          i === 1
+          i === 0
             ? {
                 ...r,
                 streakKind: 'incorrect' as const,
@@ -71,6 +80,7 @@ describe('LeaderboardSection', () => {
               }
             : r,
         ),
+        showFullRankings: true,
       }),
     );
 
@@ -79,18 +89,26 @@ describe('LeaderboardSection', () => {
     expect(screen.getByText(/2 incorrect in a row/i)).toBeInTheDocument();
   });
 
-  test('merges ranks into single ledger when fewer than six rows', () => {
+  test('merges ranks into single table when fewer than six rows', () => {
     useLeaderboard.mockReturnValue(
       idleLeaderboard({
         rows: credibleLeaderboardRows().slice(0, 4),
+        rankedCount: 4,
+        showFullRankings: true,
       }),
     );
 
     render(<LeaderboardSection />);
 
-    expect(screen.getByText(/leading source/i)).toBeInTheDocument();
+    expect(screen.queryByText(/leading source/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/accuracy ledger/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Runner Two' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Leader One' }).length)
+      .toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Runner Two' }).length)
+      .toBeGreaterThan(0);
+    expect(
+      screen.getByRole('link', { name: /view full leaderboard/i }),
+    ).toHaveAttribute('href', '/leaderboard');
   });
 
   test('given error, retry calls refetch', async () => {

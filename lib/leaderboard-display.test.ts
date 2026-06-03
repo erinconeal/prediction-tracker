@@ -10,7 +10,9 @@ import {
   LEADERBOARD_MIN_TOTAL_SCORED,
   insufficientLeaderboardMessage,
   leaderboardDisplayStats,
+  platformLeaderboardDisplayStats,
   shouldShowFullLeaderboard,
+  shouldShowFullLeaderboardFromStats,
   sourcesByScoredVolume,
 } from './leaderboard-display';
 
@@ -25,6 +27,34 @@ describe('leaderboardDisplayStats', () => {
       totalScored: 12,
       topSourceScored: 5,
     });
+  });
+});
+
+describe('platformLeaderboardDisplayStats', () => {
+  test('given full sorted platform rows, should count all sources', () => {
+    const stats = platformLeaderboardDisplayStats([
+      buildLeaderboardRow({ scored: 3, correct: 2 }),
+      buildLeaderboardRow({ source: 'B', scored: 4, correct: 3 }),
+      buildLeaderboardRow({ source: 'C', scored: 3, correct: 2 }),
+      buildLeaderboardRow({ source: 'D', scored: 0, stillOpen: 1 }),
+    ]);
+    expect(stats).toEqual({
+      distinctSourcesWithScored: 3,
+      totalScored: 10,
+      topSourceScored: 3,
+    });
+  });
+});
+
+describe('shouldShowFullLeaderboardFromStats', () => {
+  test('given boundary stats, should match row-based gating', () => {
+    expect(
+      shouldShowFullLeaderboardFromStats({
+        distinctSourcesWithScored: LEADERBOARD_MIN_SOURCES_WITH_SCORED,
+        totalScored: LEADERBOARD_MIN_TOTAL_SCORED,
+        topSourceScored: LEADERBOARD_MIN_TOP_SOURCE_SCORED,
+      }),
+    ).toBe(true);
   });
 });
 

@@ -175,7 +175,21 @@ describe('listLeaderboard', () => {
   });
 
   test('default should GET /api/leaderboard', async () => {
-    fetchMock.mockResolvedValue(jsonResponse([{ rank: 1, source: 'A' }]));
+    const page = {
+      rows: [{ rank: 1, source: 'A' }],
+      total: 1,
+      rankedCount: 1,
+      offset: 0,
+      limit: 8,
+      hasMore: false,
+      displayStats: {
+        distinctSourcesWithScored: 1,
+        totalScored: 1,
+        topSourceScored: 1,
+      },
+      showFullRankings: false,
+    };
+    fetchMock.mockResolvedValue(jsonResponse(page));
 
     const result = await listLeaderboard();
 
@@ -183,7 +197,33 @@ describe('listLeaderboard', () => {
       '/api/leaderboard',
       expect.objectContaining({ method: 'GET' }),
     );
-    expect(result).toEqual([{ rank: 1, source: 'A' }]);
+    expect(result).toEqual(page);
+  });
+
+  test('given limit and offset, should append query params', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        rows: [],
+        total: 0,
+        rankedCount: 0,
+        offset: 50,
+        limit: 50,
+        hasMore: false,
+        displayStats: {
+          distinctSourcesWithScored: 0,
+          totalScored: 0,
+          topSourceScored: 0,
+        },
+        showFullRankings: false,
+      }),
+    );
+
+    await listLeaderboard({ limit: 50, offset: 50 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/leaderboard?limit=50&offset=50',
+      expect.objectContaining({ method: 'GET' }),
+    );
   });
 });
 

@@ -1,9 +1,10 @@
 'use client';
 
 import { memo, type ReactNode } from 'react';
+import { LeaderboardPreviewLayout } from '@/components/leaderboard/LeaderboardPreviewLayout';
+import { LeaderboardSectionFooter } from '@/components/leaderboard/LeaderboardSectionFooter';
+import { LeaderboardLoadingSkeleton } from '@/components/leaderboard/LeaderboardLoadingSkeleton';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
-import { shouldShowFullLeaderboard } from '@/lib/leaderboard-display';
-import { FullLeaderboard } from './leaderboard/LeaderboardLedger';
 import { LeaderboardInsufficientPanel } from './leaderboard/LeaderboardInsufficientPanel';
 import { LeaderboardSectionHeader } from './leaderboard/LeaderboardSectionHeader';
 
@@ -16,25 +17,22 @@ export const LeaderboardSection = memo(function LeaderboardSection({
   limit = 10,
   className = '',
 }: LeaderboardSectionProps) {
-  const { rows, loading, error, refetch } = useLeaderboard(limit);
+  const { rows, rankedCount, showFullRankings, displayStats, loading, error, refetch }
+    = useLeaderboard(limit);
 
-  const shell = (body: ReactNode) => (
+  const shell = (body: ReactNode, showFooter = false) => (
     <section
       className={`space-y-6 ${className}`.trim()}
       aria-labelledby="leaderboard-heading"
     >
       <LeaderboardSectionHeader />
       {body}
+      {showFooter ? <LeaderboardSectionFooter rankedCount={rankedCount} /> : null}
     </section>
   );
 
   if (loading && rows.length === 0) {
-    return shell(
-      <div
-        className="h-48 animate-pulse rounded-md bg-surface"
-        aria-hidden
-      />,
-    );
+    return shell(<LeaderboardLoadingSkeleton variant="preview" />);
   }
 
   if (error) {
@@ -63,9 +61,11 @@ export const LeaderboardSection = memo(function LeaderboardSection({
     );
   }
 
-  if (!shouldShowFullLeaderboard(rows)) {
-    return shell(<LeaderboardInsufficientPanel rows={rows} />);
+  if (!showFullRankings) {
+    return shell(
+      <LeaderboardInsufficientPanel rows={rows} displayStats={displayStats ?? undefined} />,
+    );
   }
 
-  return shell(<FullLeaderboard rows={rows} />);
+  return shell(<LeaderboardPreviewLayout rows={rows} />, true);
 });

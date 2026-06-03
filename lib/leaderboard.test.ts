@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { Prediction } from '@/types/prediction';
 import { buildPrediction } from '@/test/factories/prediction';
-import { computeLeaderboard } from './leaderboard';
+import { computeLeaderboard, computeLeaderboardPage } from './leaderboard';
 
 function row(
   source: string,
@@ -66,6 +66,71 @@ describe('computeLeaderboard', () => {
       2,
     );
     expect(rows).toHaveLength(2);
+  });
+
+  test('given offset, should paginate with global ranks', () => {
+    const page = computeLeaderboardPage(
+      [
+        row('A', 'correct', '1'),
+        row('A', 'correct', '2'),
+        row('A', 'correct', '3'),
+        row('B', 'correct', '4'),
+        row('B', 'correct', '5'),
+        row('B', 'correct', '6'),
+        row('C', 'correct', '7'),
+        row('C', 'correct', '8'),
+        row('C', 'correct', '9'),
+        row('C', 'correct', '10'),
+      ],
+      { limit: 2, offset: 1 },
+    );
+    expect(page.rows).toHaveLength(2);
+    expect(page.rows[0]?.rank).toBe(2);
+    expect(page.rows[1]?.rank).toBe(3);
+    expect(page.hasMore).toBe(false);
+    expect(page.total).toBe(3);
+    expect(page.rankedCount).toBe(3);
+    expect(page.showFullRankings).toBe(true);
+    expect(page.displayStats.totalScored).toBe(10);
+  });
+
+  test('given credible platform with small page slice, should keep showFullRankings true', () => {
+    const page = computeLeaderboardPage(
+      [
+        row('A', 'correct', '1'),
+        row('A', 'correct', '2'),
+        row('A', 'correct', '3'),
+        row('B', 'correct', '4'),
+        row('B', 'correct', '5'),
+        row('B', 'correct', '6'),
+        row('C', 'correct', '7'),
+        row('C', 'correct', '8'),
+        row('C', 'correct', '9'),
+        row('C', 'correct', '10'),
+      ],
+      { limit: 2, offset: 0 },
+    );
+
+    expect(page.rows).toHaveLength(2);
+    expect(page.showFullRankings).toBe(true);
+    expect(page.displayStats).toEqual({
+      distinctSourcesWithScored: 3,
+      totalScored: 10,
+      topSourceScored: 4,
+    });
+  });
+
+  test('given thin platform data, should report showFullRankings false', () => {
+    const page = computeLeaderboardPage(
+      [
+        row('A', 'correct', '1'),
+        row('A', 'correct', '2'),
+        row('B', 'correct', '3'),
+      ],
+      { limit: 50, offset: 0 },
+    );
+
+    expect(page.showFullRankings).toBe(false);
   });
 
   test('given resolved sequence, streak counts from newest matching run', () => {

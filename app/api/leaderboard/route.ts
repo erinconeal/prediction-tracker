@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
-import { computeLeaderboard } from '@/lib/leaderboard';
+import { computeLeaderboardPage } from '@/lib/leaderboard';
 import { filterAndSortPredictions } from '@/lib/prediction-store';
 
+function parseBoundedInt(
+  raw: string | null,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  if (raw === null) return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
 /**
- * Full-dataset leaderboard for the home aside (not tied to paginated list).
+ * Full-dataset leaderboard (not tied to paginated prediction list).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const raw = searchParams.get('limit');
-  const limit = raw === null ? 8 : Math.min(50, Math.max(1, Number.parseInt(raw, 10) || 8));
+  const limit = parseBoundedInt(searchParams.get('limit'), 8, 1, 50);
+  const offset = parseBoundedInt(searchParams.get('offset'), 0, 0, 10_000);
   const all = filterAndSortPredictions({});
-  const rows = computeLeaderboard(all, limit);
-  return NextResponse.json(rows);
+  const page = computeLeaderboardPage(all, { limit, offset });
+  return NextResponse.json(page);
 }
