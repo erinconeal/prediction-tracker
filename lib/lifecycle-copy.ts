@@ -11,6 +11,9 @@ export const STAT_NO_LONGER_OPEN = 'No longer open';
 export const STAT_NO_LONGER_OPEN_HINT
   = 'Forecasts with a final outcome: correct, incorrect, unresolved, or invalid. Still-open forecasts are not included.';
 
+export const STAT_STILL_OPEN_HINT
+  = 'No final outcome has been recorded yet.';
+
 export const SORT_RECENTLY_FINISHED = 'Recently finished';
 
 export const SORT_RECENTLY_FINISHED_HINT

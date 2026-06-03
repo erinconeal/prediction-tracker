@@ -2,17 +2,22 @@
 
 import Link from 'next/link';
 import { breadcrumbLinkClass } from '@/components/feed/DiscoveryFeedLayout';
+import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
+import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
 
 type SourceDetailHeaderProps = {
   displayName: string;
+  accuracy: number | null;
   loading?: boolean;
 };
 
 export function SourceDetailHeader({
   displayName,
+  accuracy,
   loading = false,
 }: SourceDetailHeaderProps) {
+  const metric = forecastDisplayMetricFromAccuracyPercent(accuracy);
   return (
     <header className="space-y-4">
       <nav aria-label="Breadcrumb">
@@ -47,6 +52,7 @@ export function SourceDetailHeader({
                   <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground sm:text-4xl">
                     {displayName}
                   </h1>
+                  <SourceAccuracyBadge metric={metric} />
                 </div>
               </div>
             </div>

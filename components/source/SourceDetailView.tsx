@@ -47,6 +47,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
     <div className="space-y-8">
       <SourceDetailHeader
         displayName={stats.name}
+        accuracy={stats.accuracy}
         loading={showHeaderSkeleton}
       />
 

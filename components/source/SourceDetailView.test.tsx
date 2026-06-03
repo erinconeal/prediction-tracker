@@ -11,6 +11,17 @@ vi.mock('@/hooks/usePredictions', () => ({
 
 const mockUsePredictions = vi.mocked(usePredictions);
 
+function expectSidebarStatValue(
+  sidebar: HTMLElement,
+  label: string,
+  value: number | string,
+) {
+  const labelEl = within(sidebar).getByText(label);
+  const card = labelEl.closest('.rounded-xl');
+  expect(card).not.toBeNull();
+  expect(within(card as HTMLElement).getByText(String(value))).toBeInTheDocument();
+}
+
 describe('SourceDetailView', () => {
   beforeEach(() => {
     mockUsePredictions.mockReset();
@@ -48,6 +59,11 @@ describe('SourceDetailView', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Jane Analyst' }),
     ).toHaveClass('font-serif');
+    const pageHeader = screen.getByRole('navigation', { name: 'Breadcrumb' }).closest('header');
+    expect(pageHeader).not.toBeNull();
+    expect(
+      within(pageHeader!).getByLabelText(/source accuracy 50 percent/i),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/source slug/i)).not.toBeInTheDocument();
     expect(screen.queryByText('jane-analyst')).not.toBeInTheDocument();
   });
@@ -78,11 +94,57 @@ describe('SourceDetailView', () => {
 
     const sidebar = screen.getByRole('complementary', { name: 'Source statistics' });
     expect(within(sidebar).getByText('Total predictions')).toBeInTheDocument();
+    expect(within(sidebar).getByText('Still open')).toBeInTheDocument();
     expect(within(sidebar).getByText('No longer open')).toBeInTheDocument();
     expect(within(sidebar).getByRole('progressbar')).toBeInTheDocument();
     expect(
       within(sidebar).getByRole('link', { name: 'How we score' }),
     ).toHaveAttribute('href', '/about#lifecycle-language');
+  });
+
+  test('given mixed outcomes, should show numeric sidebar lifecycle counts', () => {
+    mockUsePredictions.mockReturnValue({
+      data: [
+        buildPrediction({
+          id: 'p-correct',
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+          outcome: 'correct',
+          finished_at: '2024-06-01T00:00:00.000Z',
+        }),
+        buildPrediction({
+          id: 'p-incorrect',
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+          outcome: 'incorrect',
+          finished_at: '2024-06-02T00:00:00.000Z',
+        }),
+        buildPrediction({
+          id: 'p-open',
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+          outcome: 'still_open',
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    const sidebar = screen.getByRole('complementary', { name: 'Source statistics' });
+    expectSidebarStatValue(sidebar, 'Total predictions', 3);
+    expectSidebarStatValue(sidebar, 'Still open', 1);
+    expectSidebarStatValue(sidebar, 'No longer open', 2);
+    expect(
+      within(sidebar).getByText(/2 scored \(correct \+ incorrect\)/i),
+    ).toBeInTheDocument();
+    expect(within(sidebar).getByText(/1 still open/i)).toBeInTheDocument();
+    expect(within(sidebar).getByRole('progressbar')).toHaveAttribute(
+      'aria-label',
+      'Accuracy 50%',
+    );
   });
 
   test('given empty predictions, should humanize slug for title and omit progressbar', () => {
@@ -97,6 +159,9 @@ describe('SourceDetailView', () => {
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Jane Analyst' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/source accuracy unavailable/i),
     ).toBeInTheDocument();
     const sidebar = screen.getByRole('complementary', { name: 'Source statistics' });
     expect(within(sidebar).queryByRole('progressbar')).not.toBeInTheDocument();

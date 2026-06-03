@@ -1,20 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { LeaderboardAccuracyBar } from '@/components/home/leaderboard/LeaderboardAccuracyBar';
-import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
-import { InfoPopover } from '@/components/ui/InfoPopover';
+import {
+  sourceStatCardClass,
+  SourceStatCountCard,
+} from '@/components/source/SourceStatCountCard';
 import { formatLeaderboardAccuracyContext } from '@/lib/leaderboard-row-context';
 import {
   LIFECYCLE_GLOSSARY_ANCHOR,
+  OUTCOME_STILL_OPEN_LABEL,
   STAT_NO_LONGER_OPEN,
   STAT_NO_LONGER_OPEN_HINT,
+  STAT_STILL_OPEN_HINT,
 } from '@/lib/lifecycle-copy';
 import type { SourceAccuracyStats } from '@/lib/source-stats';
-
-const statCard
-  = 'rounded-xl border border-border bg-surface-elevated p-4 shadow-sm';
 
 type SourceStatsSidebarProps = {
   stats: SourceAccuracyStats;
@@ -29,25 +29,22 @@ export function SourceStatsSidebar({ stats, loading = false }: SourceStatsSideba
           <div className="h-32 animate-pulse rounded-xl bg-surface" />
           <div className="h-20 animate-pulse rounded-xl bg-surface" />
           <div className="h-20 animate-pulse rounded-xl bg-surface" />
+          <div className="h-20 animate-pulse rounded-xl bg-surface" />
         </div>
       </aside>
     );
   }
 
-  const metric = forecastDisplayMetricFromAccuracyPercent(stats.accuracy);
   const contextLine = formatLeaderboardAccuracyContext(stats);
   const accuracyLabel
     = stats.accuracy === null ? undefined : `Accuracy ${stats.accuracy}%`;
 
   return (
     <aside aria-label="Source statistics" className="space-y-4">
-      <div className={statCard}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            Accuracy
-          </p>
-          <SourceAccuracyBadge metric={metric} />
-        </div>
+      <div className={sourceStatCardClass}>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">
+          Accuracy
+        </p>
         <p className="mt-2 font-mono text-3xl font-semibold tabular-nums text-foreground">
           {stats.accuracy === null ? '—' : `${stats.accuracy}%`}
         </p>
@@ -58,28 +55,25 @@ export function SourceStatsSidebar({ stats, loading = false }: SourceStatsSideba
         <p className="mt-3 text-xs text-muted">{contextLine}</p>
       </div>
 
-      <div className={statCard}>
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">
-          Total predictions
-        </p>
-        <p className="mt-1 font-mono text-2xl font-semibold tabular-nums text-foreground">
-          {stats.total}
-        </p>
-      </div>
+      <SourceStatCountCard label="Total predictions" value={stats.total} />
 
-      <div className={statCard}>
-        <div className="flex items-center justify-between gap-1">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            {STAT_NO_LONGER_OPEN}
-          </p>
-          <InfoPopover label={`About ${STAT_NO_LONGER_OPEN}`}>
-            {STAT_NO_LONGER_OPEN_HINT}
-          </InfoPopover>
-        </div>
-        <p className="mt-1 font-mono text-2xl font-semibold tabular-nums text-foreground">
-          {stats.noLongerOpen}
-        </p>
-      </div>
+      <SourceStatCountCard
+        label={OUTCOME_STILL_OPEN_LABEL}
+        value={stats.stillOpen}
+        about={{
+          popoverLabel: `About ${OUTCOME_STILL_OPEN_LABEL}`,
+          hint: STAT_STILL_OPEN_HINT,
+        }}
+      />
+
+      <SourceStatCountCard
+        label={STAT_NO_LONGER_OPEN}
+        value={stats.noLongerOpen}
+        about={{
+          popoverLabel: `About ${STAT_NO_LONGER_OPEN}`,
+          hint: STAT_NO_LONGER_OPEN_HINT,
+        }}
+      />
 
       <p className="text-sm text-muted">
         <Link
