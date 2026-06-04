@@ -3,30 +3,69 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { SourceDetailView } from './SourceDetailView';
 import { buildPrediction } from '@/test/factories/prediction';
+import { idlePredictionFeed } from '@/test/factories/hook-results';
+import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { usePredictions } from '@/hooks/usePredictions';
-import type { PredictionFilters } from '@/types/prediction';
+import type { Prediction, PredictionFilters } from '@/types/prediction';
 
 vi.mock('@/hooks/usePredictions', () => ({
   usePredictions: vi.fn(),
 }));
 
-const mockUsePredictions = vi.mocked(usePredictions);
+vi.mock('@/hooks/usePredictionFeed', () => ({
+  usePredictionFeed: vi.fn(),
+}));
 
-function mockPredictionsForFilters(
-  resolver: (
-    filters: PredictionFilters,
-    options?: { enabled?: boolean },
-  ) => ReturnType<typeof usePredictions>,
+const mockUsePredictions = vi.mocked(usePredictions);
+const mockUsePredictionFeed = vi.mocked(usePredictionFeed);
+
+function mockStatsFetch(
+  result: ReturnType<typeof usePredictions>,
 ) {
-  mockUsePredictions.mockImplementation((filters, options) =>
-    resolver(filters, options),
+  mockUsePredictions.mockReturnValue(result);
+}
+
+function mockFeedFetch(
+  result: Partial<ReturnType<typeof usePredictionFeed>> & {
+    data?: Prediction[];
+  } = {},
+) {
+  const { data = [], ...rest } = result;
+  mockUsePredictionFeed.mockReturnValue(
+    idlePredictionFeed({ data, ...rest }),
   );
 }
 
-function mockSamePredictionsForAllFilters(
-  result: ReturnType<typeof usePredictions>,
+function mockSourcePageFetches(
+  allPredictions: Prediction[],
+  feedOverrides: Partial<ReturnType<typeof usePredictionFeed>> = {},
 ) {
-  mockUsePredictions.mockImplementation(() => result);
+  mockStatsFetch({
+    data: allPredictions,
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  });
+  mockFeedFetch({ data: allPredictions, ...feedOverrides });
+}
+
+function mockFeedByStatus(
+  allPredictions: Prediction[],
+  feedOverrides: Partial<ReturnType<typeof usePredictionFeed>> = {},
+) {
+  mockStatsFetch({
+    data: allPredictions,
+    loading: false,
+    error: null,
+    refetch: vi.fn(),
+  });
+  mockUsePredictionFeed.mockImplementation((filters: PredictionFilters) => {
+    const data
+      = filters.status === 'still_open'
+        ? allPredictions.filter(p => p.outcome === 'still_open')
+        : allPredictions;
+    return idlePredictionFeed({ data, ...feedOverrides });
+  });
 }
 
 function expectSidebarStatValue(
@@ -43,29 +82,25 @@ function expectSidebarStatValue(
 describe('SourceDetailView', () => {
   beforeEach(() => {
     mockUsePredictions.mockReset();
+    mockUsePredictionFeed.mockReset();
   });
 
   test('given loaded predictions, should render breadcrumb and serif title without slug', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
-        buildPrediction({
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'correct',
-          finished_at: '2024-06-01T00:00:00.000Z',
-        }),
-        buildPrediction({
-          id: 'p-2',
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'incorrect',
-          finished_at: '2024-06-02T00:00:00.000Z',
-        }),
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    mockSourcePageFetches([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+      buildPrediction({
+        id: 'p-2',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'incorrect',
+        finished_at: '2024-06-02T00:00:00.000Z',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -87,26 +122,21 @@ describe('SourceDetailView', () => {
   });
 
   test('given scored stats, should render sidebar with progressbar', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
-        buildPrediction({
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'correct',
-          finished_at: '2024-06-01T00:00:00.000Z',
-        }),
-        buildPrediction({
-          id: 'p-2',
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'incorrect',
-          finished_at: '2024-06-02T00:00:00.000Z',
-        }),
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    mockSourcePageFetches([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+      buildPrediction({
+        id: 'p-2',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'incorrect',
+        finished_at: '2024-06-02T00:00:00.000Z',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -121,33 +151,28 @@ describe('SourceDetailView', () => {
   });
 
   test('given mixed outcomes, should show numeric sidebar lifecycle counts', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
-        buildPrediction({
-          id: 'p-correct',
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'correct',
-          finished_at: '2024-06-01T00:00:00.000Z',
-        }),
-        buildPrediction({
-          id: 'p-incorrect',
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'incorrect',
-          finished_at: '2024-06-02T00:00:00.000Z',
-        }),
-        buildPrediction({
-          id: 'p-open',
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'still_open',
-        }),
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    mockSourcePageFetches([
+      buildPrediction({
+        id: 'p-correct',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+      buildPrediction({
+        id: 'p-incorrect',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'incorrect',
+        finished_at: '2024-06-02T00:00:00.000Z',
+      }),
+      buildPrediction({
+        id: 'p-open',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'still_open',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -166,12 +191,7 @@ describe('SourceDetailView', () => {
   });
 
   test('given empty predictions, should humanize slug for title and omit progressbar', () => {
-    mockSamePredictionsForAllFilters({
-      data: [],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    mockSourcePageFetches([]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -188,25 +208,16 @@ describe('SourceDetailView', () => {
     ).toBeInTheDocument();
   });
 
-  test('given stats fetch error with all filter, should render stats alert and omit feed alert', () => {
+  test('given stats fetch error, should render stats alert and omit feed alert', () => {
     const refetchStats = vi.fn();
 
-    mockPredictionsForFilters((filters, options) => {
-      if (options?.enabled === false) {
-        return {
-          data: [],
-          loading: false,
-          error: null,
-          refetch: vi.fn(),
-        };
-      }
-      return {
-        data: [],
-        loading: false,
-        error: 'Failed to load predictions',
-        refetch: refetchStats,
-      };
+    mockStatsFetch({
+      data: [],
+      loading: false,
+      error: 'Failed to load predictions',
+      refetch: refetchStats,
     });
+    mockFeedFetch();
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -224,57 +235,101 @@ describe('SourceDetailView', () => {
     expect(refetchStats).toHaveBeenCalledOnce();
   });
 
-  test('given all filter, should disable secondary predictions fetch', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
-        buildPrediction({
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-        }),
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+  test('given snapshot at limit, should show 100+ total and capped disclosure', () => {
+    const predictions = Array.from({ length: 100 }, (_, index) =>
+      buildPrediction({
+        id: `p-${index}`,
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'still_open',
+      }),
+    );
+
+    mockSourcePageFetches(predictions);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
-    expect(mockUsePredictions).toHaveBeenCalledWith(
-      { source: 'jane-analyst', status: 'all', limit: 100 },
-      { enabled: false },
+    const sidebar = screen.getByRole('complementary', {
+      name: 'Source statistics',
+    });
+    expectSidebarStatValue(sidebar, 'Total predictions', '100+');
+    expect(
+      within(sidebar).getByText(/Counts use the first 100 predictions/i),
+    ).toBeInTheDocument();
+  });
+
+  test('selecting still open should request paginated feed with still_open status', () => {
+    mockFeedByStatus([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'still_open',
+      }),
+    ]);
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Still open' }));
+
+    expect(mockUsePredictionFeed).toHaveBeenLastCalledWith(
+      { source: 'jane-analyst', status: 'still_open' },
+      { pageSize: 20 },
+    );
+  });
+
+  test('should request paginated feed separately from stats snapshot', () => {
+    mockSourcePageFetches([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+      }),
+    ]);
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    expect(mockUsePredictions).toHaveBeenCalledWith({
+      source: 'jane-analyst',
+      status: 'all',
+      limit: 100,
+    });
+    expect(mockUsePredictionFeed).toHaveBeenCalledWith(
+      { source: 'jane-analyst', status: 'all' },
+      { pageSize: 20 },
     );
   });
 
   test('given feed fetch error while filtered, should hide stale predictions', () => {
-    mockPredictionsForFilters((filters) => {
+    const allPredictions = [
+      buildPrediction({
+        id: 'p-stale',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        text: 'Stale forecast text',
+        outcome: 'still_open',
+      }),
+      buildPrediction({
+        id: 'p-correct',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+    ];
+
+    mockStatsFetch({
+      data: allPredictions,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    mockUsePredictionFeed.mockImplementation((filters: PredictionFilters) => {
       if (filters.status === 'still_open') {
-        return {
-          data: [
-            buildPrediction({
-              id: 'p-stale',
-              source: 'Jane Analyst',
-              sourceSlug: 'jane-analyst',
-              text: 'Stale forecast text',
-              outcome: 'still_open',
-            }),
-          ],
-          loading: false,
+        return idlePredictionFeed({
+          data: [allPredictions[0]!],
           error: 'Feed failed',
-          refetch: vi.fn(),
-        };
+        });
       }
-      return {
-        data: [
-          buildPrediction({
-            source: 'Jane Analyst',
-            sourceSlug: 'jane-analyst',
-            outcome: 'still_open',
-          }),
-        ],
-        loading: false,
-        error: null,
-        refetch: vi.fn(),
-      };
+      return idlePredictionFeed({ data: allPredictions });
     });
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
@@ -292,21 +347,35 @@ describe('SourceDetailView', () => {
     ).toHaveTextContent('Feed failed');
   });
 
-  test('timeline links predictions to detail and omits inline scoring actions', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
+  test('given more feed rows available, should call loadMore when Load more is clicked', () => {
+    const loadMore = vi.fn();
+    mockSourcePageFetches(
+      [
         buildPrediction({
-          id: 'p-still-open',
+          id: 'p-1',
           source: 'Jane Analyst',
           sourceSlug: 'jane-analyst',
-          text: 'Open forecast text',
-          outcome: 'still_open',
         }),
       ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+      { hasMore: true, loadMore },
+    );
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+    expect(loadMore).toHaveBeenCalledOnce();
+  });
+
+  test('timeline links predictions to detail and omits inline scoring actions', () => {
+    mockSourcePageFetches([
+      buildPrediction({
+        id: 'p-still-open',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        text: 'Open forecast text',
+        outcome: 'still_open',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -318,18 +387,13 @@ describe('SourceDetailView', () => {
   });
 
   test('should render prediction feed heading and status filter', () => {
-    mockSamePredictionsForAllFilters({
-      data: [
-        buildPrediction({
-          source: 'Jane Analyst',
-          sourceSlug: 'jane-analyst',
-          outcome: 'still_open',
-        }),
-      ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    });
+    mockSourcePageFetches([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'still_open',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -359,18 +423,7 @@ describe('SourceDetailView', () => {
       }),
     ];
 
-    mockPredictionsForFilters((filters) => {
-      const data
-        = filters.status === 'still_open'
-          ? allPredictions.filter(p => p.outcome === 'still_open')
-          : allPredictions;
-      return {
-        data,
-        loading: false,
-        error: null,
-        refetch: vi.fn(),
-      };
-    });
+    mockFeedByStatus(allPredictions);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -390,22 +443,14 @@ describe('SourceDetailView', () => {
   });
 
   test('given still open filter with no matches, should show still-open empty copy', () => {
-    mockPredictionsForFilters(filters => ({
-      data:
-        filters.status === 'still_open'
-          ? []
-          : [
-              buildPrediction({
-                source: 'Jane Analyst',
-                sourceSlug: 'jane-analyst',
-                outcome: 'correct',
-                finished_at: '2024-06-01T00:00:00.000Z',
-              }),
-            ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    }));
+    mockFeedByStatus([
+      buildPrediction({
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
@@ -417,24 +462,16 @@ describe('SourceDetailView', () => {
   });
 
   test('clear status filter should reset feed to all', () => {
-    mockPredictionsForFilters(filters => ({
-      data:
-        filters.status === 'still_open'
-          ? []
-          : [
-              buildPrediction({
-                id: 'p-correct',
-                source: 'Jane Analyst',
-                sourceSlug: 'jane-analyst',
-                text: 'Closed forecast text',
-                outcome: 'correct',
-                finished_at: '2024-06-01T00:00:00.000Z',
-              }),
-            ],
-      loading: false,
-      error: null,
-      refetch: vi.fn(),
-    }));
+    mockFeedByStatus([
+      buildPrediction({
+        id: 'p-correct',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        text: 'Closed forecast text',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+    ]);
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 

@@ -14,14 +14,24 @@ import {
   STAT_NO_LONGER_OPEN_HINT,
   STAT_STILL_OPEN_HINT,
 } from '@/lib/lifecycle-copy';
+import {
+  formatSourceStatCountDisplay,
+  sourceStatsSnapshotCappedCopy,
+} from '@/lib/source-stats-snapshot';
 import type { SourceAccuracyStats } from '@/lib/source-stats';
 
 type SourceStatsSidebarProps = {
   stats: SourceAccuracyStats;
   loading?: boolean;
+  /** True when stats are computed from a full snapshot page (may undercount). */
+  snapshotCapped?: boolean;
 };
 
-export function SourceStatsSidebar({ stats, loading = false }: SourceStatsSidebarProps) {
+export function SourceStatsSidebar({
+  stats,
+  loading = false,
+  snapshotCapped = false,
+}: SourceStatsSidebarProps) {
   if (loading) {
     return (
       <aside aria-label="Source statistics" aria-busy="true">
@@ -53,9 +63,17 @@ export function SourceStatsSidebar({ stats, loading = false }: SourceStatsSideba
           ariaLabel={accuracyLabel}
         />
         <p className="mt-3 text-xs text-muted">{contextLine}</p>
+        {snapshotCapped
+          ? (
+              <p className="mt-2 text-xs text-muted">{sourceStatsSnapshotCappedCopy}</p>
+            )
+          : null}
       </div>
 
-      <SourceStatCountCard label="Total predictions" value={stats.total} />
+      <SourceStatCountCard
+        label="Total predictions"
+        value={formatSourceStatCountDisplay(stats.total, { snapshotCapped })}
+      />
 
       <SourceStatCountCard
         label={OUTCOME_STILL_OPEN_LABEL}

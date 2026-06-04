@@ -4,13 +4,17 @@ import { useCallback, useMemo, useState } from 'react';
 import { SourceDetailHeader } from '@/components/source/SourceDetailHeader';
 import { SourceStatsSidebar } from '@/components/source/SourceStatsSidebar';
 import { SourceTimelineSection } from '@/components/source/SourceTimelineSection';
+import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { usePredictions } from '@/hooks/usePredictions';
 import { humanizeSlug } from '@/lib/humanize-slug';
 import {
   sourceFeedEmptyMessage,
   type SourceFeedStatusFilter,
 } from '@/lib/source-feed-empty-message';
+import { SOURCE_STATS_SNAPSHOT_LIMIT } from '@/lib/source-stats-snapshot';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
+
+const SOURCE_FEED_PAGE_SIZE = 20;
 
 type SourceDetailViewProps = {
   sourceSlug: string;
@@ -23,7 +27,7 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
     () => ({
       source: sourceSlug,
       status: 'all' as const,
-      limit: 100,
+      limit: SOURCE_STATS_SNAPSHOT_LIMIT,
     }),
     [sourceSlug],
   );
@@ -32,12 +36,9 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
     () => ({
       source: sourceSlug,
       status: statusFilter === 'all' ? ('all' as const) : statusFilter,
-      limit: 100,
     }),
     [sourceSlug, statusFilter],
   );
-
-  const usesFilteredFeedFetch = statusFilter !== 'all';
 
   const {
     data: statsData,
@@ -47,16 +48,14 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   } = usePredictions(statsFilters);
 
   const {
-    data: filteredFeedData,
-    loading: filteredFeedLoading,
-    error: filteredFeedError,
-    refetch: refetchFilteredFeed,
-  } = usePredictions(feedFilters, { enabled: usesFilteredFeedFetch });
-
-  const feedData = usesFilteredFeedFetch ? filteredFeedData : statsData;
-  const feedLoading = usesFilteredFeedFetch ? filteredFeedLoading : statsLoading;
-  const feedErrorForSection = usesFilteredFeedFetch ? filteredFeedError : null;
-  const feedFetchError = usesFilteredFeedFetch ? filteredFeedError : statsError;
+    data: feedData,
+    loading: feedLoading,
+    loadingMore: feedLoadingMore,
+    error: feedError,
+    hasMore: feedHasMore,
+    refetch: refetchFeed,
+    loadMore: loadMoreFeed,
+  } = usePredictionFeed(feedFilters, { pageSize: SOURCE_FEED_PAGE_SIZE });
 
   const stats = useMemo(
     () =>
@@ -67,15 +66,16 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   );
 
   const showHeaderSkeleton = statsLoading && statsData.length === 0;
+  const statsSnapshotCapped = statsData.length >= SOURCE_STATS_SNAPSHOT_LIMIT;
 
   const timelinePredictions = useMemo(() => {
-    if (feedFetchError) return [];
+    if (feedError) return [];
 
     return [...feedData].sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
-  }, [feedData, feedFetchError]);
+  }, [feedData, feedError]);
 
   const emptyMessage = useMemo(
     () => sourceFeedEmptyMessage(statusFilter),
@@ -87,9 +87,12 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
   }, []);
 
   const handleRetryFeed = useCallback(() => {
-    if (usesFilteredFeedFetch) void refetchFilteredFeed();
-    else void refetchStats();
-  }, [usesFilteredFeedFetch, refetchFilteredFeed, refetchStats]);
+    void refetchFeed();
+  }, [refetchFeed]);
+
+  const handleLoadMoreFeed = useCallback(() => {
+    void loadMoreFeed();
+  }, [loadMoreFeed]);
 
   return (
     <div className="space-y-8">
@@ -122,7 +125,11 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="order-1 space-y-6 lg:order-2 lg:col-span-4">
           <div className="lg:sticky lg:top-8">
-            <SourceStatsSidebar stats={stats} loading={showHeaderSkeleton} />
+            <SourceStatsSidebar
+              stats={stats}
+              loading={showHeaderSkeleton}
+              snapshotCapped={statsSnapshotCapped}
+            />
           </div>
         </div>
 
@@ -130,8 +137,11 @@ export function SourceDetailView({ sourceSlug }: SourceDetailViewProps) {
           <SourceTimelineSection
             predictions={timelinePredictions}
             loading={feedLoading}
-            error={feedErrorForSection}
+            loadingMore={feedLoadingMore}
+            error={feedError}
+            hasMore={feedHasMore}
             onRetry={handleRetryFeed}
+            onLoadMore={handleLoadMoreFeed}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
             onClearStatusFilter={handleClearStatusFilter}

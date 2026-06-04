@@ -44,7 +44,7 @@ export const SourceFeedStatusFilterControl = memo(
                   disabled ? 'cursor-not-allowed opacity-50' : ''
                 } ${
                   isActive
-                    ? 'bg-interactive text-white shadow-sm'
+                    ? 'bg-primary text-white shadow-sm'
                     : 'border border-border bg-surface-elevated text-foreground hover:border-border hover:bg-surface'
                 }`}
               >

@@ -11,8 +11,11 @@ const SOURCE_FEED_STATUS_FILTER_ID = 'source-feed-status-filter';
 type SourceTimelineSectionProps = {
   predictions: Prediction[];
   loading: boolean;
+  loadingMore: boolean;
   error: string | null;
+  hasMore: boolean;
   onRetry: () => void;
+  onLoadMore: () => void;
   statusFilter: SourceFeedStatusFilter;
   onStatusFilterChange: (filter: SourceFeedStatusFilter) => void;
   onClearStatusFilter: () => void;
@@ -22,8 +25,11 @@ type SourceTimelineSectionProps = {
 export function SourceTimelineSection({
   predictions,
   loading,
+  loadingMore,
   error,
+  hasMore,
   onRetry,
+  onLoadMore,
   statusFilter,
   onStatusFilterChange,
   onClearStatusFilter,
@@ -96,6 +102,22 @@ export function SourceTimelineSection({
         loading={loading}
         emptyMessage={emptyMessage}
       />
+
+      {hasMore && predictions.length > 0
+        ? (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                className="rounded-full border border-border bg-surface-elevated px-6 py-2.5 text-sm font-medium text-foreground shadow-sm hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                disabled={loadingMore}
+                aria-busy={loadingMore}
+                onClick={() => void onLoadMore()}
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            </div>
+          )
+        : null}
     </section>
   );
 }
