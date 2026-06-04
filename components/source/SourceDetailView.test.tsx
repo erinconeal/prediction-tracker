@@ -4,12 +4,30 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { SourceDetailView } from './SourceDetailView';
 import { buildPrediction } from '@/test/factories/prediction';
 import { usePredictions } from '@/hooks/usePredictions';
+import type { PredictionFilters } from '@/types/prediction';
 
 vi.mock('@/hooks/usePredictions', () => ({
   usePredictions: vi.fn(),
 }));
 
 const mockUsePredictions = vi.mocked(usePredictions);
+
+function mockPredictionsForFilters(
+  resolver: (
+    filters: PredictionFilters,
+    options?: { enabled?: boolean },
+  ) => ReturnType<typeof usePredictions>,
+) {
+  mockUsePredictions.mockImplementation((filters, options) =>
+    resolver(filters, options),
+  );
+}
+
+function mockSamePredictionsForAllFilters(
+  result: ReturnType<typeof usePredictions>,
+) {
+  mockUsePredictions.mockImplementation(() => result);
+}
 
 function expectSidebarStatValue(
   sidebar: HTMLElement,
@@ -28,7 +46,7 @@ describe('SourceDetailView', () => {
   });
 
   test('given loaded predictions, should render breadcrumb and serif title without slug', () => {
-    mockUsePredictions.mockReturnValue({
+    mockSamePredictionsForAllFilters({
       data: [
         buildPrediction({
           source: 'Jane Analyst',
@@ -69,7 +87,7 @@ describe('SourceDetailView', () => {
   });
 
   test('given scored stats, should render sidebar with progressbar', () => {
-    mockUsePredictions.mockReturnValue({
+    mockSamePredictionsForAllFilters({
       data: [
         buildPrediction({
           source: 'Jane Analyst',
@@ -103,7 +121,7 @@ describe('SourceDetailView', () => {
   });
 
   test('given mixed outcomes, should show numeric sidebar lifecycle counts', () => {
-    mockUsePredictions.mockReturnValue({
+    mockSamePredictionsForAllFilters({
       data: [
         buildPrediction({
           id: 'p-correct',
@@ -148,7 +166,7 @@ describe('SourceDetailView', () => {
   });
 
   test('given empty predictions, should humanize slug for title and omit progressbar', () => {
-    mockUsePredictions.mockReturnValue({
+    mockSamePredictionsForAllFilters({
       data: [],
       loading: false,
       error: null,
@@ -170,26 +188,112 @@ describe('SourceDetailView', () => {
     ).toBeInTheDocument();
   });
 
-  test('given fetch error, should render alert with retry', () => {
-    const refetch = vi.fn();
+  test('given stats fetch error with all filter, should render stats alert and omit feed alert', () => {
+    const refetchStats = vi.fn();
 
-    mockUsePredictions.mockReturnValue({
-      data: [],
-      loading: false,
-      error: 'Failed to load predictions',
-      refetch,
+    mockPredictionsForFilters((filters, options) => {
+      if (options?.enabled === false) {
+        return {
+          data: [],
+          loading: false,
+          error: null,
+          refetch: vi.fn(),
+        };
+      }
+      return {
+        data: [],
+        loading: false,
+        error: 'Failed to load predictions',
+        refetch: refetchStats,
+      };
     });
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
+    const feedSection = screen
+      .getByRole('heading', { name: 'Prediction feed' })
+      .closest('section');
+    expect(feedSection).not.toBeNull();
+    expect(
+      within(feedSection as HTMLElement).queryByRole('alert'),
+    ).not.toBeInTheDocument();
+
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('Failed to load predictions');
     fireEvent.click(within(alert).getByRole('button', { name: 'Retry' }));
-    expect(refetch).toHaveBeenCalledOnce();
+    expect(refetchStats).toHaveBeenCalledOnce();
+  });
+
+  test('given all filter, should disable secondary predictions fetch', () => {
+    mockSamePredictionsForAllFilters({
+      data: [
+        buildPrediction({
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    expect(mockUsePredictions).toHaveBeenCalledWith(
+      { source: 'jane-analyst', status: 'all', limit: 100 },
+      { enabled: false },
+    );
+  });
+
+  test('given feed fetch error while filtered, should hide stale predictions', () => {
+    mockPredictionsForFilters((filters) => {
+      if (filters.status === 'still_open') {
+        return {
+          data: [
+            buildPrediction({
+              id: 'p-stale',
+              source: 'Jane Analyst',
+              sourceSlug: 'jane-analyst',
+              text: 'Stale forecast text',
+              outcome: 'still_open',
+            }),
+          ],
+          loading: false,
+          error: 'Feed failed',
+          refetch: vi.fn(),
+        };
+      }
+      return {
+        data: [
+          buildPrediction({
+            source: 'Jane Analyst',
+            sourceSlug: 'jane-analyst',
+            outcome: 'still_open',
+          }),
+        ],
+        loading: false,
+        error: null,
+        refetch: vi.fn(),
+      };
+    });
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Still open' }));
+
+    expect(
+      screen.queryByRole('link', { name: /stale forecast text/i }),
+    ).not.toBeInTheDocument();
+    const feedSection = screen
+      .getByRole('heading', { name: 'Prediction feed' })
+      .closest('section');
+    expect(
+      within(feedSection as HTMLElement).getByRole('alert'),
+    ).toHaveTextContent('Feed failed');
   });
 
   test('timeline links predictions to detail and omits inline scoring actions', () => {
-    mockUsePredictions.mockReturnValue({
+    mockSamePredictionsForAllFilters({
       data: [
         buildPrediction({
           id: 'p-still-open',
@@ -211,5 +315,136 @@ describe('SourceDetailView', () => {
     ).toHaveAttribute('href', '/predictions/p-still-open');
     expect(screen.queryByRole('button', { name: /mark correct/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /jane analyst/i })).not.toBeInTheDocument();
+  });
+
+  test('should render prediction feed heading and status filter', () => {
+    mockSamePredictionsForAllFilters({
+      data: [
+        buildPrediction({
+          source: 'Jane Analyst',
+          sourceSlug: 'jane-analyst',
+          outcome: 'still_open',
+        }),
+      ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Prediction feed' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Still open' })).not.toBeChecked();
+  });
+
+  test('given still open filter, should show filtered feed and unchanged sidebar totals', () => {
+    const allPredictions = [
+      buildPrediction({
+        id: 'p-open',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        text: 'Open forecast text',
+        outcome: 'still_open',
+      }),
+      buildPrediction({
+        id: 'p-correct',
+        source: 'Jane Analyst',
+        sourceSlug: 'jane-analyst',
+        text: 'Closed forecast text',
+        outcome: 'correct',
+        finished_at: '2024-06-01T00:00:00.000Z',
+      }),
+    ];
+
+    mockPredictionsForFilters((filters) => {
+      const data
+        = filters.status === 'still_open'
+          ? allPredictions.filter(p => p.outcome === 'still_open')
+          : allPredictions;
+      return {
+        data,
+        loading: false,
+        error: null,
+        refetch: vi.fn(),
+      };
+    });
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Still open' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Showing: Still open');
+    expect(
+      screen.getByRole('link', { name: /open forecast text/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /closed forecast text/i }),
+    ).not.toBeInTheDocument();
+
+    const sidebar = screen.getByRole('complementary', { name: 'Source statistics' });
+    expectSidebarStatValue(sidebar, 'Total predictions', 2);
+    expectSidebarStatValue(sidebar, 'Still open', 1);
+  });
+
+  test('given still open filter with no matches, should show still-open empty copy', () => {
+    mockPredictionsForFilters(filters => ({
+      data:
+        filters.status === 'still_open'
+          ? []
+          : [
+              buildPrediction({
+                source: 'Jane Analyst',
+                sourceSlug: 'jane-analyst',
+                outcome: 'correct',
+                finished_at: '2024-06-01T00:00:00.000Z',
+              }),
+            ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    }));
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Still open' }));
+
+    expect(
+      screen.getByText('No still open forecasts for this source.'),
+    ).toBeInTheDocument();
+  });
+
+  test('clear status filter should reset feed to all', () => {
+    mockPredictionsForFilters(filters => ({
+      data:
+        filters.status === 'still_open'
+          ? []
+          : [
+              buildPrediction({
+                id: 'p-correct',
+                source: 'Jane Analyst',
+                sourceSlug: 'jane-analyst',
+                text: 'Closed forecast text',
+                outcome: 'correct',
+                finished_at: '2024-06-01T00:00:00.000Z',
+              }),
+            ],
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    }));
+
+    render(<SourceDetailView sourceSlug="jane-analyst" />);
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Still open' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Clear status filter' }));
+
+    expect(screen.getByRole('radio', { name: 'All' })).toBeChecked();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /closed forecast text/i }),
+    ).toBeInTheDocument();
   });
 });

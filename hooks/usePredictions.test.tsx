@@ -134,4 +134,16 @@ describe('usePredictions', () => {
       expect.any(AbortSignal),
     );
   });
+
+  test('given enabled false, should not call listPredictions', async () => {
+    const { result } = renderHook(() =>
+      usePredictions({ source: 'jane-analyst' }, { enabled: false }),
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(listPredictions).not.toHaveBeenCalled();
+    expect(result.current.data).toEqual([]);
+    expect(result.current.error).toBe(null);
+  });
 });

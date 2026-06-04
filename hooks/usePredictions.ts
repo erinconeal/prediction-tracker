@@ -13,12 +13,21 @@ export type UsePredictionsResult = {
   refetch: () => Promise<void>;
 };
 
+export type UsePredictionsOptions = {
+  /** When false, skips fetch/refetch and returns an idle empty result. */
+  enabled?: boolean;
+};
+
 /**
  * Fetches predictions through the API service, tracks loading/error, caches the
  * last successful result per filter key (ref + Map) so revisiting the same
  * filters can show data immediately while a new request is in flight.
  */
-export function usePredictions(filters: PredictionFilters): UsePredictionsResult {
+export function usePredictions(
+  filters: PredictionFilters,
+  options: UsePredictionsOptions = {},
+): UsePredictionsResult {
+  const enabled = options.enabled ?? true;
   /*
    * Three pieces keep overlapping requests safe:
    * 1) fetchGenerationRef — incremented on every filter-driven effect run and on every
@@ -37,7 +46,7 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
   /** Latest manual refetch only; effect uses its own AbortController per run. */
   const refetchAbortRef = useRef<AbortController | null>(null);
   const [data, setData] = useState<Prediction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   /** Always read current filters inside async code (refetch may overlap a filter change). */
   const filtersRef = useRef(filters);
@@ -55,6 +64,11 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
 
   // Fetch whenever the normalized filter key changes (not on every filters object identity).
   useEffect(() => {
+    if (!enabled) {
+      fetchGenerationRef.current += 1;
+      return;
+    }
+
     const generation = ++fetchGenerationRef.current;
     const controller = new AbortController();
 
@@ -95,9 +109,11 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
     void loadPredictionsForFilter();
 
     return () => controller.abort();
-  }, [filterKey]);
+  }, [filterKey, enabled]);
 
   const refetch = useCallback(async (): Promise<void> => {
+    if (!enabled) return;
+
     // Invalidate any in-flight effect fetch for this hook instance (same generation ref).
     const generation = ++fetchGenerationRef.current;
     refetchAbortRef.current?.abort();
@@ -140,7 +156,14 @@ export function usePredictions(filters: PredictionFilters): UsePredictionsResult
       }
     }
     /** Empty deps: refetch reads `filtersRef` / cache at call time; `filterKey` is not needed. */
-  }, []);
+  }, [enabled]);
 
-  return { data, loading, error, refetch };
+  const idle = !enabled;
+
+  return {
+    data: idle ? [] : data,
+    loading: idle ? false : loading,
+    error: idle ? null : error,
+    refetch,
+  };
 }
