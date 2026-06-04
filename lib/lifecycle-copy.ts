@@ -31,6 +31,8 @@ export const LIFECYCLE_GLOSSARY_ANCHOR = 'lifecycle-language';
 
 export const LIFECYCLE_GLOSSARY_HEADING = 'How we describe forecast status';
 
+export const TIMELINE_SUBMITTED_LABEL = 'Submitted';
+
 export const TIMELINE_FINISHED_LABEL = 'Finished';
 
 export type LifecycleGlossaryEntry = {
@@ -62,7 +64,7 @@ export const LIFECYCLE_GLOSSARY_ENTRIES: LifecycleGlossaryEntry[] = [
   {
     term: 'Dates on forecast cards',
     meaning:
-      'Browse and timeline cards show outcome with the badge only. Target dates, finish dates, and when a forecast was added appear on the prediction detail page.',
+      'Home and topic browse cards show outcome with the badge only. Source prediction feed cards add one muted line: Submitted (created date) while still open, or Finished (finish date) after a final outcome. Target dates and the full timeline appear on the prediction detail page.',
   },
   {
     term: 'Recently judged correct/incorrect',

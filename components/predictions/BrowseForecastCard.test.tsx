@@ -162,4 +162,57 @@ describe('BrowseForecastCard', () => {
     expect(screen.getByText('Correct')).toBeInTheDocument();
     expect(screen.queryByText('Jul 15, 2024')).not.toBeInTheDocument();
   });
+
+  test('showSourceFeedDate shows Finished date for terminal outcomes', () => {
+    render(
+      <BrowseForecastCard
+        prediction={cardPrediction({
+          outcome: 'correct',
+          finished_at: '2024-07-15T00:00:00.000Z',
+        })}
+        hideSourceHeader
+        readOnlyOutcome
+        showSourceFeedDate
+      />,
+    );
+
+    expect(screen.getByText('Finished')).toBeInTheDocument();
+    expect(screen.getByText('Jul 15, 2024')).toBeInTheDocument();
+  });
+
+  test('showSourceFeedDate shows Submitted date for still-open forecasts', () => {
+    render(
+      <BrowseForecastCard
+        prediction={cardPrediction({
+          outcome: 'still_open',
+          created_at: '2024-06-01T00:00:00.000Z',
+          finished_at: null,
+        })}
+        hideSourceHeader
+        readOnlyOutcome
+        showSourceFeedDate
+      />,
+    );
+
+    expect(screen.getByText('Submitted')).toBeInTheDocument();
+    expect(screen.getByText('Jun 1, 2024')).toBeInTheDocument();
+  });
+
+  test('showSourceFeedDate omits date when terminal outcome lacks finished_at', () => {
+    render(
+      <BrowseForecastCard
+        prediction={cardPrediction({
+          outcome: 'incorrect',
+          finished_at: null,
+        })}
+        hideSourceHeader
+        readOnlyOutcome
+        showSourceFeedDate
+      />,
+    );
+
+    expect(screen.getByText('Incorrect')).toBeInTheDocument();
+    expect(screen.queryByText('Submitted')).not.toBeInTheDocument();
+    expect(screen.queryByText('Finished')).not.toBeInTheDocument();
+  });
 });

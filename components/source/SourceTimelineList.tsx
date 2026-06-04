@@ -43,6 +43,7 @@ export const SourceTimelineList = memo(function SourceTimelineList({
             prediction={p}
             hideSourceHeader
             readOnlyOutcome
+            showSourceFeedDate
           />
         </li>
       ))}

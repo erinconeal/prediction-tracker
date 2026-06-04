@@ -27,12 +27,33 @@ describe('SourceTimelineList', () => {
       screen.getByRole('link', { name: /rates will fall/i }),
     ).toHaveAttribute('href', '/predictions/p-timeline');
     expect(screen.getByText('Correct')).toBeInTheDocument();
-    expect(screen.queryByText('Jul 15, 2024')).not.toBeInTheDocument();
+    expect(screen.getByText('Finished')).toBeInTheDocument();
+    expect(screen.getByText('Jul 15, 2024')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /browse finance forecasts/i }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /mark correct/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /jane analyst/i })).not.toBeInTheDocument();
+  });
+
+  test('shows Submitted date for still-open forecasts', () => {
+    render(
+      <SourceTimelineList
+        loading={false}
+        predictions={[
+          buildPrediction({
+            id: 'p-open',
+            text: 'Open forecast text',
+            outcome: 'still_open',
+            created_at: '2024-06-01T00:00:00.000Z',
+            finished_at: null,
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Submitted')).toBeInTheDocument();
+    expect(screen.getByText('Jun 1, 2024')).toBeInTheDocument();
   });
 
   test('shows empty message when there are no predictions', () => {

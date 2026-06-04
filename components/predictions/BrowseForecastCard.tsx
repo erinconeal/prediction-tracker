@@ -4,9 +4,11 @@ import { memo } from 'react';
 import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
 import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';
+import { ForecastCardTimingSubtitle } from '@/components/forecast/ForecastCardTimingSubtitle';
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
 import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import { OutcomeFilterButton } from '@/components/predictions/OutcomeFilterButton';
+import { sourceFeedCardDate } from '@/lib/source-feed-card-date';
 import type { Outcome, Prediction } from '@/types/prediction';
 import { truncateWithEllipsis } from '@/utils/truncate-text';
 
@@ -14,6 +16,8 @@ type BrowseForecastCardBaseProps = {
   prediction: Prediction;
   className?: string;
   hideSourceHeader?: boolean;
+  /** Source prediction feed only: one muted Submitted/Finished date line. */
+  showSourceFeedDate?: boolean;
 };
 
 type BrowseForecastCardFilterProps = BrowseForecastCardBaseProps & {
@@ -37,6 +41,7 @@ export const BrowseForecastCard = memo(function BrowseForecastCard(
     prediction: p,
     className = '',
     hideSourceHeader = false,
+    showSourceFeedDate = false,
   } = props;
 
   const titleText = truncateWithEllipsis(p.text, 160);
@@ -75,11 +80,22 @@ export const BrowseForecastCard = memo(function BrowseForecastCard(
       )
     : titleLink;
 
+  const timing = showSourceFeedDate ? sourceFeedCardDate(p) : null;
+  const afterTitle = timing
+    ? (
+        <ForecastCardTimingSubtitle
+          label={timing.label}
+          iso={timing.iso}
+        />
+      )
+    : undefined;
+
   return (
     <ForecastCardShell
       className={className}
       header={header}
       title={title}
+      afterTitle={afterTitle}
       wrapTitleInHeading={hideSourceHeader === false}
       footer={(
         <ForecastCardMetaFooter topicIds={p.topicIds} />
