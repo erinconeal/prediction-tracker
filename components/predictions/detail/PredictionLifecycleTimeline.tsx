@@ -1,10 +1,24 @@
 'use client';
 
-import { TIMELINE_FINISHED_LABEL } from '@/lib/lifecycle-copy';
+import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
+import {
+  buildTimelineSteps,
+  isActiveTimelineStep,
+  TIMELINE_STEP_LABELS,
+  type TimelineStepId,
+} from '@/lib/prediction-lifecycle-timeline';
 import type { Outcome } from '@/types/prediction';
 import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
+import type { ReactNode } from 'react';
 
 type PredictionLifecycleTimelineProps = {
+  createdAt: string;
+  targetDate: string | null;
+  finishedAt: string | null;
+  outcome: Outcome;
+};
+
+type TimelineStepContext = {
   createdAt: string;
   targetDate: string | null;
   finishedAt: string | null;
@@ -15,20 +29,74 @@ type PredictionLifecycleTimelineProps = {
 const timelineDotClass
   = 'absolute top-1.5 start-[calc(-1.5rem-1px)] size-2.5 -translate-x-1/2 rounded-full ring-4 ring-background';
 
-function outcomeDescription(outcome: Outcome): string {
-  switch (outcome) {
-    case 'still_open':
-      return 'Still open — outcome not yet recorded.';
-    case 'correct':
-      return 'Recorded as correct against the evaluation criteria you apply for this tracker.';
-    case 'incorrect':
-      return 'Recorded as incorrect against the evaluation criteria you apply for this tracker.';
-    case 'unresolved':
-      return 'Outcome could not be determined with confidence (see constitution, section 6.3).';
-    case 'invalid':
-      return 'Excluded from scoring: failed inclusion or resolution criteria (see constitution, sections 6.3 and 7.3).';
-  }
+/** Returns timeline dot classes; active steps use the primary accent. */
+function dotClassFor(isActive: boolean): string {
+  return `${timelineDotClass} ${isActive ? 'bg-primary' : 'bg-border'}`;
 }
+
+function renderAddedStep({ createdAt }: TimelineStepContext): ReactNode {
+  return (
+    <>
+      <p className="text-sm font-medium text-foreground">
+        {TIMELINE_STEP_LABELS.added}
+      </p>
+      <p className="text-sm text-muted">{formatIsoDate(createdAt)}</p>
+    </>
+  );
+}
+
+function renderTargetStep({ targetDate }: TimelineStepContext): ReactNode | null {
+  if (!targetDate) {
+    return null;
+  }
+
+  return (
+    <>
+      <p className="text-sm font-medium text-foreground">
+        {TIMELINE_STEP_LABELS.target}
+      </p>
+      <p className="text-sm text-muted">{formatMonthYear(targetDate)}</p>
+    </>
+  );
+}
+
+function renderFinishedStep({ finishedAt }: TimelineStepContext): ReactNode | null {
+  if (!finishedAt) {
+    return null;
+  }
+
+  return (
+    <>
+      <p className="text-sm font-medium text-foreground">
+        {TIMELINE_STEP_LABELS.finished}
+      </p>
+      <p className="text-sm text-muted">
+        <time dateTime={finishedAt}>{formatIsoDate(finishedAt)}</time>
+      </p>
+    </>
+  );
+}
+
+function renderOutcomeStep({ outcome }: TimelineStepContext): ReactNode {
+  return (
+    <>
+      <p className="text-sm font-medium text-foreground">
+        {TIMELINE_STEP_LABELS.outcome}
+      </p>
+      <OutcomeBadge outcome={outcome} className="mt-1" />
+    </>
+  );
+}
+
+const TIMELINE_STEP_RENDERERS: Record<
+  TimelineStepId,
+  (context: TimelineStepContext) => ReactNode | null
+> = {
+  added: renderAddedStep,
+  target: renderTargetStep,
+  finished: renderFinishedStep,
+  outcome: renderOutcomeStep,
+};
 
 export function PredictionLifecycleTimeline({
   createdAt,
@@ -36,6 +104,14 @@ export function PredictionLifecycleTimeline({
   finishedAt,
   outcome,
 }: PredictionLifecycleTimelineProps) {
+  const steps = buildTimelineSteps(outcome, targetDate, finishedAt);
+  const stepContext: TimelineStepContext = {
+    createdAt,
+    targetDate,
+    finishedAt,
+    outcome,
+  };
+
   return (
     <section className="space-y-4" aria-labelledby="prediction-lifecycle-heading">
       <h2
@@ -45,54 +121,25 @@ export function PredictionLifecycleTimeline({
         Timeline
       </h2>
       <ol className="m-0 list-none space-y-0 border-s-2 border-border ps-6">
-        <li className="relative pb-6">
-          <span
-            className={`${timelineDotClass} bg-primary`}
-            aria-hidden
-          />
-          <p className="text-sm font-medium text-foreground">Added</p>
-          <p className="text-sm text-muted">{formatIsoDate(createdAt)}</p>
-        </li>
-        {targetDate
-          ? (
-              <li className="relative pb-6">
-                <span
-                  className={`${timelineDotClass} bg-border`}
-                  aria-hidden
-                />
-                <p className="text-sm font-medium text-foreground">Target</p>
-                <p className="text-sm text-muted">
-                  {formatMonthYear(targetDate)}
-                </p>
-              </li>
-            )
-          : null}
-        {finishedAt
-          ? (
-              <li className="relative pb-6">
-                <span
-                  className={`${timelineDotClass} bg-border`}
-                  aria-hidden
-                />
-                <p className="text-sm font-medium text-foreground">
-                  {TIMELINE_FINISHED_LABEL}
-                </p>
-                <p className="text-sm text-muted">
-                  <time dateTime={finishedAt}>
-                    {formatIsoDate(finishedAt)}
-                  </time>
-                </p>
-              </li>
-            )
-          : null}
-        <li className="relative">
-          <span
-            className={`${timelineDotClass} bg-border`}
-            aria-hidden
-          />
-          <p className="text-sm font-medium text-foreground">Outcome</p>
-          <p className="text-sm text-muted">{outcomeDescription(outcome)}</p>
-        </li>
+        {steps.map((stepId, index) => {
+          const isLast = index === steps.length - 1;
+          const isActive = isActiveTimelineStep(stepId);
+
+          return (
+            <li
+              key={stepId}
+              data-timeline-step={stepId}
+              className={`relative ${isLast ? '' : 'pb-6'}`}
+              {...(isActive ? { 'aria-current': 'step' as const } : {})}
+            >
+              <span
+                className={dotClassFor(isActive)}
+                aria-hidden
+              />
+              {TIMELINE_STEP_RENDERERS[stepId](stepContext)}
+            </li>
+          );
+        })}
       </ol>
     </section>
   );

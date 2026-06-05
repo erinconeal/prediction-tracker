@@ -1,10 +1,29 @@
+import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
+import type { Outcome } from '@/types/prediction';
+import type { TimelineStepId } from '@/lib/prediction-lifecycle-timeline';
 import { PredictionLifecycleTimeline } from './PredictionLifecycleTimeline';
 import { TIMELINE_FINISHED_LABEL } from '@/lib/lifecycle-copy';
 
+function getTimelineSection(): HTMLElement {
+  const section = screen.getByRole('heading', { name: 'Timeline' }).closest('section');
+  expect(section).not.toBeNull();
+  return section as HTMLElement;
+}
+
+function timelineStepIds(section: HTMLElement): TimelineStepId[] {
+  return within(section)
+    .getAllByRole('listitem')
+    .map(item => item.getAttribute('data-timeline-step') as TimelineStepId);
+}
+
+function timelineDotFor(step: HTMLElement): HTMLElement | null {
+  return step.querySelector('[aria-hidden="true"]');
+}
+
 describe('PredictionLifecycleTimeline', () => {
-  test('given a still-open prediction, should describe outcome without finished step', () => {
+  test('given a still-open prediction without target, should show Added then Outcome with badge', () => {
     render(
       <PredictionLifecycleTimeline
         createdAt="2024-01-15T00:00:00.000Z"
@@ -14,13 +33,41 @@ describe('PredictionLifecycleTimeline', () => {
       />,
     );
 
-    expect(
-      screen.getByText('Still open — outcome not yet recorded.'),
-    ).toBeInTheDocument();
+    const section = getTimelineSection();
+
+    expect(within(section).getByText('Still open')).toBeInTheDocument();
     expect(screen.queryByText(TIMELINE_FINISHED_LABEL)).not.toBeInTheDocument();
+    expect(timelineStepIds(section)).toEqual(['added', 'outcome']);
+
+    const outcomeStep = within(section).getByRole('listitem', {
+      current: 'step',
+    });
+    expect(outcomeStep).toHaveAttribute('data-timeline-step', 'outcome');
+    expect(timelineDotFor(outcomeStep)).toHaveClass('bg-primary');
+
+    const addedStep = within(section).getAllByRole('listitem')[0];
+    expect(timelineDotFor(addedStep)).toHaveClass('bg-border');
   });
 
-  test('given a terminal prediction, should show finished step and outcome copy', () => {
+  test('given a still-open prediction with target, should order Outcome before Target', () => {
+    render(
+      <PredictionLifecycleTimeline
+        createdAt="2024-01-15T00:00:00.000Z"
+        targetDate="2026-12-01T00:00:00.000Z"
+        finishedAt={null}
+        outcome="still_open"
+      />,
+    );
+
+    const section = getTimelineSection();
+    expect(timelineStepIds(section)).toEqual(['added', 'outcome', 'target']);
+
+    const items = within(section).getAllByRole('listitem');
+    expect(items[1]).toHaveAttribute('aria-current', 'step');
+    expect(items[2]).not.toHaveAttribute('aria-current');
+  });
+
+  test('given a terminal prediction, should show chronological steps and Correct badge', () => {
     render(
       <PredictionLifecycleTimeline
         createdAt="2024-01-15T00:00:00.000Z"
@@ -30,15 +77,72 @@ describe('PredictionLifecycleTimeline', () => {
       />,
     );
 
-    const section = screen.getByRole('heading', { name: 'Timeline' }).closest('section');
-    expect(section).not.toBeNull();
+    const section = getTimelineSection();
     expect(
-      within(section as HTMLElement).getByText(TIMELINE_FINISHED_LABEL),
+      within(section).getByText(TIMELINE_FINISHED_LABEL),
     ).toBeInTheDocument();
-    expect(
-      within(section as HTMLElement).getByText(
-        'Recorded as correct against the evaluation criteria you apply for this tracker.',
-      ),
-    ).toBeInTheDocument();
+    expect(within(section).getByText('Correct')).toBeInTheDocument();
+    expect(timelineStepIds(section)).toEqual([
+      'added',
+      'target',
+      'finished',
+      'outcome',
+    ]);
+
+    const outcomeStep = within(section).getByRole('listitem', {
+      current: 'step',
+    });
+    expect(outcomeStep).toHaveAttribute('data-timeline-step', 'outcome');
   });
+
+  test('given a terminal prediction without target, should show Finished before Outcome', () => {
+    render(
+      <PredictionLifecycleTimeline
+        createdAt="2024-01-15T00:00:00.000Z"
+        targetDate={null}
+        finishedAt="2024-07-15T00:00:00.000Z"
+        outcome="incorrect"
+      />,
+    );
+
+    const section = getTimelineSection();
+    expect(within(section).getByText('Incorrect')).toBeInTheDocument();
+    expect(timelineStepIds(section)).toEqual(['added', 'finished', 'outcome']);
+  });
+
+  test('given a terminal prediction without finished_at, should omit Finished step', () => {
+    render(
+      <PredictionLifecycleTimeline
+        createdAt="2024-01-15T00:00:00.000Z"
+        targetDate="2026-12-01T00:00:00.000Z"
+        finishedAt={null}
+        outcome="unresolved"
+      />,
+    );
+
+    const section = getTimelineSection();
+    expect(within(section).getByText('Unresolved')).toBeInTheDocument();
+    expect(
+      within(section).queryByText(TIMELINE_FINISHED_LABEL),
+    ).not.toBeInTheDocument();
+    expect(timelineStepIds(section)).toEqual(['added', 'target', 'outcome']);
+  });
+
+  test.each<Outcome>(['incorrect', 'unresolved', 'invalid'])(
+    'given a terminal %s outcome, should show the matching outcome badge',
+    (outcome) => {
+      render(
+        <PredictionLifecycleTimeline
+          createdAt="2024-01-15T00:00:00.000Z"
+          targetDate={null}
+          finishedAt="2024-07-15T00:00:00.000Z"
+          outcome={outcome}
+        />,
+      );
+
+      const section = getTimelineSection();
+      expect(within(section).getByText(outcomeLabels[outcome])).toBeInTheDocument();
+      expect(timelineStepIds(section)).toEqual(['added', 'finished', 'outcome']);
+    },
+  );
 });
