@@ -111,7 +111,7 @@ describe('SourceDetailView', () => {
     );
     expect(
       screen.getByRole('heading', { level: 1, name: 'Jane Analyst' }),
-    ).toHaveClass('font-serif');
+    ).toBeInTheDocument();
     const pageHeader = screen.getByRole('navigation', { name: 'Breadcrumb' }).closest('header');
     expect(pageHeader).not.toBeNull();
     expect(

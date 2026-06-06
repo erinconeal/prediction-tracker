@@ -1,0 +1,35 @@
+---
+description: React Testing Library query priority and banned implementation-detail assertions in tests
+globs: **/*.{test,spec}.{ts,tsx}
+alwaysApply: false
+---
+
+# Test queries (RTL)
+
+Follow [test/README.md#query-priority](../../test/README.md#query-priority). Tests must resemble how users interact with the UI.
+
+## Query order
+
+1. `screen.getByRole` with `name` — default for almost everything
+2. `getByLabelText` — forms
+3. `getByText` — static copy
+4. `getByTestId` — only when role/label/text cannot work
+
+Use `within(container)` to scope queries inside a section, dialog, or list.
+
+## Do not assert
+
+- `toHaveClass()` or `className` — use `toBeVisible()` / `not.toBeVisible()`, ARIA attributes, or user-visible text
+- `querySelector()` — use roles and accessible names
+- CSS class names as selectors (`.animate-pulse`, `.text-primary`)
+
+## Prefer user-visible state
+
+| Instead of | Use |
+|------------|-----|
+| `toHaveClass('sr-only')` | `not.toBeVisible()` (label still in a11y tree) |
+| `toHaveClass('text-primary')` | sorted label, `aria-current`, `aria-expanded`, selected tab/radio |
+| `querySelector('.animate-pulse')` | absence of loaded content + presence of heading/status |
+| Decorative icon in DOM | accessible name on the control (e.g. sr-only “Trending topic”) |
+
+ESLint rules: `test-conventions/no-implementation-assertions`, `eslint-plugin-testing-library`.

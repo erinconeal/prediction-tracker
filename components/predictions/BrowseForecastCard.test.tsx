@@ -1,5 +1,5 @@
 import '@/test/mocks/use-topic-catalog';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 import { buildPrediction } from '@/test/factories/prediction';
 import { BrowseForecastCard } from './BrowseForecastCard';
@@ -20,7 +20,7 @@ const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =
 
 describe('BrowseForecastCard', () => {
   test('exposes separate links for title, topic, and source without a wrapping card link', () => {
-    const { container } = render(
+    render(
       <BrowseForecastCard
         prediction={cardPrediction()}
         onOutcomeFilter={vi.fn()}
@@ -38,7 +38,9 @@ describe('BrowseForecastCard', () => {
       'href',
       '/finance',
     );
-    expect(container.querySelector('article > a')).toBeNull();
+
+    const article = screen.getByRole('article');
+    expect(within(article).getAllByRole('link')).toHaveLength(3);
   });
 
   test('outcome badge filters browse feed when clicked', () => {

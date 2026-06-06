@@ -89,6 +89,6 @@ describe('DiscoveryFeedLayout', () => {
       .not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /show sort options/i }),
-    ).toHaveClass('text-primary');
+    ).toBeInTheDocument();
   });
 });

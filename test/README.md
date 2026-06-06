@@ -10,6 +10,41 @@ Global setup in [`vitest.setup.ts`](../vitest.setup.ts) registers the shared `ne
 
 ## Conventions
 
+### Query priority (React Testing Library)
+
+Component tests should resemble how users and assistive technology find UI. ESLint enforces this on `*.{test,spec}.{ts,tsx}` via `eslint-plugin-testing-library` and `test-conventions/no-implementation-assertions`.
+
+**Prefer (in order):**
+
+1. `screen.getByRole('…', { name: /…/ })` — buttons, links, headings, lists, regions, radios, etc.
+2. `screen.getByLabelText` — form fields
+3. `screen.getByPlaceholderText` — only when no visible label exists
+4. `screen.getByText` — static copy users read
+5. `screen.getByDisplayValue` — filled-in form values
+6. `screen.getByTestId` — last resort when role/label/text cannot target the element
+
+**Avoid in assertions:**
+
+- `toHaveClass()` and `className` checks — assert visibility, ARIA state, or copy instead
+- `querySelector()` / `container.querySelector()` — query by role, label, or accessible name
+- `parentElement` / decorative DOM traversal — scope with `within()` and query the tree users perceive
+
+**Examples:**
+
+```ts
+// Visibility instead of sr-only class names
+expect(screen.getByText('Sort by')).not.toBeVisible();
+
+// Region scoped by accessible name (section with aria-labelledby)
+const section = screen.getByRole('region', { name: 'Timeline' });
+expect(within(section).getByRole('listitem', { current: 'step' })).toBeInTheDocument();
+
+// Behavior instead of CSS “active” classes
+expect(screen.getByText(/sorted:/i)).toHaveTextContent('Most accurate source');
+```
+
+`testing-library/no-node-access` is currently **warn** — prefer fixing warnings when touching a test file.
+
 ### When to use what
 
 | Need | Use |

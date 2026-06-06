@@ -2,7 +2,9 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import stylistic from '@stylistic/eslint-plugin';
+import testingLibrary from 'eslint-plugin-testing-library';
 import mockImportFirst from './eslint-rules/mock-import-first.mjs';
+import noImplementationAssertions from './eslint-rules/no-implementation-assertions.mjs';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -27,11 +29,16 @@ const eslintConfig = defineConfig([
       'test-conventions': {
         rules: {
           'mock-import-first': mockImportFirst,
+          'no-implementation-assertions': noImplementationAssertions,
         },
       },
+      'testing-library': testingLibrary,
     },
     rules: {
       'test-conventions/mock-import-first': 'error',
+      'test-conventions/no-implementation-assertions': 'error',
+      ...testingLibrary.configs['flat/react'].rules,
+      'testing-library/no-node-access': 'warn',
     },
   },
   // Override default ignores of eslint-config-next.

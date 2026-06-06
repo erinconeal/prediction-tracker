@@ -7,19 +7,13 @@ import { PredictionLifecycleTimeline } from './PredictionLifecycleTimeline';
 import { TIMELINE_FINISHED_LABEL } from '@/lib/lifecycle-copy';
 
 function getTimelineSection(): HTMLElement {
-  const section = screen.getByRole('heading', { name: 'Timeline' }).closest('section');
-  expect(section).not.toBeNull();
-  return section as HTMLElement;
+  return screen.getByRole('region', { name: 'Timeline' });
 }
 
 function timelineStepIds(section: HTMLElement): TimelineStepId[] {
   return within(section)
     .getAllByRole('listitem')
     .map(item => item.getAttribute('data-timeline-step') as TimelineStepId);
-}
-
-function timelineDotFor(step: HTMLElement): HTMLElement | null {
-  return step.querySelector('[aria-hidden="true"]');
 }
 
 describe('PredictionLifecycleTimeline', () => {
@@ -43,10 +37,6 @@ describe('PredictionLifecycleTimeline', () => {
       current: 'step',
     });
     expect(outcomeStep).toHaveAttribute('data-timeline-step', 'outcome');
-    expect(timelineDotFor(outcomeStep)).toHaveClass('bg-primary');
-
-    const addedStep = within(section).getAllByRole('listitem')[0];
-    expect(timelineDotFor(addedStep)).toHaveClass('bg-border');
   });
 
   test('given a still-open prediction with target, should order Outcome before Target', () => {

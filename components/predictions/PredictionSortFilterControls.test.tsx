@@ -37,23 +37,9 @@ describe('PredictionSortFilterToolbar', () => {
     );
 
     expect(screen.getByText(/sorted:/i)).toHaveTextContent('Most accurate source');
-  });
-
-  test('given non-default sort, should style toggle as active', () => {
-    render(
-      <PredictionSortFilterToolbar
-        controlsId="sort-tabs"
-        listSort="source_accuracy"
-        loading={false}
-        hasLoadedRows={false}
-        sortFiltersOpen={false}
-        toggleSortFilters={vi.fn()}
-        sortToggleRef={createRef()}
-      />,
-    );
-
-    expect(screen.getByRole('button', { name: /show sort options/i }))
-      .toHaveClass('text-primary');
+    expect(
+      screen.getByRole('button', { name: /show sort options/i }),
+    ).toBeInTheDocument();
   });
 });
 

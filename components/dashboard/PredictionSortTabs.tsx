@@ -36,17 +36,16 @@ export const PredictionSortTabs = memo(function PredictionSortTabs({
     <fieldset
       id={id}
       className={`min-w-0 border-0 p-0 ${className}`.trim()}
+      aria-label={hideLegend ? 'Sort by' : undefined}
     >
-      <legend
-        className={
-          hideLegend
-            ? 'sr-only'
-            : 'text-xs font-medium text-muted'
-        }
-      >
-        Sort by
-      </legend>
-      <div className="mt-1.5 flex flex-wrap gap-2">
+      {hideLegend
+        ? null
+        : (
+            <legend className="text-xs font-medium text-muted">
+              Sort by
+            </legend>
+          )}
+      <div className={`flex flex-wrap gap-2 ${hideLegend ? '' : 'mt-1.5'}`.trim()}>
         {SORT_TABS.map((tab) => {
           const isActive = tab.value === value;
           const pillClassName = `inline-flex items-center rounded-full text-sm font-medium transition-colors focus-within:outline-none focus-within:ring-2 focus-within:ring-interactive focus-within:ring-offset-2 focus-within:ring-offset-background ${

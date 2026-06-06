@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { buildTimelineSteps } from './prediction-lifecycle-timeline';
+import { buildTimelineSteps, isActiveTimelineStep } from './prediction-lifecycle-timeline';
 
 describe('buildTimelineSteps', () => {
   test('given still_open without target, should return added then outcome', () => {
@@ -42,5 +42,17 @@ describe('buildTimelineSteps', () => {
       'added',
       'outcome',
     ]);
+  });
+});
+
+describe('isActiveTimelineStep', () => {
+  test('given the outcome step, should be active', () => {
+    expect(isActiveTimelineStep('outcome')).toBe(true);
+  });
+
+  test('given non-outcome steps, should not be active', () => {
+    expect(isActiveTimelineStep('added')).toBe(false);
+    expect(isActiveTimelineStep('target')).toBe(false);
+    expect(isActiveTimelineStep('finished')).toBe(false);
   });
 });

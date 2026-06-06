@@ -237,6 +237,7 @@ function TrendingTopicsScroller({
                         : null}
                       {topic.name}
                       <span className="sr-only">
+                        {isLead ? ' Trending topic.' : ''}
                         {' '}
                         (
                         {count}

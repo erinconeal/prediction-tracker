@@ -28,7 +28,7 @@ describe('TrendingTopicsStrip', () => {
     ).toHaveAttribute('href', '/ai-regulation-2026');
   });
 
-  test('given ranked topics, should show trending icon only on the lead topic link', () => {
+  test('given ranked topics, should mark only the lead topic as trending', () => {
     render(
       <TrendingTopicsStrip
         topics={[
@@ -38,16 +38,19 @@ describe('TrendingTopicsStrip', () => {
       />,
     );
 
-    const lead = screen.getByRole('link', { name: /ai regulation 2026/i });
-    const second = screen.getByRole('link', { name: /s&p hits 8000/i });
-
-    expect(lead.querySelector('svg')).toBeInTheDocument();
-    expect(second.querySelector('svg')).toBeNull();
+    expect(
+      screen.getByRole('link', { name: /ai regulation 2026.*trending topic/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: /s&p hits 8000.*trending topic/i }),
+    ).not.toBeInTheDocument();
   });
 
   test('hides when empty and not loading', () => {
-    const { container } = render(<TrendingTopicsStrip topics={[]} />);
-    expect(container).toBeEmptyDOMElement();
+    render(<TrendingTopicsStrip topics={[]} />);
+    expect(
+      screen.queryByRole('navigation', { name: /trending topics/i }),
+    ).not.toBeInTheDocument();
   });
 
   test('shows scroll affordance when topics overflow', async () => {
@@ -57,13 +60,9 @@ describe('TrendingTopicsStrip', () => {
       recentCount: 0,
     }));
 
-    const { container } = render(
-      <TrendingTopicsStrip topics={manyTopics} embedded />,
-    );
+    render(<TrendingTopicsStrip topics={manyTopics} embedded />);
 
-    const list = container.querySelector('ul');
-    expect(list).toBeTruthy();
-    if (!list) return;
+    const list = screen.getByRole('list');
 
     Object.defineProperty(list, 'clientWidth', { value: 200, configurable: true });
     Object.defineProperty(list, 'scrollWidth', { value: 800, configurable: true });

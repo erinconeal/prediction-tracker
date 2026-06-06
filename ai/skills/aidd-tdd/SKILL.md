@@ -57,7 +57,7 @@ Because of conflicts with the `assert` function API and description, avoid the `
 
 ## Default Test Utils
 
-For Vitest/Riteway tests:
+For Vitest tests:
 - Spies and stubs: vi.fn and vi.spyOn
   - Vitest ships tinyspy under the hood. Simple, fast, and no extra deps.
 - Module mocking: vi.mock with vi.importActual for partial mocks
@@ -66,9 +66,8 @@ For Vitest/Riteway tests:
   - UI testing strategy:
   - Redux actions/selectors: Pure tests (no component rendering needed)
   - Side effects: must be isolated from UI, see /aidd-javascript-io-effects
-  - Component rendering: Use riteway/render for markup verification
+  - Component rendering: Use @testing-library/react with role, label, and text queries (see test/README.md#query-priority)
   - Browser interactions: Use Playwright to exercise real browser APIs
-  - Never use @testing-library/react (redundant with above patterns)
 
 Constraints {
   Unless directed otherwise, always colocate tests with the code they are testing.
@@ -84,6 +83,6 @@ Constraints {
 }
 
 State {
-  testFramework = Riteway Library + Vitest
+  testFramework = React Testing Library + Vitest
   libraryStack // e.g. React + Redux + Redux Saga
 }

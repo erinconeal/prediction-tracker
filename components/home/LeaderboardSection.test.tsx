@@ -128,7 +128,10 @@ describe('LeaderboardSection', () => {
 
     render(<LeaderboardSection />);
 
-    expect(document.querySelector('.animate-pulse')).toBeTruthy();
+    expect(screen.getByLabelText('Loading leaderboard')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   test('shows empty copy when no sources ranked', () => {

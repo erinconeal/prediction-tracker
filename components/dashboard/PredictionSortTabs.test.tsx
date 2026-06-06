@@ -9,26 +9,17 @@ describe('PredictionSortTabs', () => {
       <PredictionSortTabs value="newest" onChange={vi.fn()} />,
     );
 
-    expect(screen.getByText('Sort by')).not.toHaveClass('sr-only');
+    expect(screen.getByText('Sort by')).toBeVisible();
   });
 
-  test('given hideLegend, should hide the Sort by legend visually', () => {
+  test('given hideLegend, should keep the sort group labeled for assistive tech', () => {
     render(
       <PredictionSortTabs value="newest" onChange={vi.fn()} hideLegend />,
     );
 
-    expect(screen.getByText('Sort by')).toHaveClass('sr-only');
-  });
-
-  test('given recently_finished tab, info trigger should not be inside the radio label', () => {
-    render(
-      <PredictionSortTabs value="newest" onChange={vi.fn()} />,
-    );
-
-    const infoTrigger = screen.getByRole('button', {
-      name: `About ${SORT_RECENTLY_FINISHED} sort`,
-    });
-    expect(infoTrigger.closest('label')).toBeNull();
+    expect(screen.getByRole('group', { name: /sort by/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^newest$/i })).toBeInTheDocument();
+    expect(screen.queryByText('Sort by')).not.toBeInTheDocument();
   });
 
   test('given recently_finished is active, clicking info should not change sort', () => {
@@ -37,6 +28,11 @@ describe('PredictionSortTabs', () => {
       <PredictionSortTabs value="recently_finished" onChange={onChange} />,
     );
 
+    const radio = screen.getByRole('radio', {
+      name: new RegExp(SORT_RECENTLY_FINISHED, 'i'),
+    });
+    expect(radio).toBeChecked();
+
     fireEvent.click(
       screen.getByRole('button', {
         name: `About ${SORT_RECENTLY_FINISHED} sort`,
@@ -44,16 +40,6 @@ describe('PredictionSortTabs', () => {
     );
 
     expect(onChange).not.toHaveBeenCalled();
-  });
-
-  test('given recently_finished is active, info trigger should use on-primary styling', () => {
-    render(
-      <PredictionSortTabs value="recently_finished" onChange={vi.fn()} />,
-    );
-
-    const infoTrigger = screen.getByRole('button', {
-      name: `About ${SORT_RECENTLY_FINISHED} sort`,
-    });
-    expect(infoTrigger.className).toMatch(/text-white/);
+    expect(radio).toBeChecked();
   });
 });
