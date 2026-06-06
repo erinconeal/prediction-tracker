@@ -55,8 +55,7 @@ describe('PredictionSortFilterPanel', () => {
       />,
     );
 
-    const panel = document.getElementById('sort-tabs')?.parentElement;
-    expect(panel).toHaveAttribute('hidden');
+    expect(screen.getByRole('group', { name: /sort by/i, hidden: true })).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
   });
 

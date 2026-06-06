@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { InfoPopover } from '@/components/ui/InfoPopover';
 
 export const sourceStatCardClass
@@ -20,19 +20,31 @@ export function SourceStatCountCard({
   value,
   about,
 }: SourceStatCountCardProps) {
+  const labelId = useId();
+
   return (
-    <div className={sourceStatCardClass}>
+    <div
+      className={sourceStatCardClass}
+      role="group"
+      aria-labelledby={labelId}
+    >
       {about
         ? (
             <div className="flex items-center justify-between gap-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">
+              <p
+                id={labelId}
+                className="text-xs font-medium uppercase tracking-wide text-muted"
+              >
                 {label}
               </p>
               <InfoPopover label={about.popoverLabel}>{about.hint}</InfoPopover>
             </div>
           )
         : (
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            <p
+              id={labelId}
+              className="text-xs font-medium uppercase tracking-wide text-muted"
+            >
               {label}
             </p>
           )}

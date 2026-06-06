@@ -32,4 +32,4 @@ Use `within(container)` to scope queries inside a section, dialog, or list.
 | `querySelector('.animate-pulse')` | absence of loaded content + presence of heading/status |
 | Decorative icon in DOM | accessible name on the control (e.g. sr-only “Trending topic”) |
 
-ESLint rules: `test-conventions/no-implementation-assertions`, `eslint-plugin-testing-library`.
+ESLint rules: `test-conventions/no-implementation-assertions`, `eslint-plugin-testing-library` (including `testing-library/no-node-access` at **error**).

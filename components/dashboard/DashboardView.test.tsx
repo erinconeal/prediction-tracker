@@ -18,17 +18,21 @@ import {
 } from '@/test/mocks/next-navigation';
 import { DashboardView } from './DashboardView';
 
+function browseForecastsSection() {
+  return screen.getByRole('region', { name: /browse forecasts/i });
+}
+
 function outcomeFilterInBrowseCard(predictionTitle: RegExp, outcomeLabel: string) {
-  const browseSection = screen
-    .getByRole('heading', { name: /browse forecasts/i })
-    .closest('section');
-  expect(browseSection).toBeTruthy();
-  const titleLink = within(browseSection!).getByRole('link', {
-    name: predictionTitle,
-  });
-  const card = titleLink.closest('article');
-  expect(card).toBeTruthy();
-  return within(card!).getByRole('button', {
+  const browseSection = browseForecastsSection();
+  const cards = within(browseSection).getAllByRole('article');
+  const card = cards.find(
+    c => within(c).queryByRole('link', { name: predictionTitle }) !== null,
+  );
+  expect(
+    card,
+    `expected a forecast card with title link matching ${String(predictionTitle)}`,
+  ).toBeTruthy();
+  return within(card as HTMLElement).getByRole('button', {
     name: new RegExp(`filter browse forecasts by ${outcomeLabel}`, 'i'),
   });
 }
@@ -139,7 +143,6 @@ describe('DashboardView', () => {
       expect(screen.getAllByText('Prediction 0').length).toBeGreaterThan(0);
     });
 
-    expect(document.getElementById('home-browse-sort-tabs')).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /show sort options/i }),
@@ -195,11 +198,9 @@ describe('DashboardView', () => {
     fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      const browseSection = screen
-        .getByRole('heading', { name: /browse forecasts/i })
-        .closest('section')!;
+      const browseSection = browseForecastsSection();
       expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
-      const status = within(browseSection).getByText('Showing:').closest('[role="status"]');
+      const status = within(browseSection).getByRole('status');
       expect(status).toHaveAttribute('aria-live', 'polite');
       expect(
         within(browseSection).getByRole('button', { name: /clear status filter/i }),
@@ -233,19 +234,13 @@ describe('DashboardView', () => {
 
     fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
     await waitFor(() => {
-      const browseSection = screen
-        .getByRole('heading', { name: /browse forecasts/i })
-        .closest('section')!;
-      expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
+      expect(within(browseForecastsSection()).getByText('Showing:')).toBeInTheDocument();
     });
 
     fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      const browseSection = screen
-        .getByRole('heading', { name: /browse forecasts/i })
-        .closest('section')!;
-      expect(within(browseSection).queryByText('Showing:')).not.toBeInTheDocument();
+      expect(within(browseForecastsSection()).queryByText('Showing:')).not.toBeInTheDocument();
     });
 
     expect(listPredictions).toHaveBeenCalledWith(
@@ -279,19 +274,13 @@ describe('DashboardView', () => {
     fireEvent.click(outcomeFilterInBrowseCard(/wrong take/i, 'incorrect'));
 
     await waitFor(() => {
-      const browseSection = screen
-        .getByRole('heading', { name: /browse forecasts/i })
-        .closest('section')!;
-      expect(within(browseSection).getByText('Showing:')).toBeInTheDocument();
+      expect(within(browseForecastsSection()).getByText('Showing:')).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole('radio', { name: /^finance$/i }));
 
     await waitFor(() => {
-      const browseSection = screen
-        .getByRole('heading', { name: /browse forecasts/i })
-        .closest('section')!;
-      expect(within(browseSection).queryByText('Showing:')).not.toBeInTheDocument();
+      expect(within(browseForecastsSection()).queryByText('Showing:')).not.toBeInTheDocument();
     });
 
     expect(mockReplace).toHaveBeenCalledWith('/?topic=finance', { scroll: false });

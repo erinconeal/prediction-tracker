@@ -3,7 +3,6 @@ import { render, screen, within } from '@testing-library/react';
 import { createRef } from 'react';
 import { describe, expect, test } from 'vitest';
 import { PredictionDetailHeader } from './PredictionDetailHeader';
-import { TIMELINE_SUBMITTED_LABEL } from '@/lib/lifecycle-copy';
 
 const defaultProps = {
   text: 'Rates will fall this year',
@@ -21,8 +20,9 @@ describe('PredictionDetailHeader', () => {
     render(<PredictionDetailHeader {...defaultProps} text={longText} />);
 
     const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
-    const current = within(nav).getByText(`${'A'.repeat(48)}…`);
-    expect(current.closest('[aria-current="page"]')).not.toBeNull();
+    expect(
+      within(nav).getByRole('listitem', { current: 'page' }),
+    ).toHaveTextContent(`${'A'.repeat(48)}…`);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(longText);
   });
 
@@ -36,10 +36,7 @@ describe('PredictionDetailHeader', () => {
     );
 
     const metrics = screen.getByLabelText('Prediction dates');
-    const submitted = within(metrics).getByText(TIMELINE_SUBMITTED_LABEL)
-      .parentElement;
-    expect(submitted).not.toBeNull();
-    const submittedTime = within(submitted as HTMLElement).getByText('Jan 15, 2024');
+    const submittedTime = within(metrics).getByText('Jan 15, 2024');
     expect(submittedTime.tagName).toBe('TIME');
     expect(submittedTime).toHaveAttribute('datetime', '2024-01-15T00:00:00.000Z');
 

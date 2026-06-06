@@ -24,13 +24,12 @@ describe('SourceStatCountCard', () => {
       />,
     );
 
-    const card = screen.getByText('No longer open').closest('.rounded-xl');
-    expect(card).not.toBeNull();
+    const card = screen.getByRole('group', { name: 'No longer open' });
     expect(
-      within(card as HTMLElement).getByRole('button', {
+      within(card).getByRole('button', {
         name: 'About No longer open',
       }),
     ).toBeInTheDocument();
-    expect(within(card as HTMLElement).getByText('4')).toBeInTheDocument();
+    expect(within(card).getByText('4')).toBeInTheDocument();
   });
 });

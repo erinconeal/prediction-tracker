@@ -73,10 +73,8 @@ function expectSidebarStatValue(
   label: string,
   value: number | string,
 ) {
-  const labelEl = within(sidebar).getByText(label);
-  const card = labelEl.closest('.rounded-xl');
-  expect(card).not.toBeNull();
-  expect(within(card as HTMLElement).getByText(String(value))).toBeInTheDocument();
+  const card = within(sidebar).getByRole('group', { name: label });
+  expect(within(card).getByText(String(value))).toBeInTheDocument();
 }
 
 describe('SourceDetailView', () => {
@@ -112,10 +110,9 @@ describe('SourceDetailView', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Jane Analyst' }),
     ).toBeInTheDocument();
-    const pageHeader = screen.getByRole('navigation', { name: 'Breadcrumb' }).closest('header');
-    expect(pageHeader).not.toBeNull();
+    const pageHeader = screen.getByRole('banner', { name: /source profile/i });
     expect(
-      within(pageHeader!).getByLabelText(/source accuracy 50 percent/i),
+      within(pageHeader).getByLabelText(/source accuracy 50 percent/i),
     ).toBeInTheDocument();
     expect(screen.queryByText(/source slug/i)).not.toBeInTheDocument();
     expect(screen.queryByText('jane-analyst')).not.toBeInTheDocument();
@@ -221,12 +218,9 @@ describe('SourceDetailView', () => {
 
     render(<SourceDetailView sourceSlug="jane-analyst" />);
 
-    const feedSection = screen
-      .getByRole('heading', { name: 'Prediction feed' })
-      .closest('section');
-    expect(feedSection).not.toBeNull();
+    const feedSection = screen.getByRole('region', { name: 'Prediction feed' });
     expect(
-      within(feedSection as HTMLElement).queryByRole('alert'),
+      within(feedSection).queryByRole('alert'),
     ).not.toBeInTheDocument();
 
     const alert = screen.getByRole('alert');
@@ -339,11 +333,9 @@ describe('SourceDetailView', () => {
     expect(
       screen.queryByRole('link', { name: /stale forecast text/i }),
     ).not.toBeInTheDocument();
-    const feedSection = screen
-      .getByRole('heading', { name: 'Prediction feed' })
-      .closest('section');
+    const feedSection = screen.getByRole('region', { name: 'Prediction feed' });
     expect(
-      within(feedSection as HTMLElement).getByRole('alert'),
+      within(feedSection).getByRole('alert'),
     ).toHaveTextContent('Feed failed');
   });
 

@@ -63,8 +63,6 @@ describe('DiscoveryFeedLayout', () => {
       listData: [buildIndexedPrediction(0)],
     });
 
-    expect(document.getElementById('discovery-prediction-sort-tabs'))
-      .toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /show sort options/i }),

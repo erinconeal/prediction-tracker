@@ -38,7 +38,7 @@ const eslintConfig = defineConfig([
       'test-conventions/mock-import-first': 'error',
       'test-conventions/no-implementation-assertions': 'error',
       ...testingLibrary.configs['flat/react'].rules,
-      'testing-library/no-node-access': 'warn',
+      'testing-library/no-node-access': 'error',
     },
   },
   // Override default ignores of eslint-config-next.

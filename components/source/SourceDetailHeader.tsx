@@ -19,7 +19,7 @@ export function SourceDetailHeader({
 }: SourceDetailHeaderProps) {
   const metric = forecastDisplayMetricFromAccuracyPercent(accuracy);
   return (
-    <header className="space-y-4">
+    <header className="space-y-4" aria-label="Source profile">
       <nav aria-label="Breadcrumb">
         <ol className="m-0 flex list-none flex-wrap items-center gap-x-1 gap-y-1 p-0 text-sm text-muted">
           <li className="inline-flex items-center gap-x-1">

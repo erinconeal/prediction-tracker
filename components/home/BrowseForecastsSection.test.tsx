@@ -5,7 +5,6 @@ import type { Prediction } from '@/types/prediction';
 import { buildPredictionWithId } from '@/test/factories/prediction';
 import {
   BrowseForecastsSection,
-  HOME_BROWSE_SORT_CONTROLS_ID,
 } from './BrowseForecastsSection';
 
 function defaultProps(
@@ -79,7 +78,6 @@ describe('BrowseForecastsSection', () => {
       />,
     );
 
-    expect(document.getElementById(HOME_BROWSE_SORT_CONTROLS_ID)).toBeTruthy();
     expect(screen.queryByRole('radio', { name: /^newest$/i })).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /show sort options/i }),

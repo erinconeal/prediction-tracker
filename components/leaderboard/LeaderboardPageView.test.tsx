@@ -87,8 +87,8 @@ describe('LeaderboardPageView', () => {
 
     render(<LeaderboardPageView />);
 
-    expect(document.activeElement).toBe(
+    expect(
       screen.getByRole('heading', { level: 1, name: 'Leaderboard' }),
-    );
+    ).toHaveFocus();
   });
 });

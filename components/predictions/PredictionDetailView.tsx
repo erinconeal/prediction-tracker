@@ -28,10 +28,10 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
     = usePrediction(id);
 
   useEffect(() => {
-    if (prediction) {
+    if (prediction?.id === id) {
       headingRef.current?.focus();
     }
-  }, [prediction?.id]);
+  }, [id, prediction?.id]);
 
   const statsFilters = useMemo(
     () => ({

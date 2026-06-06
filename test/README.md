@@ -43,7 +43,7 @@ expect(within(section).getByRole('listitem', { current: 'step' })).toBeInTheDocu
 expect(screen.getByText(/sorted:/i)).toHaveTextContent('Most accurate source');
 ```
 
-`testing-library/no-node-access` is currently **warn** — prefer fixing warnings when touching a test file.
+`testing-library/no-node-access` is **error** — fix node-access warnings when touching a test file.
 
 ### When to use what
 

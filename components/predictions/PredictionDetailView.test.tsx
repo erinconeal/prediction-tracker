@@ -49,7 +49,9 @@ describe('PredictionDetailView', () => {
       'href',
       '/',
     );
-    expect(within(nav).getByText('Rates will fall this year').closest('[aria-current="page"]')).not.toBeNull();
+    expect(within(nav).getByRole('listitem', { current: 'page' })).toHaveTextContent(
+      'Rates will fall this year',
+    );
   });
 
   test('given loaded source stats, should show source profile sidebar and not main-column stats grid', () => {
@@ -110,6 +112,24 @@ describe('PredictionDetailView', () => {
     expect(submittedTime).toHaveAttribute('datetime', '2024-01-15T00:00:00.000Z');
   });
 
+  test('given loaded prediction id differs from route id, should not move focus to the page heading', () => {
+    mockUsePrediction.mockReturnValue({
+      prediction: buildPrediction({
+        id: 'stale-id',
+        text: 'Rates will fall this year',
+      }),
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<PredictionDetailView id="p-focus" />);
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Rates will fall this year' }),
+    ).not.toHaveFocus();
+  });
+
   test('given a loaded prediction, should move focus to the page heading', () => {
     mockUsePrediction.mockReturnValue({
       prediction: buildPrediction({
@@ -123,9 +143,9 @@ describe('PredictionDetailView', () => {
 
     render(<PredictionDetailView id="p-focus" />);
 
-    expect(document.activeElement).toBe(
+    expect(
       screen.getByRole('heading', { level: 1, name: 'Rates will fall this year' }),
-    );
+    ).toHaveFocus();
   });
 
   test('given a terminal prediction with finished_at, should show Finished in the timeline', () => {
@@ -143,13 +163,11 @@ describe('PredictionDetailView', () => {
 
     render(<PredictionDetailView id="p-finished" />);
 
-    const timeline = screen.getByRole('heading', { name: 'Timeline' })
-      .closest('section');
-    expect(timeline).not.toBeNull();
+    const timeline = screen.getByRole('region', { name: 'Timeline' });
     expect(
-      within(timeline as HTMLElement).getByText(TIMELINE_FINISHED_LABEL),
+      within(timeline).getByText(TIMELINE_FINISHED_LABEL),
     ).toBeInTheDocument();
-    const time = within(timeline as HTMLElement).getByText('Jul 15, 2024');
+    const time = within(timeline).getByText('Jul 15, 2024');
     expect(time.tagName).toBe('TIME');
     expect(time).toHaveAttribute('datetime', '2024-07-15T00:00:00.000Z');
   });
@@ -169,11 +187,9 @@ describe('PredictionDetailView', () => {
 
     render(<PredictionDetailView id="p-open" />);
 
-    const timeline = screen.getByRole('heading', { name: 'Timeline' })
-      .closest('section');
-    expect(timeline).not.toBeNull();
+    const timeline = screen.getByRole('region', { name: 'Timeline' });
     expect(
-      within(timeline as HTMLElement).queryByText(TIMELINE_FINISHED_LABEL),
+      within(timeline).queryByText(TIMELINE_FINISHED_LABEL),
     ).not.toBeInTheDocument();
   });
 
