@@ -4,9 +4,14 @@ import type {
   PredictionFilters,
   TerminalOutcome,
 } from '@/types/prediction';
-import type { LeaderboardPage, LeaderboardRow } from '@/lib/leaderboard';
+import type { LeaderboardPage } from '@/lib/leaderboard';
 import type { Topic } from '@/types/topic';
 
+/**
+ * Browser-side client for `/api/predictions`, `/api/topics`, and `/api/leaderboard`.
+ * GET helpers use `cache: 'no-store'` and optional `AbortSignal`; failures throw
+ * `ApiError` after validating JSON shape where the response contract is non-obvious.
+ */
 const BASE = '/api/predictions';
 const LEADERBOARD_BASE = '/api/leaderboard';
 const TOPICS_BASE = '/api/topics';
@@ -179,8 +184,6 @@ export async function listTopics(
   }
   return result as Topic[] | TrendingTopicDto[];
 }
-
-export type { LeaderboardPage, LeaderboardRow };
 
 export type ListLeaderboardOptions = {
   limit?: number;

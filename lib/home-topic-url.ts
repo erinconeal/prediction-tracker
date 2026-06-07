@@ -24,6 +24,10 @@ export type HomeTopicQueryResolution
     | { kind: 'redirect'; href: string }
     | { kind: 'strip' };
 
+/**
+ * Resolves `?topic=` from URL to tab/redirect/strip
+ * Redirects to stable URL, strips `?topic=` when not tab
+ */
 export function resolveHomeTopicQuery(
   raw: string | null | undefined,
 ): HomeTopicQueryResolution {

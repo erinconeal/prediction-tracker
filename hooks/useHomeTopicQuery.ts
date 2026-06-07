@@ -20,6 +20,12 @@ export type UseHomeTopicQueryResult = {
   isFeedReady: boolean;
 };
 
+/**
+ * Hook to provide topicResolution, topicTab, topicSlug and isFeedReady to parent DashboardView
+ * Reads `?topic=` from URL, resolves to tab/slug/redirect/strip
+ * Redirects to stable URL, strips `?topic=` when not tab
+ * Gates feed fetches until URL is stable
+ */
 export function useHomeTopicQuery(): UseHomeTopicQueryResult {
   const router = useRouter();
   const pathname = usePathname();
