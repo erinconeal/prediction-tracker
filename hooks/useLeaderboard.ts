@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { LeaderboardDisplayStats } from '@/lib/leaderboard-display';
 import type { LeaderboardRow } from '@/lib/leaderboard';
-import { loadLeaderboardPageWithOutcome } from '@/hooks/leaderboard-fetch';
+import { loadLeaderboardPageWithOutcome } from '@/services/leaderboard-fetch';
 
 export type UseLeaderboardResult = {
   rows: LeaderboardRow[];
@@ -26,7 +26,8 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const gen = ++genRef.current;
+    genRef.current += 1;
+    const gen = genRef.current;
     const controller = new AbortController();
 
     async function load(): Promise<void> {
@@ -65,7 +66,8 @@ export function useLeaderboard(limit = 10): UseLeaderboardResult {
   }, [limit]);
 
   const refetch = useCallback(async (): Promise<void> => {
-    const gen = ++genRef.current;
+    genRef.current += 1;
+    const gen = genRef.current;
     refetchAbortRef.current?.abort();
     const controller = new AbortController();
     refetchAbortRef.current = controller;

@@ -12,7 +12,7 @@ import type { Topic } from '@/types/topic';
  * GET helpers use `cache: 'no-store'` and optional `AbortSignal`; failures throw
  * `ApiError` after validating JSON shape where the response contract is non-obvious.
  */
-const BASE = '/api/predictions';
+const PREDICTIONS_BASE = '/api/predictions';
 const LEADERBOARD_BASE = '/api/leaderboard';
 const TOPICS_BASE = '/api/topics';
 
@@ -75,7 +75,7 @@ function buildListUrl(filters: PredictionFilters): string {
     params.set('sort', filters.sort);
   }
   const q = params.toString();
-  return q ? `${BASE}?${q}` : BASE;
+  return q ? `${PREDICTIONS_BASE}?${q}` : PREDICTIONS_BASE;
 }
 
 export async function listPredictions(
@@ -117,7 +117,7 @@ export async function getPrediction(
   id: string,
   signal?: AbortSignal,
 ): Promise<Prediction> {
-  const response = await fetch(`${BASE}/${encodeURIComponent(id)}`, {
+  const response = await fetch(`${PREDICTIONS_BASE}/${encodeURIComponent(id)}`, {
     method: 'GET',
     signal,
     headers: { Accept: 'application/json' },
@@ -239,7 +239,7 @@ export async function createPrediction(
   input: CreatePredictionInput,
   signal?: AbortSignal,
 ): Promise<Prediction> {
-  const response = await fetch(BASE, {
+  const response = await fetch(PREDICTIONS_BASE, {
     method: 'POST',
     signal,
     headers: {
@@ -270,7 +270,7 @@ export async function updatePredictionOutcome(
   outcome: TerminalOutcome,
   signal?: AbortSignal,
 ): Promise<Prediction> {
-  const response = await fetch(`${BASE}/${encodeURIComponent(id)}`, {
+  const response = await fetch(`${PREDICTIONS_BASE}/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     signal,
     headers: {

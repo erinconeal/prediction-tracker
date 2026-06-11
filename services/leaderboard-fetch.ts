@@ -17,17 +17,11 @@ export function getLeaderboardFetchErrorMessage(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Something went wrong';
 }
 
-export async function fetchLeaderboardPage(
-  options: FetchLeaderboardPageOptions,
-): Promise<LeaderboardPage> {
-  return listLeaderboard(options);
-}
-
 export async function loadLeaderboardPageWithOutcome(
   options: FetchLeaderboardPageOptions,
 ): Promise<LeaderboardFetchOutcome> {
   try {
-    const page = await fetchLeaderboardPage(options);
+    const page = await listLeaderboard(options);
     return { ok: true, page };
   }
   catch (error: unknown) {

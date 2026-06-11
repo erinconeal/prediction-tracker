@@ -69,7 +69,8 @@ export function usePredictions(
       return;
     }
 
-    const generation = ++fetchGenerationRef.current;
+    fetchGenerationRef.current += 1;
+    const generation = fetchGenerationRef.current;
     const controller = new AbortController();
 
     async function loadPredictionsForFilter(): Promise<void> {
@@ -115,7 +116,8 @@ export function usePredictions(
     if (!enabled) return;
 
     // Invalidate any in-flight effect fetch for this hook instance (same generation ref).
-    const generation = ++fetchGenerationRef.current;
+    fetchGenerationRef.current += 1;
+    const generation = fetchGenerationRef.current;
     refetchAbortRef.current?.abort();
     const controller = new AbortController();
     refetchAbortRef.current = controller;

@@ -40,6 +40,7 @@ export function usePredictionFeed(
     () => getFilterKey({ ...filters, limit: undefined, offset: undefined }),
     [filters],
   );
+  /** Async code reads filtersRef.current so a slow request still uses the filters that were current when it started. */
   const filtersRef = useRef(filters);
   useEffect(() => {
     filtersRef.current = filters;
@@ -67,11 +68,14 @@ export function usePredictionFeed(
   useEffect(() => {
     if (!enabled) {
       firstPageGenRef.current += 1;
+      loadMoreSeqRef.current += 1;
       loadMoreAbortRef.current?.abort();
       return;
     }
 
-    const generation = ++firstPageGenRef.current;
+    firstPageGenRef.current += 1;
+    loadMoreSeqRef.current += 1;
+    const generation = firstPageGenRef.current;
     const controller = new AbortController();
     loadMoreAbortRef.current?.abort();
 
@@ -92,7 +96,7 @@ export function usePredictionFeed(
           },
           controller.signal,
         );
-        if (firstPageGenRef.current !== generation) return;
+        if (firstPageGenRef.current !== generation) return; // A newer effect run or refetch() bumped the ref; do not overwrite state.
         setData(result);
         setHasMore(result.length === pageSize);
       }
@@ -130,7 +134,9 @@ export function usePredictionFeed(
 
   const refetch = useCallback(async (): Promise<void> => {
     if (!enabled) return;
-    const generation = ++firstPageGenRef.current;
+    firstPageGenRef.current += 1;
+    loadMoreSeqRef.current += 1;
+    const generation = firstPageGenRef.current;
     loadMoreAbortRef.current?.abort();
     loadMoreAbortRef.current = null;
     refetchAbortRef.current?.abort();
@@ -174,7 +180,8 @@ export function usePredictionFeed(
   const loadMore = useCallback(async (): Promise<void> => {
     if (!enabled || !hasMore || loading || loadingMore) return;
 
-    const seq = ++loadMoreSeqRef.current;
+    loadMoreSeqRef.current += 1;
+    const seq = loadMoreSeqRef.current;
     loadMoreAbortRef.current?.abort();
     const controller = new AbortController();
     loadMoreAbortRef.current = controller;
@@ -191,7 +198,7 @@ export function usePredictionFeed(
         },
         controller.signal,
       );
-      if (seq !== loadMoreSeqRef.current) return;
+      if (seq !== loadMoreSeqRef.current) return; // A newer loadMore() bumped the ref; do not overwrite state.
       setData((prev) => {
         const seen = new Set(prev.map(p => p.id));
         const merged = [...prev];
@@ -207,7 +214,7 @@ export function usePredictionFeed(
     }
     catch (e: unknown) {
       if (isAbortError(e)) return;
-      if (seq !== loadMoreSeqRef.current) return;
+      if (seq !== loadMoreSeqRef.current) return; // A newer loadMore() bumped the ref; do not overwrite state.
       const message
         = e instanceof ApiError ? e.message : 'Something went wrong';
       setError(message);

@@ -171,6 +171,62 @@ describe('usePredictionFeed', () => {
     expect(result.current.hasMore).toBe(false);
   });
 
+  test('given filter change while loadMore is in flight, should not append stale rows', async () => {
+    const page1 = [
+      buildPrediction({ id: '0' }),
+      buildPrediction({ id: '1' }),
+    ];
+    const stalePage = [buildPrediction({ id: 'stale' })];
+    const techPage = [buildPrediction({ id: 'tech' })];
+
+    let resolveLoadMore: (value: ReturnType<typeof buildPrediction>[]) => void;
+    const loadMoreDeferred = new Promise<ReturnType<typeof buildPrediction>[]>(
+      (resolve) => {
+        resolveLoadMore = resolve;
+      },
+    );
+
+    listPredictions
+      .mockResolvedValueOnce(page1)
+      .mockImplementationOnce(() => loadMoreDeferred);
+
+    const { result, rerender } = renderHook(
+      ({ topic }: { topic?: string }) => {
+        const filters = useMemo(
+          () => ({
+            status: 'all' as const,
+            ...(topic !== undefined ? { topic } : {}),
+          }),
+          [topic],
+        );
+        return usePredictionFeed(filters, { pageSize: 2 });
+      },
+      { initialProps: { topic: 'finance' as string | undefined } },
+    );
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data).toHaveLength(2);
+
+    await act(async () => {
+      void result.current.loadMore();
+    });
+    await waitFor(() => expect(result.current.loadingMore).toBe(true));
+
+    listPredictions.mockResolvedValueOnce(techPage);
+    rerender({ topic: 'tech' });
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe('tech'));
+    expect(result.current.data).toHaveLength(1);
+
+    await act(async () => {
+      resolveLoadMore!(stalePage);
+      await loadMoreDeferred;
+    });
+
+    expect(result.current.data).toEqual(techPage);
+    expect(result.current.data.some(p => p.id === 'stale')).toBe(false);
+  });
+
   test('given enabled toggles true after prior fetch, should not show stale rows while loading', async () => {
     listPredictions
       .mockResolvedValueOnce([buildPrediction({ id: 'old' })])

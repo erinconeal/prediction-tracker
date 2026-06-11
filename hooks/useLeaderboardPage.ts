@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { LeaderboardDisplayStats } from '@/lib/leaderboard-display';
 import type { LeaderboardRow } from '@/lib/leaderboard';
-import { loadLeaderboardPageWithOutcome } from '@/hooks/leaderboard-fetch';
+import { loadLeaderboardPageWithOutcome } from '@/services/leaderboard-fetch';
 
 const PAGE_SIZE = 50;
 
@@ -43,7 +43,9 @@ export function useLeaderboardPage(): UseLeaderboardPageResult {
   }, [rows]);
 
   useEffect(() => {
-    const generation = ++firstPageGenRef.current;
+    firstPageGenRef.current += 1;
+    loadMoreSeqRef.current += 1;
+    const generation = firstPageGenRef.current;
     const controller = new AbortController();
     loadMoreAbortRef.current?.abort();
 
@@ -88,7 +90,9 @@ export function useLeaderboardPage(): UseLeaderboardPageResult {
   }, []);
 
   const refetch = useCallback(async (): Promise<void> => {
-    const generation = ++firstPageGenRef.current;
+    firstPageGenRef.current += 1;
+    loadMoreSeqRef.current += 1;
+    const generation = firstPageGenRef.current;
     loadMoreAbortRef.current?.abort();
     refetchAbortRef.current?.abort();
     const controller = new AbortController();
@@ -124,7 +128,8 @@ export function useLeaderboardPage(): UseLeaderboardPageResult {
   const loadMore = useCallback(async (): Promise<void> => {
     if (loadingMore || !hasMore) return;
 
-    const seq = ++loadMoreSeqRef.current;
+    loadMoreSeqRef.current += 1;
+    const seq = loadMoreSeqRef.current;
     loadMoreAbortRef.current?.abort();
     const controller = new AbortController();
     loadMoreAbortRef.current = controller;

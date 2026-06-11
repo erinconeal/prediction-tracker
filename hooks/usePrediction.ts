@@ -20,7 +20,8 @@ export function usePrediction(id: string): UsePredictionResult {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const gen = ++genRef.current;
+    genRef.current += 1;
+    const gen = genRef.current;
     const controller = new AbortController();
 
     async function load(): Promise<void> {
@@ -58,7 +59,8 @@ export function usePrediction(id: string): UsePredictionResult {
   }, [id]);
 
   const refetch = useCallback(async (): Promise<void> => {
-    const gen = ++genRef.current;
+    genRef.current += 1;
+    const gen = genRef.current;
     refetchAbortRef.current?.abort();
     const controller = new AbortController();
     refetchAbortRef.current = controller;
