@@ -44,7 +44,6 @@ export const PopularForecastsSection = memo(function PopularForecastsSection({
     <div className={`px-5 pb-6 pt-2 sm:px-8 sm:pb-8 ${className}`.trim()}>
       <div className="mb-5 flex items-center justify-between gap-4">
         <h2
-          id="popular-forecasts-heading"
           className="font-serif text-xl font-normal tracking-tight text-foreground sm:text-2xl"
         >
           Popular forecasts

@@ -30,6 +30,9 @@ function getServerSnapshot() {
   return 1;
 }
 
+/**
+ * @returns The number of popular forecast slots to display based on the viewport width (1, 3, or 4)
+ */
 export function usePopularForecastSlotCount(): number {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

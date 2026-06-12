@@ -8,7 +8,7 @@ import { POPULAR_FORECAST_MAX_SLOTS } from '@/lib/popular-forecast-columns';
 export const DEFAULT_POPULAR_FORECAST_COUNT = POPULAR_FORECAST_MAX_SLOTS;
 
 /**
- * Picks hero “popular forecast” cards: newest first, preferring one row per
+ * Picks hero “popular forecast” cards: newest first, preferring one forecast per
  * bucket topic before backfilling so the grid stays visually varied.
  */
 export function pickPopularForecastsFromFeed(
