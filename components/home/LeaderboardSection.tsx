@@ -6,7 +6,7 @@ import { LeaderboardSectionFooter } from '@/components/leaderboard/LeaderboardSe
 import { LeaderboardLoadingSkeleton } from '@/components/leaderboard/LeaderboardLoadingSkeleton';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { LeaderboardInsufficientPanel } from './leaderboard/LeaderboardInsufficientPanel';
-import { LeaderboardSectionHeader } from './leaderboard/LeaderboardSectionHeader';
+import { LeaderboardSectionHeader, LEADERBOARD_HEADING_ID } from './leaderboard/LeaderboardSectionHeader';
 
 type LeaderboardSectionProps = {
   limit?: number;
@@ -23,7 +23,7 @@ export const LeaderboardSection = memo(function LeaderboardSection({
   const shell = (body: ReactNode, showFooter = false) => (
     <section
       className={`space-y-6 ${className}`.trim()}
-      aria-labelledby="leaderboard-heading"
+      aria-labelledby={LEADERBOARD_HEADING_ID}
     >
       <LeaderboardSectionHeader />
       {body}

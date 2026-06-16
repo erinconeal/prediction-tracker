@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server';
 import { computeLeaderboardPage } from '@/lib/leaderboard';
 import { filterAndSortPredictions } from '@/lib/prediction-store';
 
+/**
+ * Parses a bounded integer from a string, returning a fallback value if the string is null or not a valid integer.
+ * @param raw - The string to parse.
+ * @param fallback - The value to return if the string is null or not a valid integer.
+ * @param min - The minimum value to return.
+ * @param max - The maximum value to return.
+ * @returns The parsed integer, or the fallback value if the string is null or not a valid integer.
+ */
 function parseBoundedInt(
   raw: string | null,
   fallback: number,
