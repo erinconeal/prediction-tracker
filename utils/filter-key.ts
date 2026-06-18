@@ -11,9 +11,7 @@ export function getFilterKey(filters: PredictionFilters): string {
     offset:
       filters.offset !== undefined ? String(filters.offset) : undefined,
     sort:
-      filters.sort !== undefined && filters.sort !== 'newest'
-        ? filters.sort
-        : undefined,
+      filters.sort ?? 'newest',
   };
   return JSON.stringify(
     Object.keys(normalized)

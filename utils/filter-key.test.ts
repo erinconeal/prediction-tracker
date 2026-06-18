@@ -2,26 +2,26 @@ import { describe, expect, test } from 'vitest';
 import { getFilterKey } from './filter-key';
 
 describe('getFilterKey', () => {
-  test('given empty filters, should return empty object key', () => {
-    expect(getFilterKey({})).toBe('{}');
+  test('given empty filters, should default sort to newest in key', () => {
+    expect(getFilterKey({})).toBe(JSON.stringify({ sort: 'newest' }));
   });
 
   test('given source with extra whitespace, should trim source in key', () => {
     expect(getFilterKey({ source: '  Jane Analyst  ' })).toBe(
-      JSON.stringify({ source: 'Jane Analyst' }),
+      JSON.stringify({ sort: 'newest', source: 'Jane Analyst' }),
     );
   });
 
   test('given status all, should omit status from key', () => {
-    expect(getFilterKey({ status: 'all' })).toBe('{}');
+    expect(getFilterKey({ status: 'all' })).toBe(JSON.stringify({ sort: 'newest' }));
     expect(getFilterKey({ source: 'Jane', status: 'all' })).toBe(
-      JSON.stringify({ source: 'Jane' }),
+      JSON.stringify({ sort: 'newest', source: 'Jane' }),
     );
   });
 
   test('given concrete status, should include status in key', () => {
     expect(getFilterKey({ status: 'correct' })).toBe(
-      JSON.stringify({ status: 'correct' }),
+      JSON.stringify({ sort: 'newest', status: 'correct' }),
     );
   });
 
@@ -31,9 +31,9 @@ describe('getFilterKey', () => {
     expect(keyA).toBe(keyB);
   });
 
-  test('given sort newest or omitted, should omit sort from key', () => {
-    expect(getFilterKey({ sort: 'newest' })).toBe('{}');
-    expect(getFilterKey({ status: 'all', sort: 'newest' })).toBe('{}');
+  test('given sort newest or omitted, should normalize sort to newest in key', () => {
+    expect(getFilterKey({ sort: 'newest' })).toBe(JSON.stringify({ sort: 'newest' }));
+    expect(getFilterKey({ status: 'all', sort: 'newest' })).toBe(JSON.stringify({ sort: 'newest' }));
   });
 
   test('given non-default sort, should include sort in key', () => {

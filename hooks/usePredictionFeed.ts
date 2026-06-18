@@ -5,6 +5,7 @@ import { ApiError, listPredictions } from '@/services/api';
 import type { Prediction, PredictionFilters } from '@/types/prediction';
 import { getFilterKey } from '@/utils/filter-key';
 import { isAbortError } from '@/utils/is-abort-error';
+import { toListRequestFilters } from '@/utils/list-request-filters';
 
 export type UsePredictionFeedOptions = {
   /** Page size for each request (default 20). */
@@ -78,6 +79,7 @@ export function usePredictionFeed(
     const generation = firstPageGenRef.current;
     const controller = new AbortController();
     loadMoreAbortRef.current?.abort();
+    const requestFilters = toListRequestFilters(filtersRef.current);
 
     async function loadFirstPage(): Promise<void> {
       setLoading(true);
@@ -90,7 +92,7 @@ export function usePredictionFeed(
       try {
         const result = await listPredictions(
           {
-            ...filtersRef.current,
+            ...requestFilters,
             limit: pageSize,
             offset: 0,
           },
@@ -149,10 +151,12 @@ export function usePredictionFeed(
     setData([]);
     dataRef.current = [];
 
+    const requestFilters = toListRequestFilters(filtersRef.current);
+
     try {
       const result = await listPredictions(
         {
-          ...filtersRef.current,
+          ...requestFilters,
           limit: pageSize,
           offset: 0,
         },
@@ -189,10 +193,11 @@ export function usePredictionFeed(
     setLoadingMore(true);
     setError(null);
     const offset = dataRef.current.length;
+    const requestFilters = toListRequestFilters(filtersRef.current);
     try {
       const page = await listPredictions(
         {
-          ...filtersRef.current,
+          ...requestFilters,
           limit: pageSize,
           offset,
         },

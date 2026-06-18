@@ -4,6 +4,7 @@ import type {
   PredictionFilters,
   TerminalOutcome,
 } from '@/types/prediction';
+import { toListRequestFilters } from '@/utils/list-request-filters';
 import type { LeaderboardPage } from '@/lib/leaderboard';
 import type { Topic } from '@/types/topic';
 
@@ -57,22 +58,25 @@ function errorMessageFromBody(
 }
 
 function buildListUrl(filters: PredictionFilters): string {
+  const requestFilters = toListRequestFilters(filters);
   const params = new URLSearchParams();
-  if (filters.source?.trim()) params.set('source', filters.source.trim());
-  if (filters.status && filters.status !== 'all') {
-    params.set('status', filters.status);
+  if (requestFilters.source?.trim()) {
+    params.set('source', requestFilters.source.trim());
   }
-  if (filters.topic?.trim()) {
-    params.set('topic', filters.topic.trim());
+  if (requestFilters.status && requestFilters.status !== 'all') {
+    params.set('status', requestFilters.status);
   }
-  if (filters.limit !== undefined) {
-    params.set('limit', String(filters.limit));
+  if (requestFilters.topic?.trim()) {
+    params.set('topic', requestFilters.topic.trim());
   }
-  if (filters.offset !== undefined) {
-    params.set('offset', String(filters.offset));
+  if (requestFilters.limit !== undefined) {
+    params.set('limit', String(requestFilters.limit));
   }
-  if (filters.sort && filters.sort !== 'newest') {
-    params.set('sort', filters.sort);
+  if (requestFilters.offset !== undefined) {
+    params.set('offset', String(requestFilters.offset));
+  }
+  if (requestFilters.sort) {
+    params.set('sort', requestFilters.sort);
   }
   const q = params.toString();
   return q ? `${PREDICTIONS_BASE}?${q}` : PREDICTIONS_BASE;

@@ -246,4 +246,45 @@ describe('usePredictionFeed', () => {
 
     await waitFor(() => expect(result.current.data[0]?.id).toBe('new'));
   });
+
+  test('given sort returns to newest, should refetch without sort param', async () => {
+    listPredictions.mockImplementation(async (filters?: PredictionFilters) => {
+      if (filters?.sort === 'recently_finished') {
+        return [buildPrediction({ id: 'finished' })];
+      }
+      return [buildPrediction({ id: 'newest' })];
+    });
+
+    const { result, rerender } = renderHook<
+      UsePredictionFeedResult,
+      { sort?: PredictionFilters['sort']; topic?: string }
+    >(({ sort, topic }) => {
+      const filters = useMemo(
+        () => ({
+          status: 'all' as const,
+          ...(topic !== undefined ? { topic } : {}),
+          ...(sort !== undefined && sort !== 'newest' ? { sort } : {}),
+        }),
+        [sort, topic],
+      );
+      return usePredictionFeed(filters, { pageSize: 20 });
+    }, { initialProps: { sort: 'newest', topic: 'politics' } });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data[0]?.id).toBe('newest');
+
+    rerender({ sort: 'recently_finished', topic: 'politics' });
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe('finished'));
+
+    rerender({ sort: 'newest', topic: 'politics' });
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe('newest'));
+
+    expect(listPredictions).toHaveBeenLastCalledWith(
+      { status: 'all', topic: 'politics', limit: 20, offset: 0 },
+      expect.any(AbortSignal),
+    );
+    expect(listPredictions).toHaveBeenCalledTimes(3);
+  });
 });

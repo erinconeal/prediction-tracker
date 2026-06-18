@@ -83,6 +83,17 @@ describe('listPredictions', () => {
     );
   });
 
+  test('given default newest sort, should omit sort query parameter', async () => {
+    fetchMock.mockResolvedValue(jsonResponse([]));
+
+    await listPredictions({ sort: 'newest', topic: 'tech' });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/predictions?topic=tech',
+      expect.anything(),
+    );
+  });
+
   test('given ok JSON array, should return predictions', async () => {
     const row = buildPrediction({ id: 'x' });
     fetchMock.mockResolvedValue(jsonResponse([row]));

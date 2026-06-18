@@ -43,7 +43,7 @@ export function useDiscoveryFeedPage(
   const scopeFilters = useMemo(() => {
     const base = { topic: scope.topicSlug, status: 'all' as const };
     return listSort !== 'newest' ? { ...base, sort: listSort } : base;
-  }, [scope, listSort]);
+  }, [scope.topicSlug, listSort]);
 
   const {
     data: scopeData,
