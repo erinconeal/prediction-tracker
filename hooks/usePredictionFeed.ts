@@ -37,6 +37,7 @@ export function usePredictionFeed(
 ): UsePredictionFeedResult {
   const pageSize = options.pageSize ?? 20;
   const enabled = options.enabled ?? true;
+  /** Stable filter identity for first-page fetch; excludes pagination. getFilterKey always returns a sorted JSON string. Only changes when filter values change, so the first-page effect does not refetch on unrelated parent rerenders. */
   const baseKey = useMemo(
     () => getFilterKey({ ...filters, limit: undefined, offset: undefined }),
     [filters],
@@ -150,6 +151,7 @@ export function usePredictionFeed(
     setError(null);
     setData([]);
     dataRef.current = [];
+    setHasMore(true);
 
     const requestFilters = toListRequestFilters(filtersRef.current);
 
@@ -172,6 +174,7 @@ export function usePredictionFeed(
       const message
         = e instanceof ApiError ? e.message : 'Something went wrong';
       setError(message);
+      setHasMore(false);
     }
     finally {
       if (firstPageGenRef.current === generation) setLoading(false);

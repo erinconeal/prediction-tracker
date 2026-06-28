@@ -2,9 +2,11 @@ import '@/test/mocks/api-service';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useMemo } from 'react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import type { PredictionFilters } from '@/types/prediction';
+import type { Prediction, PredictionFilters } from '@/types/prediction';
 import { buildPrediction } from '@/test/factories/prediction';
 import { listPredictions } from '@/test/mocks/api-service';
+import { ApiError } from '@/services/api';
+import { createDeferred } from '@/test/helpers/deferred';
 import {
   usePredictionFeed,
   type UsePredictionFeedResult,
@@ -286,5 +288,134 @@ describe('usePredictionFeed', () => {
       expect.any(AbortSignal),
     );
     expect(listPredictions).toHaveBeenCalledTimes(3);
+  });
+
+  test('given filter change fetch fails, should set error, clear data, and set hasMore false', async () => {
+    listPredictions
+      .mockResolvedValueOnce([buildPrediction({ id: 'old' })])
+      .mockRejectedValueOnce(new ApiError('Feed unavailable', 503));
+
+    const { result, rerender } = renderHook(({ topic }: { topic?: string }) => {
+      const filters = useMemo(() => (
+        { status: 'all' as const,
+          ...(topic !== undefined ? { topic } : {}) }), [topic]);
+      return usePredictionFeed(filters, { pageSize: 20 });
+    },
+    { initialProps: { topic: 'finance' as string | undefined } },
+    );
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe('old'));
+
+    rerender({ topic: 'tech' });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBe('Feed unavailable');
+    expect(result.current.data).toEqual([]);
+    expect(result.current.hasMore).toBe(false);
+  });
+
+  test('given AbortError from listPredictions, should not set error', async () => {
+    listPredictions.mockRejectedValue(new DOMException('The user aborted a request.', 'AbortError'));
+
+    const { result } = renderHook(() => usePredictionFeed({ status: 'all' }, { pageSize: 20 }));
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBe(null);
+  });
+
+  test('given generic Error from listPredictions, should set generic error message', async () => {
+    listPredictions.mockRejectedValue(new Error('network down'));
+
+    const { result } = renderHook(() => usePredictionFeed({ status: 'all' }, { pageSize: 20 }));
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBe('Something went wrong');
+    expect(result.current.data).toEqual([]);
+    expect(result.current.hasMore).toBe(false);
+  });
+
+  test('given overlapping first-page fetches, should keep only the latest result', async () => {
+    const firstFetch = createDeferred<Prediction[]>();
+    const secondFetch = createDeferred<Prediction[]>();
+
+    listPredictions
+      .mockImplementationOnce(() => firstFetch.promise)
+      .mockImplementationOnce(() => secondFetch.promise);
+
+    const { result, rerender } = renderHook(({ topic }: { topic?: string }) => {
+      const filters = useMemo(() => (
+        { status: 'all' as const,
+          ...(topic !== undefined ? { topic } : {}) }), [topic]);
+      return usePredictionFeed(filters, { pageSize: 20 });
+    }, { initialProps: { topic: 'finance' as string | undefined } });
+
+    // First fetch started on mount, still pending
+    await waitFor(() => expect(listPredictions).toHaveBeenCalledTimes(1));
+
+    // Rapid second fetch from filter change
+    rerender({ topic: 'tech' });
+    await waitFor(() => expect(listPredictions).toHaveBeenCalledTimes(2));
+
+    // Stale finance response arrives after tech fetch started
+    await act(async () => {
+      firstFetch.resolve([buildPrediction({ id: 'stale' })]);
+      await Promise.resolve();
+    });
+
+    expect(result.current.data.some(p => p.id === 'stale')).toBe(false);
+
+    // Latest (tech) response wins
+    await act(async () => {
+      secondFetch.resolve([buildPrediction({ id: 'fresh' })]);
+    });
+
+    await waitFor(() => expect(result.current.data[0]?.id).toBe('fresh'));
+    expect(result.current.error).toBe(null);
+    expect(result.current.loading).toBe(false);
+  });
+
+  test('given loading true, loadMore should be a no-op', async () => {
+    const firstPage = createDeferred<Prediction[]>();
+    listPredictions.mockImplementationOnce(() => firstPage.promise);
+
+    const { result } = renderHook(() => usePredictionFeed({ status: 'all' }, { pageSize: 20 }));
+
+    expect(result.current.loading).toBe(true);
+
+    await act(async () => {
+      await result.current.loadMore();
+    });
+
+    expect(listPredictions).toHaveBeenCalledTimes(1); // only mount fetch, no loadMore
+
+    await act(async () => {
+      firstPage.resolve([buildPrediction({ id: 'a' }), buildPrediction({ id: 'b' })]);
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+  });
+
+  test('given refetch fails after a full first page, should set error and hasMore false', async () => {
+    const fullPage = Array.from({ length: 2 }, (_, i) => buildPrediction({ id: String(i) }));
+
+    listPredictions
+      .mockResolvedValueOnce(fullPage) // mount: full page => hasMore: true
+      .mockRejectedValueOnce(new ApiError('Feed unavailable', 503)); // refetch fails: error => hasMore: false
+
+    const { result } = renderHook(() => usePredictionFeed({ status: 'all' }, { pageSize: 2 }));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.hasMore).toBe(true);
+    expect(result.current.data).toHaveLength(2);
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    expect(result.current.error).toBe('Feed unavailable');
+    expect(result.current.data).toEqual([]);
+    expect(result.current.hasMore).toBe(false);
   });
 });
