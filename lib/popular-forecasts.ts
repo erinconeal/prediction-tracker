@@ -1,8 +1,9 @@
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
-import { primaryBucketTopicForPrediction } from '@/lib/topic-store';
+import { pickPrimaryBucketFromLinked } from '@/lib/topic-primary';
 import type { Prediction } from '@/types/prediction';
 
 import { POPULAR_FORECAST_MAX_SLOTS } from '@/lib/popular-forecast-columns';
+import type { Topic } from '@/types/topic';
 
 /** Upper bound when the viewport fits four columns (xl). */
 export const DEFAULT_POPULAR_FORECAST_COUNT = POPULAR_FORECAST_MAX_SLOTS;
@@ -13,6 +14,7 @@ export const DEFAULT_POPULAR_FORECAST_COUNT = POPULAR_FORECAST_MAX_SLOTS;
  */
 export function pickPopularForecastsFromFeed(
   data: Prediction[],
+  topicById: ReadonlyMap<string, Topic>,
   options: {
     max?: number;
     excludeIds?: Iterable<string>;
@@ -31,7 +33,10 @@ export function pickPopularForecastsFromFeed(
 
   for (const p of candidates) {
     if (picked.length >= max) break;
-    const bucket = primaryBucketTopicForPrediction(p);
+    const linked = p.topicIds
+      .map(id => topicById.get(id))
+      .filter((t): t is Topic => t !== undefined);
+    const bucket = pickPrimaryBucketFromLinked(linked, topicById);
     const key = (bucket?.slug ?? 'other').toLowerCase();
     if (seenBuckets.has(key)) continue;
     seenBuckets.add(key);

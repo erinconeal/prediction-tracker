@@ -39,26 +39,26 @@ describe('home-topic-url', () => {
       .toBe('/');
   });
 
-  test('given empty topic query, should resolve to All tab', () => {
-    expect(resolveHomeTopicQuery(null)).toEqual({ kind: 'tab', tab: 'All' });
-    expect(resolveHomeTopicQuery('')).toEqual({ kind: 'tab', tab: 'All' });
+  test('given empty topic query, should resolve to All tab', async () => {
+    expect(await resolveHomeTopicQuery(null)).toEqual({ kind: 'tab', tab: 'All' });
+    expect(await resolveHomeTopicQuery('')).toEqual({ kind: 'tab', tab: 'All' });
   });
 
-  test('given finance slug, should resolve to Finance tab', () => {
-    expect(resolveHomeTopicQuery('finance')).toEqual({
+  test('given finance slug, should resolve to Finance tab', async () => {
+    expect(await resolveHomeTopicQuery('finance')).toEqual({
       kind: 'tab',
       tab: 'Finance',
     });
   });
 
-  test('given curated topic slug, should resolve to redirect', () => {
-    expect(resolveHomeTopicQuery('ai-regulation-2026')).toEqual({
+  test('given curated topic slug, should resolve to redirect', async () => {
+    expect(await resolveHomeTopicQuery('ai-regulation-2026')).toEqual({
       kind: 'redirect',
       href: '/ai-regulation-2026',
     });
   });
 
-  test('given unknown slug, should resolve to strip', () => {
-    expect(resolveHomeTopicQuery('crypto')).toEqual({ kind: 'strip' });
+  test('given unknown slug, should resolve to strip', async () => {
+    expect(await resolveHomeTopicQuery('crypto')).toEqual({ kind: 'strip' });
   });
 });

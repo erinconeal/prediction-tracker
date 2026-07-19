@@ -105,12 +105,16 @@ export function DashboardView() {
 
   const popularSlotCount = usePopularForecastSlotCount();
 
+  const topicById = useMemo(() => new Map(catalogTopics.map(t => [t.id, t])), [catalogTopics]);
+
   const popularForecasts = useMemo(
     () =>
-      pickPopularForecastsFromFeed(homeSample.data, {
-        max: popularSlotCount,
-      }),
-    [homeSample.data, popularSlotCount],
+      pickPopularForecastsFromFeed(homeSample.data,
+        topicById,
+        {
+          max: popularSlotCount,
+        }),
+    [homeSample.data, popularSlotCount, topicById],
   );
 
   const emptyMessage = browseEmptyMessage(topicTab, outcomeFilter);

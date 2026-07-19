@@ -1,4 +1,4 @@
-/** Browse bucket topics (matches topic-store seed). */
+/** Browse bucket topics (matches seeded bucket topics). */
 export const BUCKET_TOPICS = [
   { slug: 'tech', name: 'Tech' },
   { slug: 'sports', name: 'Sports' },

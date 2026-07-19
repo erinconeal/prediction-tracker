@@ -1,7 +1,11 @@
-import { getTopicById } from '@/lib/topic-store';
+import { getTopicsByIds } from '@/lib/repositories/topic-repository';
 
-/** Topic IDs that are not in the curated topic catalog. */
-export function findUnknownTopicIds(ids: string[]): string[] {
+/** Topic IDs that are not present in the topic catalog. */
+export async function findUnknownTopicIds(ids: string[]): Promise<string[]> {
   const unique = [...new Set(ids)];
-  return unique.filter(id => getTopicById(id) === null);
+  if (unique.length === 0) return [];
+
+  const found = await getTopicsByIds(unique);
+  const known = new Set(found.map(t => t.id));
+  return unique.filter(id => !known.has(id));
 }

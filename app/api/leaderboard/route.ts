@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { computeLeaderboardPage } from '@/lib/leaderboard';
-import { filterAndSortPredictions } from '@/lib/prediction-store';
+import { filterAndSortPredictions } from '@/lib/prediction-query';
+import { loadAllPredictions } from '@/lib/repositories/prediction-repository';
 
 /**
  * Parses a bounded integer from a string, returning a fallback value if the string is null or not a valid integer.
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const limit = parseBoundedInt(searchParams.get('limit'), 8, 1, 50);
   const offset = parseBoundedInt(searchParams.get('offset'), 0, 0, 10_000);
-  const all = filterAndSortPredictions({});
+  const all = await filterAndSortPredictions(await loadAllPredictions());
   const page = computeLeaderboardPage(all, { limit, offset });
   return NextResponse.json(page);
 }

@@ -91,10 +91,10 @@ describe('GET /api/predictions route', () => {
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(
-      body.every(row =>
-        predictionMatchesTopicSlug(row, 'ai-regulation-2026'),
+      await Promise.all(
+        body.map(row => predictionMatchesTopicSlug(row, 'ai-regulation-2026')),
       ),
-    ).toBe(true);
+    ).toEqual(body.map(() => true));
   });
 
   test('given bucket topic query, should return roll-up matches', async () => {
@@ -136,8 +136,12 @@ describe('GET /api/predictions route', () => {
 
   test('given sort=recently_finished, should list resolved rows before still_open', async () => {
     const { GET } = await loadRouteModule(() => import('./route'));
+    // Use max page size so both finished and still_open rows can appear when
+    // finished count is near the default limit of 50.
     const response = await GET(
-      new Request('http://localhost/api/predictions?sort=recently_finished'),
+      new Request(
+        'http://localhost/api/predictions?sort=recently_finished&limit=100',
+      ),
     );
     const body = (await response.json()) as Array<{
       outcome: string;
@@ -146,12 +150,18 @@ describe('GET /api/predictions route', () => {
 
     expect(response.status).toBe(200);
     expect(body.length).toBeGreaterThanOrEqual(4);
+    expect(body.some(r => r.outcome !== 'still_open')).toBe(true);
+
+    // Finished rows must never appear after a still_open row.
     const firstStillOpenIndex = body.findIndex(r => r.outcome === 'still_open');
-    let lastFinishedIndex = -1;
-    for (let i = 0; i < body.length; i++) {
-      if (body[i]!.outcome !== 'still_open') lastFinishedIndex = i;
+    if (firstStillOpenIndex === -1) {
+      expect(body.every(r => r.outcome !== 'still_open')).toBe(true);
     }
-    expect(firstStillOpenIndex).toBeGreaterThan(lastFinishedIndex);
+    else {
+      expect(
+        body.slice(firstStillOpenIndex).every(r => r.outcome === 'still_open'),
+      ).toBe(true);
+    }
     expect(
       body
         .filter(r => r.outcome !== 'still_open')
@@ -227,8 +237,8 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given valid topicIds, should create row and return 201', async () => {
-    const { listTopics } = await import('@/lib/topic-store');
-    const topic = listTopics().find(t => t.slug === 'ai-regulation-2026');
+    const { listTopics } = await import('@/lib/repositories/topic-repository');
+    const topic = (await listTopics()).find(t => t.slug === 'ai-regulation-2026');
     expect(topic).toBeDefined();
 
     const { POST } = await loadRouteModule(() => import('./route'));

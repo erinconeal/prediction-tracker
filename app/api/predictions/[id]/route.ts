@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
-import {
-  getPredictionById,
-  updatePredictionOutcome as patchRow,
-} from '@/lib/prediction-store';
+import { loadPredictionById, patchPredictionOutcome } from '@/lib/repositories/prediction-repository';
 import { isTerminalOutcomeValue } from '@/types/prediction';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const row = getPredictionById(id);
+  const row = await loadPredictionById(id);
   if (!row) {
     return NextResponse.json({ message: 'Prediction not found' }, { status: 404 });
   }
@@ -38,7 +35,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       { status: 400 },
     );
   }
-  const updated = patchRow(id, outcome);
+  const updated = await patchPredictionOutcome(id, outcome);
   if (!updated) {
     return NextResponse.json({ message: 'Prediction not found' }, { status: 404 });
   }

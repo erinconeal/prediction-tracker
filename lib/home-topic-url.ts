@@ -4,7 +4,7 @@ import {
   topicSlugFromBucketTab,
 } from '@/lib/topic-tabs';
 import { topicPagePath } from '@/lib/topic-path';
-import { getTopicBySlug } from '@/lib/topic-store';
+import { getTopicBySlug } from '@/lib/repositories/topic-repository';
 
 /** Maps `?topic=` slug on the home page to an active bucket tab. */
 export function topicBucketTabFromSearchParam(
@@ -28,9 +28,9 @@ export type HomeTopicQueryResolution
  * Resolves `?topic=` from URL to tab/redirect/strip
  * Redirects to stable URL, strips `?topic=` when not tab
  */
-export function resolveHomeTopicQuery(
+export async function resolveHomeTopicQuery(
   raw: string | null | undefined,
-): HomeTopicQueryResolution {
+): Promise<HomeTopicQueryResolution> {
   const value = raw?.trim();
   if (!value) {
     return { kind: 'tab', tab: 'All' };
@@ -41,7 +41,7 @@ export function resolveHomeTopicQuery(
     return { kind: 'tab', tab };
   }
 
-  const topic = getTopicBySlug(value);
+  const topic = await getTopicBySlug(value);
   if (topic && topic.kind === 'curated') {
     return { kind: 'redirect', href: topicPagePath(topic.slug) };
   }

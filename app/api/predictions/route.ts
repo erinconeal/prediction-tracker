@@ -1,8 +1,4 @@
 import { NextResponse } from 'next/server';
-import {
-  createPrediction as createRow,
-  listPredictions as listRows,
-} from '@/lib/prediction-store';
 import { findUnknownTopicIds } from '@/lib/validate-topic-ids';
 import {
   OUTCOMES,
@@ -10,6 +6,8 @@ import {
   type Outcome,
   type PredictionListSort,
 } from '@/types/prediction';
+import { loadAllPredictions, insertPrediction } from '@/lib/repositories/prediction-repository';
+import { filterAndSortPredictions, paginatePredictions } from '@/lib/prediction-query';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;
@@ -46,15 +44,10 @@ export async function GET(request: Request) {
   ) {
     sort = sortParam;
   }
-  const data = listRows({
-    source,
-    status,
-    topic: topic?.trim() ? topic.trim() : undefined,
-    limit,
-    offset,
-    sort,
-  });
-  return NextResponse.json(data);
+  const all = await loadAllPredictions();
+  const filteredAndSorted = await filterAndSortPredictions(all, { source, status, topic, sort });
+  const paginated = paginatePredictions(filteredAndSorted, { limit, offset });
+  return NextResponse.json(paginated);
 }
 
 /**
@@ -86,7 +79,7 @@ export async function POST(request: Request) {
     ? b.topicIds.filter((id): id is string => typeof id === 'string')
     : undefined;
   if (topicIds && topicIds.length > 0) {
-    const unknown = findUnknownTopicIds(topicIds);
+    const unknown = await findUnknownTopicIds(topicIds);
     if (unknown.length > 0) {
       return NextResponse.json(
         { message: `Unknown topicIds: ${unknown.join(', ')}` },
@@ -100,6 +93,6 @@ export async function POST(request: Request) {
     topicIds,
     target_date: typeof b.target_date === 'string' ? b.target_date : undefined,
   };
-  const created = createRow(input);
+  const created = await insertPrediction(input);
   return NextResponse.json(created, { status: 201 });
 }

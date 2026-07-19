@@ -20,3 +20,19 @@ export function pickDisplayBucketTopic(
   if (linkedBucket) return linkedBucket;
   return parentBuckets[0] ?? null;
 }
+
+export function pickPrimaryBucketFromLinked(
+  linked: Topic[],
+  topicById: ReadonlyMap<string, Topic>,
+): Topic | null {
+  for (const t of linked) {
+    if (t.kind === 'bucket') return t;
+  }
+  for (const t of linked) {
+    if (t.kind === 'curated' && t.parentTopicIds.length > 0) {
+      const parent = topicById.get(t.parentTopicIds[0]!);
+      if (parent?.kind === 'bucket') return parent;
+    }
+  }
+  return null;
+}
