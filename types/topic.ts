@@ -1,4 +1,5 @@
-export type TopicKind = 'bucket' | 'curated';
+export const TOPIC_KINDS = ['bucket', 'curated'] as const;
+export type TopicKind = (typeof TOPIC_KINDS)[number];
 
 export type Topic = {
   id: string;
