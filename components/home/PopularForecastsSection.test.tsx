@@ -1,3 +1,4 @@
+import '@/test/mocks/use-topic-catalog';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { buildPredictionWithId } from '@/test/factories/prediction';

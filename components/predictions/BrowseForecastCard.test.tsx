@@ -19,7 +19,7 @@ const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =
   });
 
 describe('BrowseForecastCard', () => {
-  test('exposes separate links for title, topic, and source without a wrapping card link', () => {
+  test('exposes separate links for title, topic, and source without a wrapping card link', async () => {
     render(
       <BrowseForecastCard
         prediction={cardPrediction()}
@@ -28,13 +28,13 @@ describe('BrowseForecastCard', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /will rates fall/i }),
+      await screen.findByRole('link', { name: /will rates fall/i }),
     ).toHaveAttribute('href', '/predictions/p-1');
-    expect(screen.getByRole('link', { name: /jane analyst/i })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: /jane analyst/i })).toHaveAttribute(
       'href',
       '/source/jane',
     );
-    expect(screen.getByRole('link', { name: /browse finance forecasts/i })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: /browse finance forecasts/i })).toHaveAttribute(
       'href',
       '/finance',
     );
@@ -103,7 +103,7 @@ describe('BrowseForecastCard', () => {
     expect(screen.queryByText(/Incorrect ·/)).not.toBeInTheDocument();
   });
 
-  test('topic in footer is shown when prediction has topics', () => {
+  test('topic in footer is shown when prediction has topics', async () => {
     render(
       <BrowseForecastCard
         prediction={cardPrediction({ topicIds: [TOPIC_AI] })}
@@ -111,7 +111,7 @@ describe('BrowseForecastCard', () => {
       />,
     );
     expect(
-      screen.getByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
+      await screen.findByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
     ).toBeInTheDocument();
     expect(screen.queryByText('+1')).not.toBeInTheDocument();
   });

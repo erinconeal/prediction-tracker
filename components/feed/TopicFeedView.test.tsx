@@ -4,13 +4,11 @@ import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import {
   buildTopic,
   curatedAiTopic,
-  parentPoliticsTopic,
-  parentTechTopic,
 } from '@/test/factories/topic';
 import { idleDiscoveryFeedPage } from '@/test/factories/hook-results';
 import {
   resetTopicCatalogMockForTests,
-  setMockGetParentBucketTopics,
+  topicCatalogMockValue,
 } from '@/test/mocks/use-topic-catalog';
 import { TopicFeedView } from './TopicFeedView';
 import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
@@ -92,9 +90,30 @@ describe('TopicFeedView', () => {
     ).toHaveAttribute('href', '/finance');
   });
 
-  test('given parent bucket topics, should render ordered breadcrumb links', () => {
-    setMockGetParentBucketTopics(() => [parentTechTopic, parentPoliticsTopic]);
+  test('given a bucket topic, should not request parent bucket topics', () => {
+    const spy = vi.spyOn(topicCatalogMockValue, 'getParentBucketTopics');
 
+    render(<TopicFeedView topic={bucketTopic} />);
+
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test('given curated topic while catalog is loading, should not render parentless breadcrumb trail', () => {
+    topicCatalogMockValue.loading = true;
+    topicCatalogMockValue.topics = [];
+
+    render(<TopicFeedView topic={curatedAiTopic} />);
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Breadcrumb' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'AI regulation 2026' }),
+    ).toBeInTheDocument();
+  });
+
+  test('given parent bucket topics, should render ordered breadcrumb links', async () => {
     render(<TopicFeedView topic={curatedAiTopic} />);
 
     const nav = screen.getByRole('navigation', { name: 'Breadcrumb' });
@@ -106,8 +125,8 @@ describe('TopicFeedView', () => {
       '/',
     );
     expect(
-      within(trail).getByRole('link', { name: 'Technology' }),
-    ).toHaveAttribute('href', '/technology');
+      await within(trail).findByRole('link', { name: 'Tech' }),
+    ).toHaveAttribute('href', '/tech');
     expect(
       within(trail).getByRole('link', { name: 'Politics' }),
     ).toHaveAttribute('href', '/politics');

@@ -21,7 +21,7 @@ describe('PopularForecastCard', () => {
     vi.clearAllMocks();
   });
 
-  test('given a forecast, should show primary topic link in footer', () => {
+  test('given a forecast, should show primary topic link in footer', async () => {
     render(
       <PopularForecastCard
         prediction={cardPrediction()}
@@ -30,11 +30,11 @@ describe('PopularForecastCard', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /browse finance forecasts/i }),
+      await screen.findByRole('link', { name: /browse finance forecasts/i }),
     ).toHaveAttribute('href', '/finance');
   });
 
-  test('given topicIds on the prediction, should render topic footer link', () => {
+  test('given topicIds on the prediction, should render topic footer link', async () => {
     render(
       <PopularForecastCard
         prediction={cardPrediction({ topicIds: ['topic-ai-regulation-2026'] })}
@@ -43,7 +43,7 @@ describe('PopularForecastCard', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
+      await screen.findByRole('link', { name: /browse ai regulation 2026 forecasts/i }),
     ).toHaveAttribute('href', '/ai-regulation-2026');
   });
 

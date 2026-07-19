@@ -1,3 +1,4 @@
+import '@/test/mocks/use-topic-catalog';
 import type { ComponentProps } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';

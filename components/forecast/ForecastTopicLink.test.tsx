@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
-import { getTopicBySlug } from '@/lib/topic-store';
+import { getTopicBySlug } from '@/lib/repositories/topic-repository';
 import { ForecastTopicLink } from './ForecastTopicLink';
 
 describe('ForecastTopicLink', () => {
-  test('given a topic, should link to the topic feed with browse label', () => {
-    const topic = getTopicBySlug('finance');
+  test('given a topic, should link to the topic feed with browse label', async () => {
+    const topic = await getTopicBySlug('finance');
     expect(topic).toBeDefined();
 
     render(<ForecastTopicLink topic={topic} />);

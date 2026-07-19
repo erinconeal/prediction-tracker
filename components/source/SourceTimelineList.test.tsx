@@ -5,7 +5,7 @@ import { buildPrediction } from '@/test/factories/prediction';
 import { SourceTimelineList } from './SourceTimelineList';
 
 describe('SourceTimelineList', () => {
-  test('renders title link, outcome badge, and topic footer without mark buttons', () => {
+  test('renders title link, outcome badge, and topic footer without mark buttons', async () => {
     render(
       <SourceTimelineList
         loading={false}
@@ -30,7 +30,7 @@ describe('SourceTimelineList', () => {
     expect(screen.getByText('Finished')).toBeInTheDocument();
     expect(screen.getByText('Jul 15, 2024')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /browse finance forecasts/i }),
+      await screen.findByRole('link', { name: /browse finance forecasts/i }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /mark correct/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /jane analyst/i })).not.toBeInTheDocument();

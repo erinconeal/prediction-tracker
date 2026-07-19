@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest';
-import { curatedAiTopic, parentTechTopic } from '@/test/factories/topic';
+import { curatedAiTopic, parentPoliticsTopic, parentTechTopic } from '@/test/factories/topic';
 import {
   resetTopicCatalogMockForTests,
   setMockGetParentBucketTopics,
@@ -11,28 +11,31 @@ describe('use-topic-catalog mock', () => {
     resetTopicCatalogMockForTests();
   });
 
-  test('given curated prediction topic ids, getPrimaryTopicForPrediction should resolve via topic store', () => {
-    const primary = topicCatalogMockValue.getPrimaryTopicForPrediction([
+  test('given curated prediction topic ids, getPrimaryTopicForPrediction should resolve via topic store', async () => {
+    const primary = await topicCatalogMockValue.getPrimaryTopicForPrediction([
       'topic-ai-regulation-2026',
     ]);
 
     expect(primary?.slug).toBe('ai-regulation-2026');
   });
 
-  test('given setMockGetParentBucketTopics override, getParentBucketTopics should use override', () => {
+  test('given setMockGetParentBucketTopics override, getParentBucketTopics should use override', async () => {
     setMockGetParentBucketTopics(() => [parentTechTopic]);
 
-    expect(topicCatalogMockValue.getParentBucketTopics(curatedAiTopic)).toEqual([
+    expect(await topicCatalogMockValue.getParentBucketTopics(curatedAiTopic)).toEqual([
       parentTechTopic,
     ]);
   });
 
-  test('given resetTopicCatalogMockForTests, getParentBucketTopics should restore default behavior', () => {
+  test('given resetTopicCatalogMockForTests, getParentBucketTopics should restore default behavior', async () => {
     setMockGetParentBucketTopics(() => []);
 
     resetTopicCatalogMockForTests();
 
-    const buckets = topicCatalogMockValue.getParentBucketTopics(curatedAiTopic);
-    expect(buckets.map(t => t.slug)).toEqual(['tech', 'politics']);
+    const buckets = await topicCatalogMockValue.getParentBucketTopics(curatedAiTopic);
+    expect(buckets.map(t => t.slug)).toEqual([
+      parentTechTopic.slug,
+      parentPoliticsTopic.slug,
+    ]);
   });
 });

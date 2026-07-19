@@ -25,8 +25,17 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
     bucket: topic.kind === 'bucket' ? topic.slug : undefined,
     limit: 5,
   });
-  const { getParentBucketTopics } = useTopicCatalog();
-  const parentBuckets = topic.kind === 'curated' ? getParentBucketTopics(topic) : [];
+  const { topics: catalog, loading } = useTopicCatalog();
+
+  const parentBuckets = useMemo(() => {
+    if (topic.kind !== 'curated') return [];
+    const byId = new Map(catalog.map(t => [t.id, t]));
+    return topic.parentTopicIds
+      .map(id => byId.get(id))
+      .filter((t): t is Topic => t !== undefined && t.kind === 'bucket');
+  }, [topic, catalog]);
+
+  const breadcrumbReady = topic.kind !== 'curated' || catalog.length > 0 || !loading;
 
   const emptyMessage = useMemo(() => {
     if (feed.outcomeFilter !== 'all') {
@@ -37,31 +46,33 @@ export function TopicFeedView({ topic }: TopicFeedViewProps) {
 
   return (
     <DiscoveryFeedLayout
-      headerPrefix={(
-        <nav aria-label="Breadcrumb">
-          <ol className="m-0 flex list-none flex-wrap items-center gap-x-1 gap-y-1 p-0 text-sm text-muted">
-            <li className="inline-flex items-center gap-x-1">
-              <Link href="/" className={breadcrumbLinkClass}>
-                Home
-              </Link>
-            </li>
-            {parentBuckets.map((bucket, index) => (
-              <li key={bucket.id} className="inline-flex items-center gap-x-1">
-                <span aria-hidden>{index === 0 ? ' / ' : ' · '}</span>
-                <Link
-                  href={topicPagePath(bucket.slug)}
-                  className={breadcrumbLinkClass}
-                >
-                  {bucket.name}
-                </Link>
-              </li>
-            ))}
-            <li aria-current="page" className="sr-only">
-              {topic.name}
-            </li>
-          </ol>
-        </nav>
-      )}
+      headerPrefix={breadcrumbReady
+        ? (
+            <nav aria-label="Breadcrumb">
+              <ol className="m-0 flex list-none flex-wrap items-center gap-x-1 gap-y-1 p-0 text-sm text-muted">
+                <li className="inline-flex items-center gap-x-1">
+                  <Link href="/" className={breadcrumbLinkClass}>
+                    Home
+                  </Link>
+                </li>
+                {parentBuckets.map((bucket, index) => (
+                  <li key={bucket.id} className="inline-flex items-center gap-x-1">
+                    <span aria-hidden>{index === 0 ? ' / ' : ' · '}</span>
+                    <Link
+                      href={topicPagePath(bucket.slug)}
+                      className={breadcrumbLinkClass}
+                    >
+                      {bucket.name}
+                    </Link>
+                  </li>
+                ))}
+                <li aria-current="page" className="sr-only">
+                  {topic.name}
+                </li>
+              </ol>
+            </nav>
+          )
+        : null}
       title={(
         <h1 className="font-serif text-3xl font-normal tracking-tight text-foreground sm:text-4xl">
           {topic.name}
