@@ -1,6 +1,9 @@
+import '@/test/mocks/api-service';
 import '@/test/mocks/next-navigation';
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
+import { ApiError } from '@/services/api';
+import { getTopic } from '@/test/mocks/api-service';
 import {
   mockReplace,
   resetNextNavigationMocks,
@@ -11,6 +14,20 @@ import { useHomeTopicQuery } from './useHomeTopicQuery';
 describe('useHomeTopicQuery', () => {
   beforeEach(() => {
     resetNextNavigationMocks();
+    getTopic.mockReset();
+    getTopic.mockImplementation(async (slug: string) => {
+      if (slug === 'ai-regulation-2026') {
+        return {
+          id: 'topic-ai-regulation-2026',
+          slug: 'ai-regulation-2026',
+          name: 'AI regulation 2026',
+          kind: 'curated' as const,
+          parentTopicIds: [],
+          predictionCount: 1,
+        };
+      }
+      throw new ApiError('Topic not found', 404);
+    });
   });
 
   test('given no topic query, should resolve to All tab and feed ready', () => {
@@ -61,5 +78,37 @@ describe('useHomeTopicQuery', () => {
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith('/', { scroll: false });
     });
+  });
+
+  test('given non-404 API failure, should leave pending and keep topic query', async () => {
+    setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
+    getTopic.mockRejectedValue(new ApiError('Server error', 500));
+
+    const { result } = renderHook(() => useHomeTopicQuery());
+
+    await waitFor(() => {
+      expect(getTopic).toHaveBeenCalled();
+    });
+
+    expect(result.current.topicResolution).toEqual({ kind: 'pending' });
+    expect(result.current.isFeedReady).toBe(false);
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  test('given lookup aborted on unmount, should not strip or redirect', async () => {
+    setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
+    getTopic.mockImplementation(
+      () => new Promise(() => {
+        /* never settles */
+      }),
+    );
+
+    const { result, unmount } = renderHook(() => useHomeTopicQuery());
+
+    expect(result.current.topicResolution).toEqual({ kind: 'pending' });
+    unmount();
+
+    await Promise.resolve();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });

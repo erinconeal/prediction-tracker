@@ -7,6 +7,7 @@ import { ApiError } from '@/services/api';
 import { buildIndexedPrediction } from '@/test/factories/prediction';
 import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
 import {
+  getTopic,
   listLeaderboard,
   listPredictions,
   listTopics,
@@ -42,6 +43,8 @@ describe('DashboardView', () => {
     listPredictions.mockReset();
     listLeaderboard.mockReset();
     listTopics.mockReset();
+    getTopic.mockReset();
+    getTopic.mockRejectedValue(new ApiError('Topic not found', 404));
     resetNextNavigationMocks();
     listLeaderboard.mockResolvedValue({
       rows: [buildLeaderboardRow()],
@@ -335,6 +338,14 @@ describe('DashboardView', () => {
   test('given curated topic slug in URL, should redirect to topic page', async () => {
     setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
     listPredictions.mockResolvedValue([buildIndexedPrediction(0)]);
+    getTopic.mockResolvedValue({
+      id: 'topic-ai-regulation-2026',
+      slug: 'ai-regulation-2026',
+      name: 'AI regulation 2026',
+      kind: 'curated',
+      parentTopicIds: ['topic-tech', 'topic-politics'],
+      predictionCount: 3,
+    });
 
     render(<DashboardView />);
 

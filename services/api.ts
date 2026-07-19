@@ -144,6 +144,52 @@ export async function getPrediction(
   return body as Prediction;
 }
 
+export type TopicDetailDto = Topic & {
+  predictionCount: number;
+};
+
+export async function getTopic(
+  slug: string,
+  signal?: AbortSignal,
+): Promise<TopicDetailDto> {
+  const response = await fetch(
+    `${TOPICS_BASE}/${encodeURIComponent(slug)}`,
+    {
+      method: 'GET',
+      signal,
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    },
+  );
+  let body: { message?: string } & Partial<TopicDetailDto> = {};
+  try {
+    body = await parseJson<{ message?: string } & Partial<TopicDetailDto>>(
+      response,
+    );
+  }
+  catch {
+    /* ignore */
+  }
+  if (!response.ok) {
+    throw new ApiError(
+      errorMessageFromBody(body, `Request failed with ${response.status}`),
+      response.status,
+      body,
+    );
+  }
+  if (
+    typeof body.slug !== 'string'
+    || typeof body.kind !== 'string'
+  ) {
+    throw new ApiError(
+      'Topic response must include slug and kind',
+      response.status,
+      body,
+    );
+  }
+  return body as TopicDetailDto;
+}
+
 export async function listTopics(
   options: {
     trending?: boolean;

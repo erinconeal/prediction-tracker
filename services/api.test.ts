@@ -4,6 +4,7 @@ import {
   ApiError,
   createPrediction,
   getPrediction,
+  getTopic,
   listLeaderboard,
   listPredictions,
   updatePredictionOutcome,
@@ -171,6 +172,51 @@ describe('getPrediction', () => {
       expect.objectContaining({ method: 'GET', cache: 'no-store' }),
     );
     expect(result).toEqual(row);
+  });
+});
+
+describe('getTopic', () => {
+  const fetchMock = vi.fn<typeof fetch>();
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('should GET encoded slug with abort signal', async () => {
+    const topic = {
+      id: 'topic-ai',
+      slug: 'ai-regulation-2026',
+      name: 'AI regulation 2026',
+      kind: 'curated',
+      parentTopicIds: [],
+      predictionCount: 2,
+    };
+    fetchMock.mockResolvedValue(jsonResponse(topic));
+    const signal = new AbortController().signal;
+
+    const result = await getTopic('ai-regulation-2026', signal);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/topics/ai-regulation-2026',
+      expect.objectContaining({ method: 'GET', cache: 'no-store', signal }),
+    );
+    expect(result).toEqual(topic);
+  });
+
+  test('given 404, should throw ApiError', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ message: 'Topic not found' }, { status: 404 }),
+    );
+
+    await expect(getTopic('missing')).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Topic not found',
+      status: 404,
+    });
   });
 });
 

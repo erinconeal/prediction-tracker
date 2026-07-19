@@ -12,6 +12,8 @@ import {
   topicSlugFromBucketTab,
   type TopicBucketTab,
 } from '@/lib/topic-tabs';
+import { ApiError, getTopic } from '@/services/api';
+import { isAbortError } from '@/utils/is-abort-error';
 
 /** Hook state: settled resolution, or pending while curated/unknown slug is looked up. */
 export type HomeTopicQueryState
@@ -26,8 +28,21 @@ export type UseHomeTopicQueryResult = {
   isFeedReady: boolean;
 };
 
+async function lookupTopicBySlug(slug: string, signal?: AbortSignal) {
+  try {
+    const topic = await getTopic(slug, signal);
+    return { slug: topic.slug, kind: topic.kind };
+  }
+  catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 /**
- * Sync path for empty/`?topic=` bucket tabs (no DB). Non-bucket slugs stay pending
+ * Sync path for empty/`?topic=` bucket tabs (no network). Non-bucket slugs stay pending
  * until `resolveHomeTopicQuery` finishes (redirect or strip).
  */
 function syncTopicResolution(
@@ -73,15 +88,26 @@ export function useHomeTopicQuery(): UseHomeTopicQueryResult {
     const slug = rawTopic?.trim();
     if (!slug) return;
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     void (async () => {
-      const resolution = await resolveHomeTopicQuery(rawTopic);
-      if (!cancelled) setAsyncLookup({ slug, resolution });
+      try {
+        const resolution = await resolveHomeTopicQuery(
+          rawTopic,
+          lookupSlug => lookupTopicBySlug(lookupSlug, controller.signal),
+        );
+        if (!controller.signal.aborted) {
+          setAsyncLookup({ slug, resolution });
+        }
+      }
+      catch (error) {
+        // Abort or transient API failure: leave pending; only 404 strips via lookup null.
+        if (isAbortError(error) || controller.signal.aborted) return;
+      }
     })();
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [rawTopic, syncResolution.kind]);
 
