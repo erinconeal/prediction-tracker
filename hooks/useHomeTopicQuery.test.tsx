@@ -80,6 +80,21 @@ describe('useHomeTopicQuery', () => {
     });
   });
 
+  test('given unusable topic response, should strip query like unknown slug', async () => {
+    setMockSearchParams(new URLSearchParams('topic=mystery'));
+    getTopic.mockRejectedValue(
+      new ApiError('Topic response must include a slug and a known kind', 200),
+    );
+
+    const { result } = renderHook(() => useHomeTopicQuery());
+
+    expect(result.current.isFeedReady).toBe(false);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/', { scroll: false });
+    });
+  });
+
   test('given non-404 API failure, should leave pending and keep topic query', async () => {
     setMockSearchParams(new URLSearchParams('topic=ai-regulation-2026'));
     getTopic.mockRejectedValue(new ApiError('Server error', 500));

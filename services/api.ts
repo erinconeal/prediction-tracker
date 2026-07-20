@@ -6,7 +6,7 @@ import type {
 } from '@/types/prediction';
 import { toListRequestFilters } from '@/utils/list-request-filters';
 import type { LeaderboardPage } from '@/lib/leaderboard';
-import type { Topic } from '@/types/topic';
+import { TOPIC_KINDS, type Topic, type TopicKind } from '@/types/topic';
 
 /**
  * Browser-side client for `/api/predictions`, `/api/topics`, and `/api/leaderboard`.
@@ -57,6 +57,69 @@ function errorMessageFromBody(
   return fallback;
 }
 
+function isTopicKind(value: unknown): value is TopicKind {
+  return typeof value === 'string'
+    && (TOPIC_KINDS as readonly string[]).includes(value);
+}
+
+/**
+ * Shared GET for JSON resources: soft-parse error bodies, hard-parse success
+ * bodies, optionally validate the success payload before returning.
+ */
+async function getJsonResource<T>(
+  url: string,
+  {
+    signal,
+    validate,
+  }: {
+    signal?: AbortSignal;
+    validate?: (body: unknown, status: number) => T;
+  } = {},
+): Promise<T> {
+  const response = await fetch(url, {
+    method: 'GET',
+    signal,
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+  });
+  if (!response.ok) {
+    let body: unknown = {};
+    try {
+      body = await parseJson(response);
+    }
+    catch {
+      /* ignore — still throw with status below */
+    }
+    const errBody
+      = body && typeof body === 'object' ? body as object : {};
+    throw new ApiError(
+      errorMessageFromBody(errBody, `Request failed with ${response.status}`),
+      response.status,
+      body,
+    );
+  }
+  const body = await parseJson(response);
+  if (validate) {
+    return validate(body, response.status);
+  }
+  return body as T;
+}
+
+function requireJsonArray<T>(
+  label: string,
+): (body: unknown, status: number) => T[] {
+  return (body, status) => {
+    if (!Array.isArray(body)) {
+      throw new ApiError(
+        `${label} response must be a JSON array`,
+        status,
+        body,
+      );
+    }
+    return body as T[];
+  };
+}
+
 function buildListUrl(filters: PredictionFilters): string {
   const requestFilters = toListRequestFilters(filters);
   const params = new URLSearchParams();
@@ -86,108 +149,50 @@ export async function listPredictions(
   filters: PredictionFilters = {},
   signal?: AbortSignal,
 ): Promise<Prediction[]> {
-  const response = await fetch(buildListUrl(filters), {
-    method: 'GET',
+  return getJsonResource<Prediction[]>(buildListUrl(filters), {
     signal,
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
+    validate: requireJsonArray<Prediction>('Predictions'),
   });
-  if (!response.ok) {
-    let body: object = {};
-    try {
-      body = await parseJson<{ message?: string }>(response);
-    }
-    catch {
-      /* ignore non-JSON error payloads */
-    }
-    throw new ApiError(
-      errorMessageFromBody(body, `Request failed with ${response.status}`),
-      response.status,
-      body,
-    );
-  }
-  const result = await parseJson<unknown>(response);
-  if (!Array.isArray(result)) {
-    throw new ApiError(
-      'Predictions response must be a JSON array',
-      response.status,
-      result,
-    );
-  }
-  return result as Prediction[];
 }
 
 export async function getPrediction(
   id: string,
   signal?: AbortSignal,
 ): Promise<Prediction> {
-  const response = await fetch(`${PREDICTIONS_BASE}/${encodeURIComponent(id)}`, {
-    method: 'GET',
-    signal,
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
-  });
-  let body: { message?: string } & Partial<Prediction> = {};
-  try {
-    body = await parseJson<{ message?: string } & Partial<Prediction>>(response);
-  }
-  catch {
-    /* ignore */
-  }
-  if (!response.ok) {
-    throw new ApiError(
-      errorMessageFromBody(body, `Request failed with ${response.status}`),
-      response.status,
-      body,
-    );
-  }
-  return body as Prediction;
+  return getJsonResource<Prediction>(
+    `${PREDICTIONS_BASE}/${encodeURIComponent(id)}`,
+    { signal },
+  );
 }
 
 export type TopicDetailDto = Topic & {
   predictionCount: number;
 };
 
+const TOPIC_CONTRACT_ERROR
+  = 'Topic response must include a slug and a known kind';
+
 export async function getTopic(
   slug: string,
   signal?: AbortSignal,
 ): Promise<TopicDetailDto> {
-  const response = await fetch(
+  return getJsonResource<TopicDetailDto>(
     `${TOPICS_BASE}/${encodeURIComponent(slug)}`,
     {
-      method: 'GET',
       signal,
-      headers: { Accept: 'application/json' },
-      cache: 'no-store',
+      validate(body, status) {
+        if (
+          !body
+          || typeof body !== 'object'
+          || typeof (body as { slug?: unknown }).slug !== 'string'
+          || !isTopicKind((body as { kind?: unknown }).kind)
+        ) {
+          throw new ApiError(TOPIC_CONTRACT_ERROR, status, body);
+        }
+        return body as TopicDetailDto;
+      },
     },
   );
-  let body: { message?: string } & Partial<TopicDetailDto> = {};
-  try {
-    body = await parseJson<{ message?: string } & Partial<TopicDetailDto>>(
-      response,
-    );
-  }
-  catch {
-    /* ignore */
-  }
-  if (!response.ok) {
-    throw new ApiError(
-      errorMessageFromBody(body, `Request failed with ${response.status}`),
-      response.status,
-      body,
-    );
-  }
-  if (
-    typeof body.slug !== 'string'
-    || typeof body.kind !== 'string'
-  ) {
-    throw new ApiError(
-      'Topic response must include slug and kind',
-      response.status,
-      body,
-    );
-  }
-  return body as TopicDetailDto;
 }
 
 export async function listTopics(
@@ -204,35 +209,10 @@ export async function listTopics(
   if (options.limit !== undefined) params.set('limit', String(options.limit));
   const q = params.toString();
   const url = q ? `${TOPICS_BASE}?${q}` : TOPICS_BASE;
-  const response = await fetch(url, {
-    method: 'GET',
+  return getJsonResource<Topic[] | TrendingTopicDto[]>(url, {
     signal: options.signal,
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
+    validate: requireJsonArray<Topic | TrendingTopicDto>('Topics'),
   });
-  if (!response.ok) {
-    let body: object = {};
-    try {
-      body = await parseJson<{ message?: string }>(response);
-    }
-    catch {
-      /* ignore */
-    }
-    throw new ApiError(
-      errorMessageFromBody(body, `Request failed with ${response.status}`),
-      response.status,
-      body,
-    );
-  }
-  const result = await parseJson<unknown>(response);
-  if (!Array.isArray(result)) {
-    throw new ApiError(
-      'Topics response must be a JSON array',
-      response.status,
-      result,
-    );
-  }
-  return result as Topic[] | TrendingTopicDto[];
 }
 
 export type ListLeaderboardOptions = {
@@ -250,39 +230,23 @@ export async function listLeaderboard(
   if (offset !== 0) params.set('offset', String(offset));
   const q = params.toString();
   const url = q ? `${LEADERBOARD_BASE}?${q}` : LEADERBOARD_BASE;
-  const response = await fetch(url, {
-    method: 'GET',
+  return getJsonResource<LeaderboardPage>(url, {
     signal,
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
+    validate(body, status) {
+      if (
+        !body
+        || typeof body !== 'object'
+        || !Array.isArray((body as LeaderboardPage).rows)
+      ) {
+        throw new ApiError(
+          'Leaderboard response must be a paginated page object',
+          status,
+          body,
+        );
+      }
+      return body as LeaderboardPage;
+    },
   });
-  if (!response.ok) {
-    let body: object = {};
-    try {
-      body = await parseJson<{ message?: string }>(response);
-    }
-    catch {
-      /* ignore */
-    }
-    throw new ApiError(
-      errorMessageFromBody(body, `Request failed with ${response.status}`),
-      response.status,
-      body,
-    );
-  }
-  const result = await parseJson<unknown>(response);
-  if (
-    !result
-    || typeof result !== 'object'
-    || !Array.isArray((result as LeaderboardPage).rows)
-  ) {
-    throw new ApiError(
-      'Leaderboard response must be a paginated page object',
-      response.status,
-      result,
-    );
-  }
-  return result as LeaderboardPage;
 }
 
 export async function createPrediction(

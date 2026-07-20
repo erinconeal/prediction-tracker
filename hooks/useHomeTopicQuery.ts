@@ -28,13 +28,23 @@ export type UseHomeTopicQueryResult = {
   isFeedReady: boolean;
 };
 
+/**
+ * Missing topic (404) or OK response that failed client contract checks
+ * (e.g. invalid kind on 200) — neither can resolve to a home tab/redirect.
+ */
+function isUnusableTopicError(error: unknown): error is ApiError {
+  return error instanceof ApiError
+    && (error.status === 404
+      || (error.status >= 200 && error.status < 300));
+}
+
 async function lookupTopicBySlug(slug: string, signal?: AbortSignal) {
   try {
     const topic = await getTopic(slug, signal);
     return { slug: topic.slug, kind: topic.kind };
   }
   catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
+    if (isUnusableTopicError(error)) {
       return null;
     }
     throw error;
@@ -101,7 +111,8 @@ export function useHomeTopicQuery(): UseHomeTopicQueryResult {
         }
       }
       catch (error) {
-        // Abort or transient API failure: leave pending; only 404 strips via lookup null.
+        // Abort or transient API failure: leave pending.
+        // Unusable topics (404 / bad contract) strip via lookup null.
         if (isAbortError(error) || controller.signal.aborted) return;
       }
     })();

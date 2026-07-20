@@ -218,6 +218,53 @@ describe('getTopic', () => {
       status: 404,
     });
   });
+
+  test('given invalid kind, should throw ApiError', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        id: 'topic-x',
+        slug: 'mystery',
+        name: 'Mystery',
+        kind: 'unknown',
+        parentTopicIds: [],
+        predictionCount: 0,
+      }),
+    );
+
+    await expect(getTopic('mystery')).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Topic response must include a slug and a known kind',
+      status: 200,
+    });
+  });
+
+  test('given missing slug, should throw ApiError', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        id: 'topic-x',
+        name: 'Mystery',
+        kind: 'curated',
+        parentTopicIds: [],
+        predictionCount: 0,
+      }),
+    );
+
+    await expect(getTopic('mystery')).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Topic response must include a slug and a known kind',
+      status: 200,
+    });
+  });
+
+  test('given non-object success body, should throw ApiError', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(null));
+
+    await expect(getTopic('mystery')).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Topic response must include a slug and a known kind',
+      status: 200,
+    });
+  });
 });
 
 describe('listLeaderboard', () => {
