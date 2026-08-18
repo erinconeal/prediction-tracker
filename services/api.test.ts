@@ -148,6 +148,16 @@ describe('listPredictions', () => {
       status: 502,
     });
   });
+
+  test('given response with (message: 123)', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ message: 123 }, { status: 400 }));
+
+    await expect(listPredictions({})).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Request failed with 400',
+      status: 400,
+    });
+  });
 });
 
 describe('getPrediction', () => {
