@@ -5,8 +5,10 @@
 export const RESERVED_ROOT_SEGMENTS = new Set([
   'about',
   'api',
+  'leaderboard',
   'predictions',
   'source',
+  'staff',
   'topics',
 ]);
 

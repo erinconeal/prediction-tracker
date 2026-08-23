@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { loadRouteModule } from '@/test/helpers/load-route-module';
+import { jsonStaffHeaders } from '@/test/helpers/json-staff-headers';
 
 async function loadRoutes() {
   return loadRouteModule(async () => {
@@ -30,7 +31,7 @@ describe('GET /api/predictions/[id] route', () => {
     const { POST, GET } = await loadRoutes();
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ source: 'GET Source', text: 'Row for GET' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
@@ -55,11 +56,44 @@ describe('PATCH /api/predictions/[id] route', () => {
     vi.resetModules();
   });
 
-  test('given invalid JSON body, should return 400', async () => {
+  test('given missing staff secret header, should return 401', async () => {
     const { PATCH } = await loadRoutes();
     const request = new Request('http://localhost/api/predictions/x', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome: 'correct' }),
+    });
+
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'x' }) });
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe('Unauthorized');
+  });
+
+  test('given wrong staff secret header, should return 401', async () => {
+    const { PATCH } = await loadRoutes();
+    const request = new Request('http://localhost/api/predictions/x', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-staff-secret': 'wrong-secret',
+      },
+      body: JSON.stringify({ outcome: 'correct' }),
+    });
+
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'x' }) });
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe('Unauthorized');
+  });
+
+  test('given invalid JSON body, should return 400', async () => {
+    const { PATCH } = await loadRoutes();
+    const request = new Request('http://localhost/api/predictions/x', {
+      method: 'PATCH',
+      headers: jsonStaffHeaders,
       body: '{ bad-json',
     });
 
@@ -74,7 +108,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const { PATCH } = await loadRoutes();
     const request = new Request('http://localhost/api/predictions/x', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ outcome: 'still_open' }),
     });
 
@@ -89,7 +123,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const { PATCH } = await loadRoutes();
     const request = new Request('http://localhost/api/predictions/does-not-exist', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ outcome: 'correct' }),
     });
 
@@ -106,7 +140,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const { POST, PATCH } = await loadRoutes();
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
@@ -118,7 +152,7 @@ describe('PATCH /api/predictions/[id] route', () => {
       `http://localhost/api/predictions/${created.id}`,
       {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: jsonStaffHeaders,
         body: JSON.stringify({ outcome: 'unresolved' }),
       },
     );
@@ -141,7 +175,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const { POST, PATCH } = await loadRoutes();
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
     });
     const created = (await (await POST(createRequest)).json()) as {
@@ -153,7 +187,7 @@ describe('PATCH /api/predictions/[id] route', () => {
       `http://localhost/api/predictions/${created.id}`,
       {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: jsonStaffHeaders,
         body: JSON.stringify({ outcome: 'incorrect' }),
       },
     );

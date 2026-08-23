@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { loadPredictionById, patchPredictionOutcome } from '@/lib/repositories/prediction-repository';
 import { isTerminalOutcomeValue } from '@/types/prediction';
+import { assertStaffSecret } from '@/lib/assert-staff-secret';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -17,6 +18,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
   let body: unknown;
   try {
+    const unauthorized = assertStaffSecret(request);
+    if (unauthorized) return unauthorized;
     body = await request.json();
   }
   catch {

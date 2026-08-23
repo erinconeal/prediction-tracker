@@ -70,6 +70,7 @@ The SQLite file is gitignored (`data/*.sqlite`). Do not commit database files â€
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DATABASE_URL` | `./data/prediction-tracker.sqlite` | Path to the SQLite database file |
+| `STAFF_SECRET` | | Shared password for staff writes for APIs |
 
 See [`.env.example`](.env.example).
 

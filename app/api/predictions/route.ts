@@ -8,6 +8,7 @@ import {
 } from '@/types/prediction';
 import { loadAllPredictions, insertPrediction } from '@/lib/repositories/prediction-repository';
 import { filterAndSortPredictions, paginatePredictions } from '@/lib/prediction-query';
+import { assertStaffSecret } from '@/lib/assert-staff-secret';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;
@@ -58,6 +59,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   let body: unknown;
   try {
+    const unauthorized = assertStaffSecret(request);
+    if (unauthorized) return unauthorized;
     body = await request.json();
   }
   catch {

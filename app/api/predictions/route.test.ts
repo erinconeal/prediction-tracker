@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { loadRouteModule } from '@/test/helpers/load-route-module';
+import { jsonStaffHeaders } from '@/test/helpers/json-staff-headers';
 
 describe('GET /api/predictions route', () => {
   beforeEach(() => {
@@ -187,11 +188,50 @@ describe('POST /api/predictions route', () => {
     vi.resetModules();
   });
 
-  test('given invalid JSON body, should return 400', async () => {
+  test('given missing staff secret header, should return 401', async () => {
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source: 'Staff Gate Source',
+        text: 'Should not be created without a staff secret',
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe('Unauthorized');
+  });
+
+  test('given wrong staff secret header, should return 401', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-staff-secret': 'wrong-secret',
+      },
+      body: JSON.stringify({
+        source: 'Staff Gate Source',
+        text: 'Should not be created with a wrong staff secret',
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe('Unauthorized');
+  });
+
+  test('given invalid JSON body, should return 400', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
       body: '{ invalid',
     });
 
@@ -206,7 +246,7 @@ describe('POST /api/predictions route', () => {
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({ source: ' ', text: '' }),
     });
 
@@ -221,7 +261,7 @@ describe('POST /api/predictions route', () => {
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({
         source: 'New Source',
         text: 'New prediction text',
@@ -244,7 +284,7 @@ describe('POST /api/predictions route', () => {
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({
         source: 'New Source',
         text: 'Linked to AI regulation topic',
@@ -267,7 +307,7 @@ describe('POST /api/predictions route', () => {
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: jsonStaffHeaders,
       body: JSON.stringify({
         source: '  New Source  ',
         text: '  New prediction text  ',
