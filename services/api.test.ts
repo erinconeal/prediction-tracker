@@ -343,6 +343,13 @@ describe('listLeaderboard', () => {
 
 describe('createPrediction', () => {
   const fetchMock = vi.fn<typeof fetch>();
+  const input = {
+    source: 'Bob',
+    text: 'Stocks up',
+    topicIds: ['topic-finance'],
+    created_at: '2026-01-05T14:00:00.000Z',
+    evidenceUrl: 'https://example.com/bob/stocks-up',
+  };
 
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock);
@@ -356,14 +363,7 @@ describe('createPrediction', () => {
     const created = buildPrediction({ id: 'new' });
     fetchMock.mockResolvedValue(jsonResponse(created, { status: 201 }));
 
-    const input = {
-      source: 'Bob',
-      text: 'Stocks up',
-      topicIds: ['topic-finance'],
-      created_at: '2026-01-05T14:00:00.000Z',
-      evidenceUrl: 'https://example.com/bob/stocks-up',
-    };
-    const result = await createPrediction(input);
+    const result = await createPrediction(input, { staffSecret: 'staff-secret' });
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/predictions',
@@ -373,10 +373,29 @@ describe('createPrediction', () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'x-staff-secret': 'staff-secret',
         },
       }),
     );
     expect(result).toEqual(created);
+  });
+
+  test('given no staff secret, should omit the staff header', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(buildPrediction({ id: 'new' }), { status: 201 }),
+    );
+
+    await createPrediction(input);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/predictions',
+      expect.objectContaining({
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
   });
 
   test('given error JSON, should throw ApiError with message', async () => {
@@ -415,16 +434,39 @@ describe('updatePredictionOutcome', () => {
     const updated = buildPrediction({ id: 'a/b', outcome: 'correct' });
     fetchMock.mockResolvedValue(jsonResponse(updated));
 
-    const result = await updatePredictionOutcome('a/b', 'correct');
+    const result = await updatePredictionOutcome('a/b', 'correct', {
+      staffSecret: 'staff-secret',
+    });
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/predictions/a%2Fb',
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ outcome: 'correct' }),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-staff-secret': 'staff-secret',
+        },
       }),
     );
     expect(result).toEqual(updated);
+  });
+
+  test('given no staff secret, should omit the staff header', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(buildPrediction({ id: 'a/b' })));
+
+    await updatePredictionOutcome('a/b', 'correct');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/predictions/a%2Fb',
+      expect.objectContaining({
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
   });
 
   test('given non-ok response, should throw ApiError', async () => {

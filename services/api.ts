@@ -105,6 +105,18 @@ async function getJsonResource<T>(
   return body as T;
 }
 
+/**
+ * JSON write headers. The staff secret is caller-supplied so the browser
+ * bundle never reads `STAFF_SECRET`.
+ */
+function jsonWriteHeaders(staffSecret?: string): Record<string, string> {
+  return {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    ...(staffSecret ? { 'x-staff-secret': staffSecret } : {}),
+  };
+}
+
 function requireJsonArray<T>(
   label: string,
 ): (body: unknown, status: number) => T[] {
@@ -249,17 +261,22 @@ export async function listLeaderboard(
   });
 }
 
+export type PredictionWriteOptions = {
+  signal?: AbortSignal;
+  staffSecret?: string;
+};
+
+/**
+ * Creates a prediction via POST /api/predictions.
+ */
 export async function createPrediction(
   input: CreatePredictionInput,
-  signal?: AbortSignal,
+  { signal, staffSecret }: PredictionWriteOptions = {},
 ): Promise<Prediction> {
   const response = await fetch(PREDICTIONS_BASE, {
     method: 'POST',
     signal,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: jsonWriteHeaders(staffSecret),
     body: JSON.stringify(input),
   });
   let body: { message?: string } & Partial<Prediction> = {};
@@ -279,18 +296,18 @@ export async function createPrediction(
   return body as Prediction;
 }
 
+/**
+ * Sets a terminal outcome via PATCH /api/predictions/:id.
+ */
 export async function updatePredictionOutcome(
   id: string,
   outcome: TerminalOutcome,
-  signal?: AbortSignal,
+  { signal, staffSecret }: PredictionWriteOptions = {},
 ): Promise<Prediction> {
   const response = await fetch(`${PREDICTIONS_BASE}/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     signal,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: jsonWriteHeaders(staffSecret),
     body: JSON.stringify({ outcome }),
   });
   let body: { message?: string } & Partial<Prediction> = {};
