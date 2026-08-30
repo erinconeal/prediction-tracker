@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 import { getDb } from '@/lib/db';
-import { toPrediction, toPredictionInsert } from '@/lib/mappers/prediction-mapper';
+import { normalizeTargetDate, toPrediction, toPredictionInsert } from '@/lib/mappers/prediction-mapper';
 import { findOrCreateSource } from '@/lib/repositories/source-repository';
 import { predictionTopics, predictions, sources } from '@/lib/schema';
 import type { CreatePredictionInput, Prediction, TerminalOutcome } from '@/types/prediction';
@@ -59,9 +59,9 @@ export async function loadAllPredictions(): Promise<Prediction[]> {
 
 export async function insertPrediction(input: CreatePredictionInput): Promise<Prediction> {
   const source = await findOrCreateSource(input.source);
-  const createdAt = new Date().toISOString();
+  const createdAt = normalizeTargetDate(input.created_at);
   const row = toPredictionInsert(input, source.id, createdAt);
-  const topicIds = input.topicIds ?? [];
+  const { topicIds } = input;
 
   getDb().transaction((tx) => {
     tx.insert(predictions).values(row).run();

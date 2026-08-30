@@ -63,90 +63,124 @@ export const PREDICTION_SEED = [
     text: 'Inflation will stay above 2% through Q4.',
     topicSlugs: ['sp-hits-8000', 'housing-market-2026'],
     target_date: '2026-12-31',
+    created_at: '2026-01-05T14:00:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
   },
   {
     source: 'Tech Blogger',
     text: 'Vendor X ships the new chip before June.',
     topicSlugs: ['ai-regulation-2026'],
     target_date: '2026-06-01',
+    created_at: '2026-01-12T16:30:00.000Z',
+    evidenceUrl: 'https://example.com/tech-blogger/vendor-x-chip',
   },
   {
     source: 'Jane Analyst',
     text: 'Unemployment dips below 4% this year.',
     topicSlugs: ['housing-market-2026'],
+    created_at: '2026-01-20T11:00:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/unemployment-below-4pct',
   },
   {
     source: 'Jane Analyst',
     text: 'The Fed cuts rates at least twice before year-end.',
     topicSlugs: ['fed-independence-2027'],
+    created_at: '2026-02-03T09:15:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/fed-rate-cuts',
   },
   {
     source: 'Political Pundit',
     text: 'Democrats hold the Senate in 2026 midterms.',
     topicSlugs: ['midterm-elections-2026'],
     target_date: '2026-11-01',
+    created_at: '2026-02-18T18:00:00.000Z',
+    evidenceUrl: 'https://example.com/political-pundit/senate-2026',
   },
   {
     source: 'Sports Analyst',
     text: 'Brazil wins the 2026 World Cup.',
     topicSlugs: ['world-cup-2026-winner'],
     target_date: '2026-07-01',
+    created_at: '2026-03-01T12:00:00.000Z',
+    evidenceUrl: 'https://example.com/sports-analyst/brazil-world-cup',
   },
   {
     source: 'Climate Writer',
     text: 'At least four Atlantic hurricanes reach Category 3 in 2026.',
     topicSlugs: ['atlantic-hurricane-season-2026'],
+    created_at: '2026-03-15T10:00:00.000Z',
+    evidenceUrl: 'https://example.com/climate-writer/atlantic-hurricanes-2026',
   },
   {
     source: 'History Buff',
     text: 'A 1930s-style depression begins before 2028.',
     topicSlugs: ['great-depression-analog'],
+    created_at: '2026-04-02T13:45:00.000Z',
+    evidenceUrl: 'https://example.com/history-buff/1930s-depression',
   },
   {
     source: 'Tech Blogger',
     text: 'Still open: EV share of new US sales exceeds 25% by 2027.',
     topicSlugs: ['ev-adoption-2030'],
     target_date: '2027-06-01',
+    created_at: '2026-04-20T15:00:00.000Z',
+    evidenceUrl: 'https://example.com/tech-blogger/ev-share-25pct',
   },
   {
     source: 'Jane Analyst',
     text: 'Core CPI cools below 3% before September.',
     topicSlugs: ['sp-hits-8000'],
+    created_at: '2026-05-08T08:30:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/core-cpi',
   },
   {
     source: 'Jane Analyst',
     text: 'Mortgage rates fall below 6% this year.',
     topicSlugs: ['housing-market-2026'],
+    created_at: '2026-05-22T17:00:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/mortgage-rates',
   },
   {
     source: 'Jane Analyst',
     text: 'Payrolls growth slows for three straight months.',
     topicSlugs: ['housing-market-2026'],
+    created_at: '2026-06-04T12:00:00.000Z',
+    evidenceUrl: 'https://example.com/jane-analyst/payrolls-slowdown',
   },
   {
     source: 'Tech Blogger',
     text: 'Major cloud vendor announces on-device AI chips.',
     topicSlugs: ['ai-regulation-2026'],
+    created_at: '2026-06-18T19:20:00.000Z',
+    evidenceUrl: 'https://example.com/tech-blogger/on-device-ai-chips',
   },
   {
     source: 'Tech Blogger',
     text: 'Open-source model beats proprietary benchmark on coding tasks.',
     topicSlugs: ['ai-regulation-2026'],
+    created_at: '2026-07-01T11:00:00.000Z',
+    evidenceUrl: 'https://example.com/tech-blogger/oss-coding-benchmark',
   },
   {
     source: 'Political Pundit',
     text: 'Governor race flips in a Sun Belt state.',
     topicSlugs: ['midterm-elections-2026'],
+    created_at: '2026-07-15T14:30:00.000Z',
+    evidenceUrl: 'https://example.com/political-pundit/sun-belt-governor',
   },
   {
     source: 'Sports Analyst',
     text: 'France reaches the World Cup final.',
     topicSlugs: ['world-cup-2026-winner'],
+    created_at: '2026-08-01T09:00:00.000Z',
+    evidenceUrl: 'https://example.com/sports-analyst/france-world-cup-final',
   },
   {
     source: 'Climate Writer',
     text: 'Global temperature record broken again in 2026.',
     topicSlugs: ['atlantic-hurricane-season-2026'],
+    created_at: '2026-08-12T16:00:00.000Z',
+    evidenceUrl: 'https://example.com/climate-writer/temperature-record-2026',
   },
 ] as const;
 
@@ -214,22 +248,18 @@ async function seedPredictions(db = getDb()) {
   const now = new Date();
   const insertedIds: string[] = [];
 
-  for (let i = 0; i < PREDICTION_SEED.length; i++) {
-    const sample = PREDICTION_SEED[i];
+  for (const sample of PREDICTION_SEED) {
     const topicIds = await Promise.all(sample.topicSlugs.map(slug => tid(slug, db)));
 
     const row = await insertPrediction({
+      created_at: sample.created_at,
       source: sample.source,
       text: sample.text,
       topicIds,
       target_date: 'target_date' in sample ? sample.target_date : undefined,
+      evidenceUrl: sample.evidenceUrl,
     });
     insertedIds.push(row.id);
-
-    // override created_at for stable sort demos
-    await db.update(predictions).set({
-      createdAt: new Date(now.getTime() + i * 1000).toISOString(),
-    }).where(eq(predictions.id, row.id));
   }
 
   for (const { index, outcome, hoursAgo } of PREDICTION_OUTCOME_OVERRIDES) {

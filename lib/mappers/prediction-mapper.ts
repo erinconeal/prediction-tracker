@@ -27,6 +27,7 @@ export function toPrediction(
     finished_at: row.finishedAt ?? null,
     target_date: row.targetDate ?? null,
     outcome: row.outcome as Outcome,
+    evidenceUrl: row.evidenceUrl ?? null,
   };
 }
 
@@ -45,6 +46,6 @@ export function toPredictionInsert(
       ? normalizeTargetDate(input.target_date)
       : null,
     outcome: 'still_open' as const,
-    evidenceUrl: null,
+    evidenceUrl: input.evidenceUrl.trim(),
   };
 }

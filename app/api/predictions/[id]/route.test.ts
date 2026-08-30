@@ -10,6 +10,15 @@ async function loadRoutes() {
   });
 }
 
+function createBody(source: string, text: string) {
+  return {
+    source,
+    text,
+    created_at: '2026-01-05T14:00:00.000Z',
+    evidenceUrl: 'https://example.com/evidence',
+  };
+}
+
 describe('GET /api/predictions/[id] route', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -32,7 +41,7 @@ describe('GET /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify({ source: 'GET Source', text: 'Row for GET' }),
+      body: JSON.stringify(createBody('GET Source', 'Row for GET')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -141,7 +150,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
+      body: JSON.stringify(createBody('Patch Source', 'Update me')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -176,7 +185,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify({ source: 'Patch Source', text: 'Update me' }),
+      body: JSON.stringify(createBody('Patch Source', 'Update me')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;

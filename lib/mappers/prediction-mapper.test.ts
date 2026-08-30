@@ -27,6 +27,8 @@ describe('toPredictionInsert', () => {
       text: '  Inflation will stay above 2% through Q4.  ',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '2026-12-31',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -38,9 +40,21 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
+  });
+
+  test('given https evidence URL, should persist it', () => {
+    const input = {
+      source: 'Jane Analyst',
+      text: 'Inflation will stay above 2% through Q4.',
+      topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: '  https://example.com/jane-analyst/inflation-above-2pct  ',
+    };
+    const result = toPredictionInsert(input, 'source-jane-analyst', '2026-01-01T00:00:00.000Z');
+    expect(result.evidenceUrl).toBe('https://example.com/jane-analyst/inflation-above-2pct');
   });
 
   test('given target_date omitted, should set to null', () => {
@@ -48,6 +62,8 @@ describe('toPredictionInsert', () => {
       source: 'Jane Analyst',
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -59,7 +75,7 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: null,
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -70,6 +86,8 @@ describe('toPredictionInsert', () => {
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '   ',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -81,7 +99,7 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: null,
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -92,6 +110,8 @@ describe('toPredictionInsert', () => {
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '2026-12-31T00:00:00.000Z',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -104,7 +124,7 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -115,6 +135,8 @@ describe('toPredictionInsert', () => {
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '2026-12-31',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -126,7 +148,7 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -137,6 +159,8 @@ describe('toPredictionInsert', () => {
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '2026-12-31',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -148,7 +172,7 @@ describe('toPredictionInsert', () => {
       finishedAt: null,
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
-      evidenceUrl: null,
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -159,6 +183,8 @@ describe('toPredictionInsert', () => {
       text: 'Inflation will stay above 2% through Q4.',
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
       target_date: '2026-12-31',
+      created_at: '2026-01-01T00:00:00.000Z',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
     };
     const sourceId = 'source-jane-analyst';
     const createdAt = '2026-01-01T00:00:00.000Z';
@@ -197,6 +223,7 @@ describe('toPrediction', () => {
       finished_at: null,
       target_date: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
+      evidenceUrl: null,
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
     };
     expect(toPrediction(predictionRow, sourceRow, topicIds)).toEqual(expected);
@@ -230,8 +257,37 @@ describe('toPrediction', () => {
       finished_at: null,
       target_date: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
+      evidenceUrl: null,
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
     };
     expect(toPrediction(predictionRow, sourceRow, topicIds)).toEqual(expected);
+  });
+
+  test('given row with evidence URL, should expose it on the prediction', () => {
+    const predictionRow: typeof predictions.$inferSelect = {
+      id: 'prediction-123',
+      sourceId: 'source-jane-analyst',
+      text: 'Inflation will stay above 2% through Q4.',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      finishedAt: null,
+      targetDate: '2026-12-31T00:00:00.000Z',
+      outcome: 'still_open',
+      evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+    };
+    const sourceRow = {
+      id: 'source-jane-analyst',
+      slug: 'jane-analyst',
+      displayName: 'Jane Analyst',
+      profileUrl: null,
+      active: true,
+    };
+    const result = toPrediction(
+      predictionRow,
+      sourceRow,
+      ['topic-sp-hits-8000'],
+    );
+    expect(result.evidenceUrl).toBe(
+      'https://example.com/jane-analyst/inflation-above-2pct',
+    );
   });
 });

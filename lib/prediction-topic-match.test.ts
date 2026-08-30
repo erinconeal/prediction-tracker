@@ -17,6 +17,7 @@ function base(overrides: Partial<Prediction> = {}): Prediction {
     finished_at: null,
     target_date: null,
     outcome: 'still_open',
+    evidenceUrl: null,
     ...overrides,
   };
 }

@@ -39,6 +39,7 @@ export type Prediction = {
   finished_at: string | null;
   target_date: string | null;
   outcome: Outcome;
+  evidenceUrl: string | null;
 };
 
 /** List ordering for `/api/predictions`; default is `newest`. */
@@ -60,12 +61,17 @@ export type PredictionFilters = {
   sort?: PredictionListSort;
 };
 
+/** Body for POST /api/predictions. */
 export type CreatePredictionInput = {
   source: string;
   text: string;
-  topicIds?: string[];
+  topicIds: string[];
   /** ISO date string (YYYY-MM-DD) or full ISO datetime */
   target_date?: string;
+  /** When the statement was made (ISO datetime or YYYY-MM-DD). */
+  created_at: string;
+  /** Public http(s) URL for the original statement. */
+  evidenceUrl: string;
 };
 
 export type UpdatePredictionOutcomeInput = {

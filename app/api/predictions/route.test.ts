@@ -184,6 +184,13 @@ describe('GET /api/predictions route', () => {
 });
 
 describe('POST /api/predictions route', () => {
+  const createPayload = {
+    source: '  New Source  ',
+    text: '  New prediction text  ',
+    created_at: '2026-01-05T14:00:00.000Z',
+    evidenceUrl: 'https://example.com/new-source/prediction',
+  };
+
   beforeEach(() => {
     vi.resetModules();
   });
@@ -266,6 +273,8 @@ describe('POST /api/predictions route', () => {
         source: 'New Source',
         text: 'New prediction text',
         topicIds: ['not-a-real-topic-id'],
+        created_at: '2026-01-05T14:00:00.000Z',
+        evidenceUrl: 'https://example.com/new-source/prediction',
       }),
     });
 
@@ -289,6 +298,8 @@ describe('POST /api/predictions route', () => {
         source: 'New Source',
         text: 'Linked to AI regulation topic',
         topicIds: [topic!.id],
+        created_at: '2026-01-05T14:00:00.000Z',
+        evidenceUrl: 'https://example.com/new-source/ai-regulation',
       }),
     });
 
@@ -309,8 +320,7 @@ describe('POST /api/predictions route', () => {
       method: 'POST',
       headers: jsonStaffHeaders,
       body: JSON.stringify({
-        source: '  New Source  ',
-        text: '  New prediction text  ',
+        ...createPayload,
         target_date: '2026-12-31',
       }),
     });
@@ -324,6 +334,8 @@ describe('POST /api/predictions route', () => {
       sourceSlug: string;
       outcome: string;
       id: string;
+      created_at: string;
+      evidenceUrl: string | null;
     };
 
     expect(response.status).toBe(201);
@@ -334,5 +346,55 @@ describe('POST /api/predictions route', () => {
     expect(body.sourceSlug).toBe('new-source');
     expect(body.outcome).toBe('still_open');
     expect(body.target_date).toBe('2026-12-31T00:00:00.000Z');
+    expect(body.created_at).toBe('2026-01-05T14:00:00.000Z');
+    expect(body.evidenceUrl).toBe('https://example.com/new-source/prediction');
+  });
+
+  test('given missing statement time, should return 400', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({ ...createPayload, created_at: undefined }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain('created_at');
+  });
+
+  test('given invalid statement time, should return 400', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({ ...createPayload, created_at: 'not-a-date' }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain('created_at');
+  });
+
+  test('given a non-http evidence URL, should return 400', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({
+        ...createPayload,
+        evidenceUrl: 'javascript:alert(1)',
+      }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain('evidenceUrl');
   });
 });

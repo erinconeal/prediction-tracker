@@ -360,6 +360,8 @@ describe('createPrediction', () => {
       source: 'Bob',
       text: 'Stocks up',
       topicIds: ['topic-finance'],
+      created_at: '2026-01-05T14:00:00.000Z',
+      evidenceUrl: 'https://example.com/bob/stocks-up',
     };
     const result = await createPrediction(input);
 
@@ -383,7 +385,13 @@ describe('createPrediction', () => {
     );
 
     await expect(
-      createPrediction({ source: 'x', text: 'y' }),
+      createPrediction({
+        source: 'x',
+        text: 'y',
+        topicIds: [],
+        created_at: '2026-01-05T14:00:00.000Z',
+        evidenceUrl: 'https://example.com/x/y',
+      }),
     ).rejects.toMatchObject({
       name: 'ApiError',
       message: 'Invalid payload',

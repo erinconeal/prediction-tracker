@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { findUnknownTopicIds } from '@/lib/validate-topic-ids';
 import {
   OUTCOMES,
-  type CreatePredictionInput,
   type Outcome,
   type PredictionListSort,
 } from '@/types/prediction';
 import { loadAllPredictions, insertPrediction } from '@/lib/repositories/prediction-repository';
 import { filterAndSortPredictions, paginatePredictions } from '@/lib/prediction-query';
 import { assertStaffSecret } from '@/lib/assert-staff-secret';
+import { parseCreatePredictionBody } from '@/lib/parse-create-prediction-body';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;
@@ -52,9 +52,10 @@ export async function GET(request: Request) {
 }
 
 /**
- * Creates a prediction with server-owned fields (`id`, timestamps, `sourceSlug`,
- * default `outcome`). Validates input before the store so bad payloads never
- * allocate rows; responds with 201 and the full row for the client cache.
+ * Creates a prediction with server-owned fields (`id`, `sourceSlug`, default
+ * `outcome`). The client supplies `created_at` (when stated) and `evidenceUrl`.
+ * Validates input before insert so bad payloads never allocate rows; responds
+ * with 201 and the full row for the client cache.
  */
 export async function POST(request: Request) {
   let body: unknown;
@@ -66,23 +67,13 @@ export async function POST(request: Request) {
   catch {
     return NextResponse.json({ message: 'Invalid JSON body' }, { status: 400 });
   }
-  if (!body || typeof body !== 'object') {
-    return NextResponse.json({ message: 'Expected object body' }, { status: 400 });
+  const parsed = parseCreatePredictionBody(body);
+  if (!parsed.ok) {
+    return NextResponse.json({ message: parsed.message }, { status: 400 });
   }
-  const b = body as Record<string, unknown>;
-  const source = typeof b.source === 'string' ? b.source : '';
-  const text = typeof b.text === 'string' ? b.text : '';
-  if (!source.trim() || !text.trim()) {
-    return NextResponse.json(
-      { message: '`source` and `text` are required strings' },
-      { status: 400 },
-    );
-  }
-  const topicIds = Array.isArray(b.topicIds)
-    ? b.topicIds.filter((id): id is string => typeof id === 'string')
-    : undefined;
-  if (topicIds && topicIds.length > 0) {
-    const unknown = await findUnknownTopicIds(topicIds);
+  const input = parsed.value;
+  if (input.topicIds.length > 0) {
+    const unknown = await findUnknownTopicIds(input.topicIds);
     if (unknown.length > 0) {
       return NextResponse.json(
         { message: `Unknown topicIds: ${unknown.join(', ')}` },
@@ -90,12 +81,6 @@ export async function POST(request: Request) {
       );
     }
   }
-  const input: CreatePredictionInput = {
-    source,
-    text,
-    topicIds,
-    target_date: typeof b.target_date === 'string' ? b.target_date : undefined,
-  };
   const created = await insertPrediction(input);
   return NextResponse.json(created, { status: 201 });
 }
