@@ -55,7 +55,8 @@ This project uses **SQLite** with [Drizzle ORM](https://orm.drizzle.team/) for p
    npm run db:seed
    ```
 
-   Use `npm run db:seed -- --force` to wipe topics/predictions and re-seed.
+   Use `npm run db:seed -- --force` to wipe topics/predictions and re-seed Jane.
+   Use `npm run db:clear-predictions` to delete quotes and people while keeping topics (does not re-seed Jane).
 
 5. Start the app:
 
@@ -82,6 +83,7 @@ See [`.env.example`](.env.example).
 | `npm run db:generate` | Generate a new migration after changing `lib/schema.ts` |
 | `npm run db:studio` | Open Drizzle Studio (visual browser for the DB) |
 | `npm run db:seed` | Seed demo topics and predictions (`--force` to re-seed) |
+| `npm run db:clear-predictions` | Delete predictions and sources; keep topics (does not re-seed Jane) |
 
 ### Changing the schema
 
