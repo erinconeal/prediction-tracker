@@ -104,6 +104,7 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
             targetDate={p.target_date}
             finishedAt={p.finished_at}
             topicIds={p.topicIds}
+            evidenceUrl={p.evidenceUrl}
           />
 
           <PredictionLifecycleTimeline

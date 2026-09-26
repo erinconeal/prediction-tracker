@@ -10,10 +10,15 @@ async function loadRoutes() {
   });
 }
 
-function createBody(source: string, text: string) {
+async function createBody(source: string, text: string) {
+  const { listTopics } = await import('@/lib/repositories/topic-repository');
+  const topic = (await listTopics()).find(t => t.slug === 'ai-regulation-2026');
+  if (!topic) throw new Error('seeded topic ai-regulation-2026 missing');
+
   return {
     source,
     text,
+    topicIds: [topic.id],
     created_at: '2026-01-05T14:00:00.000Z',
     evidenceUrl: 'https://example.com/evidence',
   };
@@ -41,7 +46,7 @@ describe('GET /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify(createBody('GET Source', 'Row for GET')),
+      body: JSON.stringify(await createBody('GET Source', 'Row for GET')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -150,7 +155,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify(createBody('Patch Source', 'Update me')),
+      body: JSON.stringify(await createBody('Patch Source', 'Update me')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -185,7 +190,7 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify(createBody('Patch Source', 'Update me')),
+      body: JSON.stringify(await createBody('Patch Source', 'Update me')),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;

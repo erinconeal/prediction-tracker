@@ -4,6 +4,7 @@ import { parseCreatePredictionBody } from './parse-create-prediction-body';
 const validBody = {
   source: 'Jane Analyst',
   text: 'Inflation will stay above 2% through Q4.',
+  topicIds: ['topic-sp-hits-8000'],
   created_at: '2026-01-05T14:00:00.000Z',
   evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
 };
@@ -38,14 +39,14 @@ describe('parseCreatePredictionBody', () => {
   test('given missing source and text, should reject', () => {
     expect(parseCreatePredictionBody({ source: ' ', text: '' })).toEqual({
       ok: false,
-      message: '`source` and `text` are required strings',
+      message: 'Source name and Prediction text are required',
     });
   });
 
   test('given missing statement time, should reject', () => {
     expect(parseCreatePredictionBody({ ...validBody, created_at: undefined })).toEqual({
       ok: false,
-      message: '`created_at` is required and must be an ISO date or YYYY-MM-DD',
+      message: 'Date said is required and must be a valid date in YYYY-MM-DD format',
     });
   });
 
@@ -55,7 +56,7 @@ describe('parseCreatePredictionBody', () => {
       created_at: 'not-a-date',
     })).toEqual({
       ok: false,
-      message: '`created_at` is required and must be an ISO date or YYYY-MM-DD',
+      message: 'Date said is required and must be a valid date in YYYY-MM-DD format',
     });
   });
 
@@ -75,7 +76,14 @@ describe('parseCreatePredictionBody', () => {
   test('given missing evidence URL, should reject', () => {
     expect(parseCreatePredictionBody({ ...validBody, evidenceUrl: undefined })).toEqual({
       ok: false,
-      message: '`evidenceUrl` is required and must be an http: or https: URL',
+      message: 'Evidence URL is required and must be an http or https URL',
+    });
+  });
+
+  test('given no topics, should reject before create', () => {
+    expect(parseCreatePredictionBody({ ...validBody, topicIds: [] })).toEqual({
+      ok: false,
+      message: 'Topics must include at least one topic',
     });
   });
 
@@ -85,7 +93,7 @@ describe('parseCreatePredictionBody', () => {
       evidenceUrl: 'javascript:alert(1)',
     })).toEqual({
       ok: false,
-      message: '`evidenceUrl` is required and must be an http: or https: URL',
+      message: 'Evidence URL is required and must be an http or https URL',
     });
   });
 

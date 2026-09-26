@@ -9,6 +9,7 @@ import { isAbortError } from '@/utils/is-abort-error';
 let sharedCatalog: Topic[] | null = null;
 let sharedCatalogPromise: Promise<Topic[]> | null = null;
 let catalogLoadStarted = false;
+let sharedCatalogError: string | null = null;
 const catalogListeners = new Set<() => void>();
 const EMPTY_TOPICS: Topic[] = [];
 
@@ -17,6 +18,7 @@ export function resetTopicCatalogCacheForTests(): void {
   sharedCatalog = null;
   sharedCatalogPromise = null;
   catalogLoadStarted = false;
+  sharedCatalogError = null;
 }
 
 function notifyTopicCatalogListeners(): void {
@@ -36,11 +38,13 @@ function subscribeToTopicCatalog(onStoreChange: () => void): () => void {
 async function runTopicCatalogLoad(): Promise<void> {
   try {
     await loadSharedCatalog();
+    sharedCatalogError = null;
     notifyTopicCatalogListeners();
   }
   catch (err: unknown) {
     catalogLoadStarted = false;
     if (!isAbortError(err)) {
+      sharedCatalogError = err instanceof Error ? err.message : 'Failed to load topics';
       notifyTopicCatalogListeners();
     }
   }
@@ -49,6 +53,16 @@ async function runTopicCatalogLoad(): Promise<void> {
 function ensureTopicCatalogLoaded(): void {
   if (sharedCatalog || catalogLoadStarted) return;
   catalogLoadStarted = true;
+  void runTopicCatalogLoad();
+}
+
+/** Reloads after a failed fetch. No-op while a load is in flight or cached. */
+function refetchTopicCatalog(): void {
+  if (sharedCatalog || catalogLoadStarted) return;
+  sharedCatalogError = null;
+  sharedCatalogPromise = null;
+  catalogLoadStarted = true;
+  notifyTopicCatalogListeners();
   void runTopicCatalogLoad();
 }
 
@@ -66,6 +80,14 @@ function getLoadingClientSnapshot(): boolean {
 
 function getLoadingServerSnapshot(): boolean {
   return false;
+}
+
+function getErrorClientSnapshot(): string | null {
+  return sharedCatalogError;
+}
+
+function getErrorServerSnapshot(): string | null {
+  return null;
 }
 
 async function fetchSharedCatalog(signal?: AbortSignal): Promise<Topic[]> {
@@ -117,10 +139,13 @@ const getParentBucketTopics = async (topic: Topic) => {
 /**
  * Client-side topic lookup for chips and labels.
  * Catalog is loaded once via the topics API; ID lookups use that in-memory cache.
+ * Failed loads expose `error` and can be retried with `refetch`.
  */
 export function useTopicCatalog(): {
   topics: Topic[];
   loading: boolean;
+  error: string | null;
+  refetch: () => void;
   getTopicsByIds: (ids: string[]) => Promise<Topic[]>;
   getPrimaryTopicForPrediction: (ids: string[]) => Promise<Topic | null>;
   getParentBucketTopics: (topic: Topic) => Promise<Topic[]>;
@@ -135,10 +160,17 @@ export function useTopicCatalog(): {
     getLoadingClientSnapshot,
     getLoadingServerSnapshot,
   );
+  const error = useSyncExternalStore(
+    subscribeToTopicCatalog,
+    getErrorClientSnapshot,
+    getErrorServerSnapshot,
+  );
 
   return {
     topics,
     loading,
+    error,
+    refetch: refetchTopicCatalog,
     getTopicsByIds,
     getPrimaryTopicForPrediction,
     getParentBucketTopics,

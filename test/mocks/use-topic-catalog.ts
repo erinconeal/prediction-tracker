@@ -42,6 +42,8 @@ function syncGetParentBucketTopics(topic: Topic): Topic[] {
 export const topicCatalogMockValue = {
   topics: [...TOPIC_BY_ID.values()],
   loading: false,
+  error: null as string | null,
+  refetch: vi.fn(),
   getTopicsByIds: (ids: string[]) => Promise.resolve(syncGetTopicsByIds(ids)),
   getPrimaryTopicForPrediction: (ids: string[]) => Promise.resolve(syncGetPrimaryTopicForPrediction(ids)),
   getParentBucketTopics: (topic: Topic) => Promise.resolve(syncGetParentBucketTopics(topic)),
@@ -57,6 +59,8 @@ export function resetTopicCatalogMockForTests() {
   catalogMocks.getParentBucketTopicsOverride = null;
   topicCatalogMockValue.topics = [...TOPIC_BY_ID.values()];
   topicCatalogMockValue.loading = false;
+  topicCatalogMockValue.error = null;
+  topicCatalogMockValue.refetch.mockReset();
 }
 
 vi.mock('@/hooks/useTopicCatalog', () => ({

@@ -261,7 +261,22 @@ describe('POST /api/predictions route', () => {
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain('required strings');
+    expect(body.message).toContain('Source name and Prediction text are required');
+  });
+
+  test('given no topics, should return 400', async () => {
+    const { POST } = await loadRouteModule(() => import('./route'));
+    const request = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({ ...createPayload, topicIds: [] }),
+    });
+
+    const response = await POST(request);
+    const body = (await response.json()) as { message: string };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain('Topics');
   });
 
   test('given unknown topicIds, should return 400', async () => {
@@ -315,12 +330,17 @@ describe('POST /api/predictions route', () => {
   });
 
   test('given valid payload, should create row and return 201', async () => {
+    const { listTopics } = await import('@/lib/repositories/topic-repository');
+    const topic = (await listTopics()).find(t => t.slug === 'ai-regulation-2026');
+    expect(topic).toBeDefined();
+
     const { POST } = await loadRouteModule(() => import('./route'));
     const request = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
       body: JSON.stringify({
         ...createPayload,
+        topicIds: [topic!.id],
         target_date: '2026-12-31',
       }),
     });
@@ -342,7 +362,7 @@ describe('POST /api/predictions route', () => {
     expect(body.id).toBeTruthy();
     expect(body.source).toBe('New Source');
     expect(body.text).toBe('New prediction text');
-    expect(body.topicIds).toEqual([]);
+    expect(body.topicIds).toEqual([topic!.id]);
     expect(body.sourceSlug).toBe('new-source');
     expect(body.outcome).toBe('still_open');
     expect(body.target_date).toBe('2026-12-31T00:00:00.000Z');
@@ -362,7 +382,7 @@ describe('POST /api/predictions route', () => {
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain('created_at');
+    expect(body.message).toContain('Date said');
   });
 
   test('given invalid statement time, should return 400', async () => {
@@ -377,7 +397,7 @@ describe('POST /api/predictions route', () => {
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain('created_at');
+    expect(body.message).toContain('Date said');
   });
 
   test('given a non-http evidence URL, should return 400', async () => {
@@ -395,6 +415,6 @@ describe('POST /api/predictions route', () => {
     const body = (await response.json()) as { message: string };
 
     expect(response.status).toBe(400);
-    expect(body.message).toContain('evidenceUrl');
+    expect(body.message).toContain('Evidence URL');
   });
 });

@@ -11,7 +11,10 @@
   --ink: #1e3a5f;
   --interactive: #2563eb;
   --primary: #0f766e;
-  --primary-hover: #0d9488;
+  --primary-foreground: #ffffff;
+  /* Darker than --primary so a white label stays above 4.5:1. */
+  --primary-hover: #0e6e67;
+  --error-foreground: #ffffff;
   --accent-warn: #b45309;
   --success: #15803d;
   --warning: #ca8a04;
@@ -30,7 +33,9 @@
     --ink: #93c5fd;
     --interactive: #60a5fa;
     --primary: #14b8a6;
+    --primary-foreground: #0c0c0d;
     --primary-hover: #2dd4bf;
+    --error-foreground: #0c0c0d;
     --accent-warn: #fbbf24;
     --success: #4ade80;
     --warning: #facc15;
@@ -49,11 +54,13 @@
   --color-ink: var(--ink);
   --color-interactive: var(--interactive);
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-primary-hover: var(--primary-hover);
   --color-accent-warn: var(--accent-warn);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
   --color-info: var(--info);
   --font-sans: var(--font-pt-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-pt-display), ui-serif, Georgia, "Times New Roman",

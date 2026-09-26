@@ -31,6 +31,43 @@ describe('PredictionDetailView', () => {
     });
   });
 
+  test('given an evidence URL, should link to the original statement', () => {
+    mockUsePrediction.mockReturnValue({
+      prediction: buildPrediction({
+        id: 'p-evidence',
+        text: 'Rates will fall this year',
+        evidenceUrl: 'https://example.com/quote',
+      }),
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<PredictionDetailView id="p-evidence" />);
+
+    const link = screen.getByRole('link', { name: 'See original' });
+    expect(link).toHaveAttribute('href', 'https://example.com/quote');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  test('given no evidence URL, should not offer an original statement link', () => {
+    mockUsePrediction.mockReturnValue({
+      prediction: buildPrediction({
+        id: 'p-no-evidence',
+        text: 'Rates will fall this year',
+        evidenceUrl: null,
+      }),
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    render(<PredictionDetailView id="p-no-evidence" />);
+
+    expect(screen.queryByRole('link', { name: 'See original' })).not.toBeInTheDocument();
+  });
+
   test('given a loaded prediction, should show breadcrumb with current page', () => {
     mockUsePrediction.mockReturnValue({
       prediction: buildPrediction({

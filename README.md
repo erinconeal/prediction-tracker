@@ -16,6 +16,8 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+Staff capture lives at [`/staff/add`](http://localhost:3000/staff/add) (not linked in the public nav; `noindex`). Set `STAFF_SECRET` and paste the same value into the staff password field.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
@@ -71,7 +73,7 @@ The SQLite file is gitignored (`data/*.sqlite`). Do not commit database files â€
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DATABASE_URL` | `./data/prediction-tracker.sqlite` | Path to the SQLite database file |
-| `STAFF_SECRET` | | Shared password for staff writes for APIs |
+| `STAFF_SECRET` | | Shared password for staff writes (`POST`/`PATCH` APIs and the `/staff/add` form) |
 
 See [`.env.example`](.env.example).
 

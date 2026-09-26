@@ -21,6 +21,7 @@ type PredictionDetailHeaderProps = {
   targetDate: string | null;
   finishedAt: string | null;
   topicIds: string[];
+  evidenceUrl?: string | null;
 };
 
 function MetricCell({
@@ -53,6 +54,7 @@ export const PredictionDetailHeader = forwardRef<
     targetDate,
     finishedAt,
     topicIds,
+    evidenceUrl = null,
   },
   ref,
 ) {
@@ -92,33 +94,47 @@ export const PredictionDetailHeader = forwardRef<
           </div>
         )}
         afterTitle={(
-          <div
-            className="mt-6 grid gap-4 sm:grid-cols-3"
-            aria-label="Prediction dates"
-          >
-            <MetricCell label={TIMELINE_SUBMITTED_LABEL}>
-              <time dateTime={createdAt}>
-                {formatIsoDate(createdAt)}
-              </time>
-            </MetricCell>
-            {targetDate
+          <div className="mt-4">
+            {evidenceUrl
               ? (
-                  <MetricCell label="Target">
-                    <time dateTime={targetDate}>
-                      {formatMonthYear(targetDate)}
-                    </time>
-                  </MetricCell>
+                  <a
+                    href={evidenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center font-medium text-interactive underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    See original
+                  </a>
                 )
               : null}
-            {finishedAt
-              ? (
-                  <MetricCell label={TIMELINE_FINISHED_LABEL}>
-                    <time dateTime={finishedAt}>
-                      {formatIsoDate(finishedAt)}
-                    </time>
-                  </MetricCell>
-                )
-              : null}
+            <div
+              className="mt-6 grid gap-4 sm:grid-cols-3"
+              aria-label="Prediction dates"
+            >
+              <MetricCell label={TIMELINE_SUBMITTED_LABEL}>
+                <time dateTime={createdAt}>
+                  {formatIsoDate(createdAt)}
+                </time>
+              </MetricCell>
+              {targetDate
+                ? (
+                    <MetricCell label="Target">
+                      <time dateTime={targetDate}>
+                        {formatMonthYear(targetDate)}
+                      </time>
+                    </MetricCell>
+                  )
+                : null}
+              {finishedAt
+                ? (
+                    <MetricCell label={TIMELINE_FINISHED_LABEL}>
+                      <time dateTime={finishedAt}>
+                        {formatIsoDate(finishedAt)}
+                      </time>
+                    </MetricCell>
+                  )
+                : null}
+            </div>
           </div>
         )}
         footer={<ForecastCardMetaFooter topicIds={topicIds} />}

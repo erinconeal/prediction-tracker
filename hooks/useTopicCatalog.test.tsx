@@ -53,6 +53,43 @@ describe('useTopicCatalog', () => {
     );
   });
 
+  test('given catalog fetch fails, should expose an error and no topics', async () => {
+    listTopics.mockRejectedValueOnce(new Error('network down'));
+
+    const { result } = renderHook(() => useTopicCatalog());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.topics).toEqual([]);
+    expect(result.current.error).toBe('network down');
+  });
+
+  test('given catalog fetch fails, refetch should clear the error after a later success', async () => {
+    listTopics
+      .mockRejectedValueOnce(new Error('network down'))
+      .mockResolvedValue(catalogFixture);
+
+    const { result } = renderHook(() => useTopicCatalog());
+
+    await waitFor(() => {
+      expect(result.current.error).toBe('network down');
+    });
+
+    result.current.refetch();
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.error).toBeNull();
+      expect(
+        result.current.topics.some(t => t.slug === 'ai-regulation-2026'),
+      ).toBe(true);
+    });
+
+    expect(listTopics).toHaveBeenCalledTimes(2);
+  });
+
   test('given catalog fetch fails then a later request succeeds, should expose topics to subscribers', async () => {
     listTopics
       .mockRejectedValueOnce(new Error('network down'))

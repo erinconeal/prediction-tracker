@@ -18,6 +18,7 @@
     "db:clear-predictions": "tsx scripts/clear-predictions.ts"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "aidd": "^3.1.0",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",

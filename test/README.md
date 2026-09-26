@@ -96,6 +96,7 @@ Keep per-test overrides minimal — defaults live in one place.
 
 - Import `@/test/mocks/use-topic-catalog` once per file; do not reimplement `primaryFromIds` / `parentBucketsFromTopic`.
 - Override parent buckets per test: **`setMockGetParentBucketTopics(() => [parentTechTopic])`**.
+- Override load failure: set **`topicCatalogMockValue.error`** (and usually **`topics = []`**).
 - Reset overrides in `beforeEach`: **`resetTopicCatalogMockForTests()`**.
 - If a test mutates catalog cache state, call **`resetTopicCatalogCacheForTests()`** from `@/hooks/useTopicCatalog` (see `hooks/useTopicCatalog.test.tsx`).
 
