@@ -1,6 +1,7 @@
 import { normalizeTargetDate } from '@/lib/mappers/prediction-mapper';
 import type { CreatePredictionInput } from '@/types/prediction';
 import { isHttpOrHttpsUrl } from '@/utils/form-helpers';
+import { isDeadlineDateAfterDateSaid } from './prediction-dates';
 
 export type ParseCreatePredictionResult
   = | { ok: true; value: CreatePredictionInput }
@@ -40,6 +41,20 @@ export function parseCreatePredictionBody(
       message: 'Date said is required and must be a valid date in YYYY-MM-DD format',
     };
   }
+  const targetDate = typeof b.target_date === 'string' ? b.target_date.trim() : '';
+  if (targetDate) {
+    try {
+      if (!isDeadlineDateAfterDateSaid(targetDate, createdAt)) {
+        return { ok: false, message: 'Deadline date must be after date said' };
+      }
+    }
+    catch {
+      return {
+        ok: false,
+        message: 'Deadline must be a valid date in YYYY-MM-DD format',
+      };
+    }
+  }
   if (typeof b.evidenceUrl !== 'string' || !isHttpOrHttpsUrl(b.evidenceUrl)) {
     return {
       ok: false,
@@ -61,7 +76,7 @@ export function parseCreatePredictionBody(
       source,
       text,
       topicIds,
-      target_date: typeof b.target_date === 'string' ? b.target_date : undefined,
+      target_date: targetDate || undefined,
       created_at: createdAt,
       evidenceUrl: b.evidenceUrl.trim(),
     },

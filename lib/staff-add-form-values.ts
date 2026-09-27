@@ -1,6 +1,7 @@
 import { normalizeTargetDate } from '@/lib/mappers/prediction-mapper';
 import type { CreatePredictionInput } from '@/types/prediction';
 import { readString, readStringList, isHttpOrHttpsUrl } from '@/utils/form-helpers';
+import { isDeadlineDateAfterDateSaid } from './prediction-dates';
 
 export const STAFF_ADD_FIELD = {
   source: 'source',
@@ -70,7 +71,8 @@ function isIsoOrCalendarDate(value: string): boolean {
 
 /**
  * Reads a staff add form into create input plus the secret header value.
- * Does not POST. Empty deadline is omitted. At least one topic is required.
+ * Does not POST. Empty deadline is omitted. A deadline that is present must be
+ * a real date after the date said. At least one topic is required.
  * Date said must be a real ISO or YYYY-MM-DD date.
  */
 export function parseStaffAddFormValues(formData: FormData): StaffAddFormValuesResult {
@@ -84,13 +86,24 @@ export function parseStaffAddFormValues(formData: FormData): StaffAddFormValuesR
   const topicIds = readStringList(formData, STAFF_ADD_FIELD.topicIds);
   const staffSecret = readString(formData, STAFF_ADD_FIELD.staffSecret).trim();
 
+  const dateSaidIsValid = createdAt !== '' && isIsoOrCalendarDate(createdAt);
   if (!source) fields.source = 'Source name is required';
   if (!text) fields.text = 'Prediction text is required';
   if (!createdAt) {
     fields.created_at = 'Date said is required';
   }
-  else if (!isIsoOrCalendarDate(createdAt)) {
+  else if (!dateSaidIsValid) {
     fields.created_at = 'Date said must be a valid date in YYYY-MM-DD format';
+  }
+  if (targetDate && !isIsoOrCalendarDate(targetDate)) {
+    fields.target_date = 'Deadline must be a valid date in YYYY-MM-DD format';
+  }
+  else if (
+    targetDate
+    && dateSaidIsValid
+    && !isDeadlineDateAfterDateSaid(targetDate, createdAt)
+  ) {
+    fields.target_date = 'Deadline date must be after date said';
   }
   if (!isHttpOrHttpsUrl(evidenceUrl)) {
     fields.evidenceUrl = 'Evidence URL must be an http or https link';

@@ -60,6 +60,36 @@ describe('parseCreatePredictionBody', () => {
     });
   });
 
+  test('given no deadline, should accept the body', () => {
+    const result = parseCreatePredictionBody(validBody);
+    expect(result).toEqual({
+      ok: true,
+      value: expect.objectContaining({
+        target_date: undefined,
+      }),
+    });
+  });
+
+  test('given a deadline before the date said, should reject', () => {
+    expect(parseCreatePredictionBody({
+      ...validBody,
+      target_date: '2026-01-01',
+    })).toEqual({
+      ok: false,
+      message: 'Deadline date must be after date said',
+    });
+  });
+
+  test('given an invalid deadline, should reject', () => {
+    expect(parseCreatePredictionBody({
+      ...validBody,
+      target_date: 'not-a-date',
+    })).toEqual({
+      ok: false,
+      message: 'Deadline must be a valid date in YYYY-MM-DD format',
+    });
+  });
+
   test('given YYYY-MM-DD statement time, should normalize to ISO', () => {
     const result = parseCreatePredictionBody({
       ...validBody,

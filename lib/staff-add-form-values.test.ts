@@ -56,7 +56,7 @@ describe('parseStaffAddFormValues', () => {
     });
   });
 
-  test('given a deadline, should keep target_date on the create input.', () => {
+  test('given a deadline after the date said, should keep target_date on the create input.', () => {
     const result = parseStaffAddFormValues(buildStaffAddFormData({
       target_date: '2026-12-31',
     }));
@@ -143,6 +143,75 @@ describe('parseStaffAddFormValues', () => {
       ok: false,
       errors: {
         evidenceUrl: 'Evidence URL must be an http or https link',
+      },
+    });
+  });
+
+  test('given a deadline on the date said, should reject target_date.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({
+      target_date: '2026-01-01',
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        target_date: 'Deadline date must be after date said',
+      },
+    });
+  });
+
+  test('given a deadline that is not a date, should reject target_date.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({
+      target_date: 'not-a-date',
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        target_date: 'Deadline must be a valid date in YYYY-MM-DD format',
+      },
+    });
+  });
+
+  test('given an invalid date said and a deadline, should reject created_at.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({
+      created_at: 'not-a-date',
+      target_date: '2026-12-31',
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        created_at: 'Date said must be a valid date in YYYY-MM-DD format',
+      },
+    });
+  });
+
+  test('given an empty date said and a deadline, should require created_at.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({
+      created_at: '',
+      target_date: '2026-12-31',
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        created_at: 'Date said is required',
+      },
+    });
+  });
+
+  test('given an empty date said and an invalid deadline, should reject both fields.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({
+      created_at: '',
+      target_date: 'not-a-date',
+    }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        created_at: 'Date said is required',
+        target_date: 'Deadline must be a valid date in YYYY-MM-DD format',
       },
     });
   });
