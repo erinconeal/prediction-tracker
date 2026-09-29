@@ -93,7 +93,7 @@ Details of capture, review, and anti-gaming rules live in `constitution.md`.
 * text (prediction content)
 * topicIds (array) — many-to-many links to topics; browse filters by topic slug with bucket roll-up (bucket slug matches direct links and curated children)
 * created_at
-* target_date (optional)
+* target_date
 * outcome: `still_open` (pre-resolution) or terminal values aligned with `constitution.md` §6.3: `correct`, `incorrect`, `unresolved`, `invalid`
 * finished_at (set when a terminal outcome is assigned)
 

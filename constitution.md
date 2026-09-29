@@ -133,7 +133,9 @@ If no authoritative source exists → prediction is **invalid**
 
 Predictions are resolved **only after the resolution deadline passes**.
 
-Early resolution is allowed only if the outcome becomes **logically impossible to change**.
+v1 scores `correct`, `incorrect`, and `unresolved` only after the deadline day has ended. There is no early-resolution exception in v1.
+A date-only deadline is a UTC calendar day, and that day is still open. Scoring starts at the next UTC midnight. A deadline of 2026-12-31 stays open until 2027-01-01T00:00:00.000Z, which is 7:00pm Eastern on the 31st.
+A row with no deadline can only be marked `invalid`. `invalid` can still be applied before the deadline. That is the bad-capture path, not an early score.
 
 Examples:
 - A predicted election winner withdraws before the vote
