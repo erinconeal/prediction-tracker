@@ -28,7 +28,7 @@ function renderForm(overrides: Partial<StaffAddFormProps> = {}) {
 }
 
 async function selectTopic(name: string) {
-  fireEvent.focus(screen.getByRole('combobox', { name: 'Topics' }));
+  fireEvent.focus(screen.getByRole('combobox', { name: 'Topics (required)' }));
   const [option] = await screen.findAllByRole('option', { name });
   if (!option) throw new Error(`missing topic option: ${name}`);
   fireEvent.mouseDown(option);
@@ -38,16 +38,16 @@ describe('StaffAddForm', () => {
   test('given default props, should expose every field via getByLabelText (and the topics combobox).', () => {
     renderForm();
 
-    expect(screen.getByLabelText('Source name')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Prediction text' })).toBeInstanceOf(HTMLTextAreaElement);
-    expect(screen.getByLabelText('Date said')).toBeInTheDocument();
-    expect(screen.getByLabelText('Deadline')).toBeInTheDocument();
-    expect(screen.getByLabelText('Evidence URL')).toBeInTheDocument();
-    const topics = screen.getByRole('combobox', { name: 'Topics' });
+    expect(screen.getByLabelText('Source name (required)')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Prediction text (required)' })).toBeInstanceOf(HTMLTextAreaElement);
+    expect(screen.getByLabelText('Date said (required)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Deadline (required)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Evidence URL (required)')).toBeInTheDocument();
+    const topics = screen.getByRole('combobox', { name: 'Topics (required)' });
     expect(topics).toHaveAttribute('id', 'topicIds');
     expect(topics).toHaveAttribute('aria-describedby');
-    expect(screen.getByLabelText('Topics')).toBe(topics);
-    expect(screen.getByLabelText('Staff password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Topics (required)')).toBe(topics);
+    expect(screen.getByLabelText('Staff password (required)')).toBeInTheDocument();
   });
 
   test('given loading, should disable the submit button.', () => {
@@ -57,7 +57,7 @@ describe('StaffAddForm', () => {
 
   test('given error, should show visible text tied to the field, not color-only.', () => {
     renderForm({ fieldErrors: { source: 'Source name is required' } });
-    const source = screen.getByLabelText('Source name');
+    const source = screen.getByLabelText('Source name (required)');
 
     expect(screen.getByText('Source name is required')).toBeVisible();
     expect(source).toHaveAttribute('aria-invalid', 'true');
@@ -65,9 +65,20 @@ describe('StaffAddForm', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  test('given a deadline error, should show visible text tied to the field, not color-only.', () => {
+    renderForm({ fieldErrors: { target_date: 'Deadline is required' } });
+    const deadline = screen.getByLabelText('Deadline (required)');
+
+    expect(screen.getByText('Deadline is required')).toBeVisible();
+    expect(deadline).toHaveAttribute('aria-invalid', 'true');
+    expect(deadline).toHaveAccessibleDescription(/Deadline is required/);
+    expect(deadline).toHaveAccessibleDescription(/after the date said/);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   test('given a topics error, should show visible text tied to the combobox.', () => {
     renderForm({ fieldErrors: { topicIds: 'Select at least one topic' } });
-    const topics = screen.getByRole('combobox', { name: 'Topics' });
+    const topics = screen.getByRole('combobox', { name: 'Topics (required)' });
 
     expect(screen.getByText('Select at least one topic')).toBeVisible();
     expect(topics).toHaveAttribute('aria-invalid', 'true');
@@ -80,7 +91,7 @@ describe('StaffAddForm', () => {
       topicsLoading: true,
       fieldErrors: { topicIds: 'Select at least one topic' },
     });
-    const topics = screen.getByRole('combobox', { name: 'Topics' });
+    const topics = screen.getByRole('combobox', { name: 'Topics (required)' });
 
     expect(topics).toBeDisabled();
     expect(topics).toHaveAccessibleDescription('Loading topics');
@@ -94,7 +105,7 @@ describe('StaffAddForm', () => {
       onRetryTopics,
       fieldErrors: { topicIds: 'Select at least one topic' },
     });
-    const topics = screen.getByRole('combobox', { name: 'Topics' });
+    const topics = screen.getByRole('combobox', { name: 'Topics (required)' });
 
     expect(screen.getByText('Failed to load topics')).toBeVisible();
     expect(screen.queryByText('Select at least one topic')).not.toBeInTheDocument();
@@ -113,8 +124,8 @@ describe('StaffAddForm', () => {
   test('given the add-prediction form, should not present source name and staff secret as a browser login.', () => {
     renderForm();
     const form = screen.getByRole('form', { name: 'Add a prediction' });
-    const source = screen.getByLabelText('Source name');
-    const staffSecret = screen.getByLabelText('Staff password');
+    const source = screen.getByLabelText('Source name (required)');
+    const staffSecret = screen.getByLabelText('Staff password (required)');
 
     expect(form).toHaveAttribute('autocomplete', 'off');
     expect(source).toHaveAttribute('autocomplete', 'off');
@@ -128,7 +139,7 @@ describe('StaffAddForm', () => {
     if (!(form instanceof HTMLFormElement)) {
       throw new Error('expected a form element');
     }
-    fireEvent.change(screen.getByLabelText('Staff password'), { target: { value: 'super-secret' } });
+    fireEvent.change(screen.getByLabelText('Staff password (required)'), { target: { value: 'super-secret' } });
 
     expect(new FormData(form).get('staffSecret')).toBeNull();
   });
@@ -136,7 +147,7 @@ describe('StaffAddForm', () => {
   test('given a client-handled submit with a filled staff password, should still include the secret in the submitted form values.', () => {
     const submitForm = vi.fn();
     renderForm({ submitForm });
-    fireEvent.change(screen.getByLabelText('Staff password'), { target: { value: 'super-secret' } });
+    fireEvent.change(screen.getByLabelText('Staff password (required)'), { target: { value: 'super-secret' } });
     fireEvent.submit(screen.getByRole('form', { name: 'Add a prediction' }));
 
     expect(submitForm).toHaveBeenCalledTimes(1);
@@ -188,7 +199,7 @@ describe('StaffAddForm', () => {
     renderForm({
       topics: [curatedMidtermTopic, curatedAiTopic, parentPoliticsTopic, parentTechTopic],
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Topics' }), { target: { value: 'midterm' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Topics (required)' }), { target: { value: 'midterm' } });
 
     const politics = await screen.findByRole('group', { name: 'Politics' });
     expect(within(politics).getByRole('option', { name: 'Politics' })).toBeVisible();
@@ -208,7 +219,7 @@ describe('StaffAddForm', () => {
         parentFinanceTopic,
       ],
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Topics' }), { target: { value: 'politics' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Topics (required)' }), { target: { value: 'politics' } });
 
     const politics = await screen.findByRole('group', { name: 'Politics' });
     expect(within(politics).getByRole('option', { name: 'AI regulation 2026' })).toBeVisible();
@@ -228,7 +239,7 @@ describe('StaffAddForm', () => {
   test('given a query, should show only matching topics.', async () => {
     renderForm({ topics: [curatedAiTopic, curatedHousingTopic] });
 
-    fireEvent.change(screen.getByRole('combobox', { name: 'Topics' }), { target: { value: 'housing' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Topics (required)' }), { target: { value: 'housing' } });
 
     expect(await screen.findByRole('option', { name: 'Housing market 2026' })).toBeInTheDocument();
     expect(screen.getByRole('listbox', { name: 'Topics' })).toBeInTheDocument();
@@ -239,14 +250,14 @@ describe('StaffAddForm', () => {
     const submitForm = vi.fn();
     renderForm({ topics: [curatedAiTopic], submitForm });
 
-    fireEvent.change(screen.getByLabelText('Source name'), { target: { value: 'Jane Pundit' } });
-    fireEvent.change(screen.getByLabelText('Prediction text'), {
+    fireEvent.change(screen.getByLabelText('Source name (required)'), { target: { value: 'Jane Pundit' } });
+    fireEvent.change(screen.getByLabelText('Prediction text (required)'), {
       target: { value: 'Markets will rally.\nInflation will ease by year end.' },
     });
-    fireEvent.change(screen.getByLabelText('Date said'), { target: { value: '2026-01-01' } });
-    fireEvent.change(screen.getByLabelText('Deadline'), { target: { value: '2026-12-31' } });
-    fireEvent.change(screen.getByLabelText('Evidence URL'), { target: { value: 'https://example.com/quote' } });
-    fireEvent.change(screen.getByLabelText('Staff password'), { target: { value: 'super-secret' } });
+    fireEvent.change(screen.getByLabelText('Date said (required)'), { target: { value: '2026-01-01' } });
+    fireEvent.change(screen.getByLabelText('Deadline (required)'), { target: { value: '2026-12-31' } });
+    fireEvent.change(screen.getByLabelText('Evidence URL (required)'), { target: { value: 'https://example.com/quote' } });
+    fireEvent.change(screen.getByLabelText('Staff password (required)'), { target: { value: 'super-secret' } });
     await selectTopic('AI regulation 2026');
     expect(screen.getByRole('button', { name: 'Remove AI regulation 2026' })).toBeInTheDocument();
     fireEvent.submit(screen.getByRole('form', { name: 'Add a prediction' }));

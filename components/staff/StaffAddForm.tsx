@@ -84,7 +84,7 @@ export function StaffAddForm({
       onSubmit={handleSubmit}
     >
       <div>
-        <label htmlFor="source" className="font-medium text-foreground">Source name</label>
+        <label htmlFor="source" className="font-medium text-foreground">Source name (required)</label>
         <input
           type="text"
           id="source"
@@ -98,7 +98,7 @@ export function StaffAddForm({
         <FieldError id="sourceErrorMessage" message={fieldErrors.source} />
       </div>
       <div>
-        <label htmlFor="text" className="font-medium text-foreground">Prediction text</label>
+        <label htmlFor="text" className="font-medium text-foreground">Prediction text (required)</label>
         <textarea
           id="text"
           className={`${staffAddFieldClassName} min-h-48 py-2 resize-y`}
@@ -111,7 +111,7 @@ export function StaffAddForm({
         <FieldError id="textErrorMessage" message={fieldErrors.text} />
       </div>
       <div>
-        <label htmlFor="dateSaid" className="font-medium text-foreground">Date said</label>
+        <label htmlFor="dateSaid" className="font-medium text-foreground">Date said (required)</label>
         <input
           type="date"
           id="dateSaid"
@@ -125,12 +125,21 @@ export function StaffAddForm({
         <span id="dateSaidHelp" className="text-muted">The day they said it, not necessarily today.</span>
       </div>
       <div>
-        <label htmlFor="deadline" className="font-medium text-foreground">Deadline</label>
-        <input type="date" id="deadline" className={`${staffAddFieldClassName} font-mono tabular-nums`} name={STAFF_ADD_FIELD.targetDate} aria-describedby="deadlineHelp" />
-        <span id="deadlineHelp" className="text-muted">Optional. When the claim should resolve.</span>
+        <label htmlFor="deadline" className="font-medium text-foreground">Deadline (required)</label>
+        <input
+          type="date"
+          id="deadline"
+          className={`${staffAddFieldClassName} font-mono tabular-nums`}
+          name={STAFF_ADD_FIELD.targetDate}
+          required
+          aria-invalid={fieldErrors.target_date ? true : undefined}
+          aria-describedby={fieldErrors.target_date ? 'targetDateErrorMessage deadlineHelp' : 'deadlineHelp'}
+        />
+        <FieldError id="targetDateErrorMessage" message={fieldErrors.target_date} />
+        <span id="deadlineHelp" className="text-muted">When the claim should resolve. Must be a valid date in YYYY-MM-DD format and after the date said.</span>
       </div>
       <div>
-        <label htmlFor="evidenceUrl" className="font-medium text-foreground">Evidence URL</label>
+        <label htmlFor="evidenceUrl" className="font-medium text-foreground">Evidence URL (required)</label>
         <input type="url" id="evidenceUrl" className={staffAddFieldClassName} name={STAFF_ADD_FIELD.evidenceUrl} required aria-invalid={fieldErrors.evidenceUrl ? true : undefined} aria-describedby={fieldErrors.evidenceUrl ? 'evidenceUrlErrorMessage evidenceUrlHelp' : 'evidenceUrlHelp'} />
         <FieldError id="evidenceUrlErrorMessage" message={fieldErrors.evidenceUrl} />
         <span id="evidenceUrlHelp" className="text-muted">Public http(s) link to the original statement.</span>
@@ -178,7 +187,7 @@ export function StaffAddForm({
             )}
       </Field>
       <div>
-        <label htmlFor="staffSecret" className="font-medium text-foreground">Staff password</label>
+        <label htmlFor="staffSecret" className="font-medium text-foreground">Staff password (required)</label>
         <input
           ref={staffSecretInputRef}
           type="password"

@@ -8,7 +8,7 @@ function buildStaffAddFormData({
   source = 'Jane Pundit',
   text = 'Markets will rally',
   created_at = '2026-01-01',
-  target_date,
+  target_date = '2026-12-31',
   evidenceUrl = 'https://example.com/quote',
   topicIds = ['topic-1'],
   staffSecret = 'secret',
@@ -25,7 +25,7 @@ function buildStaffAddFormData({
   form.set('source', source);
   form.set('text', text);
   form.set('created_at', created_at);
-  if (target_date !== undefined) form.set('target_date', target_date);
+  form.set('target_date', target_date);
   form.set('evidenceUrl', evidenceUrl);
   for (const id of topicIds) form.append('topicIds', id);
   form.set('staffSecret', staffSecret);
@@ -33,7 +33,7 @@ function buildStaffAddFormData({
 }
 
 describe('parseStaffAddFormValues', () => {
-  test('given a filled form, should produce CreatePredictionInput + staffSecret and omit empty target_date', () => {
+  test('given a filled form, should produce CreatePredictionInput and staffSecret.', () => {
     const result = parseStaffAddFormValues(buildStaffAddFormData({
       source: 'test',
       text: 'test',
@@ -50,6 +50,7 @@ describe('parseStaffAddFormValues', () => {
         source: 'test',
         text: 'test',
         created_at: '2026-01-01',
+        target_date: '2026-12-31',
         evidenceUrl: 'https://example.com',
         topicIds: ['1', '2', '3'],
       },
@@ -143,6 +144,17 @@ describe('parseStaffAddFormValues', () => {
       ok: false,
       errors: {
         evidenceUrl: 'Evidence URL must be an http or https link',
+      },
+    });
+  });
+
+  test('given an empty deadline, should require the deadline.', () => {
+    const result = parseStaffAddFormValues(buildStaffAddFormData({ target_date: '' }));
+
+    expect(result).toEqual({
+      ok: false,
+      errors: {
+        target_date: 'Deadline is required',
       },
     });
   });
@@ -242,6 +254,20 @@ describe('firstStaffAddErrorFocusId', () => {
     expect(firstStaffAddErrorFocusId({
       created_at: 'Date said is required',
       topicIds: 'Select at least one topic',
+    })).toBe('dateSaid');
+  });
+
+  test('given a deadline error after a valid date said, should focus the deadline control.', () => {
+    expect(firstStaffAddErrorFocusId({
+      target_date: 'Deadline is required',
+      evidenceUrl: 'Evidence URL must be an http or https link',
+    })).toBe('deadline');
+  });
+
+  test('given date said and deadline errors, should focus date said first.', () => {
+    expect(firstStaffAddErrorFocusId({
+      created_at: 'Date said is required',
+      target_date: 'Deadline is required',
     })).toBe('dateSaid');
   });
 

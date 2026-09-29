@@ -27,16 +27,17 @@ function idleCreate(
 }
 
 function fillRequiredFieldsExceptTopics() {
-  fireEvent.change(screen.getByLabelText('Source name'), { target: { value: 'Jane Pundit' } });
-  fireEvent.change(screen.getByLabelText('Prediction text'), { target: { value: 'Markets will rally' } });
-  fireEvent.change(screen.getByLabelText('Date said'), { target: { value: '2026-01-01' } });
-  fireEvent.change(screen.getByLabelText('Evidence URL'), { target: { value: 'https://example.com/quote' } });
-  fireEvent.change(screen.getByLabelText('Staff password'), { target: { value: 'secret' } });
+  fireEvent.change(screen.getByLabelText('Source name (required)'), { target: { value: 'Jane Pundit' } });
+  fireEvent.change(screen.getByLabelText('Prediction text (required)'), { target: { value: 'Markets will rally' } });
+  fireEvent.change(screen.getByLabelText('Date said (required)'), { target: { value: '2026-01-01' } });
+  fireEvent.change(screen.getByLabelText('Deadline (required)'), { target: { value: '2026-12-31' } });
+  fireEvent.change(screen.getByLabelText('Evidence URL (required)'), { target: { value: 'https://example.com/quote' } });
+  fireEvent.change(screen.getByLabelText('Staff password (required)'), { target: { value: 'secret' } });
 }
 
 async function fillValidForm() {
   fillRequiredFieldsExceptTopics();
-  fireEvent.focus(screen.getByRole('combobox', { name: 'Topics' }));
+  fireEvent.focus(screen.getByRole('combobox', { name: 'Topics (required)' }));
   const politics = await screen.findByRole('group', { name: 'Politics' });
   fireEvent.mouseDown(within(politics).getByRole('option', { name: 'AI regulation 2026' }));
 }
@@ -64,7 +65,7 @@ describe('StaffAddView', () => {
     fireEvent.submit(screen.getByRole('form', { name: 'Add a prediction' }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Source name')).toHaveFocus();
+      expect(screen.getByLabelText('Source name (required)')).toHaveFocus();
     });
     expect(create).not.toHaveBeenCalled();
     expect(screen.getByText('Source name is required')).toBeVisible();
@@ -74,11 +75,11 @@ describe('StaffAddView', () => {
   test('given only later client errors, should focus the first remaining invalid control.', async () => {
     render(<StaffAddView />);
 
-    fireEvent.change(screen.getByLabelText('Source name'), { target: { value: 'Jane Pundit' } });
+    fireEvent.change(screen.getByLabelText('Source name (required)'), { target: { value: 'Jane Pundit' } });
     fireEvent.submit(screen.getByRole('form', { name: 'Add a prediction' }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Prediction text')).toHaveFocus();
+      expect(screen.getByLabelText('Prediction text (required)')).toHaveFocus();
     });
   });
 
@@ -142,7 +143,7 @@ describe('StaffAddView', () => {
 
     render(<StaffAddView />);
     await fillValidForm();
-    fireEvent.change(screen.getByLabelText('Deadline'), { target: { value: '2026-12-31' } });
+    fireEvent.change(screen.getByLabelText('Deadline (required)'), { target: { value: '2026-12-31' } });
     fireEvent.submit(screen.getByRole('form', { name: 'Add a prediction' }));
 
     await waitFor(() => {
@@ -164,14 +165,14 @@ describe('StaffAddView', () => {
     expect(within(status).queryByRole('link')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View prediction' })).toHaveAttribute('href', '/predictions/pred-42');
     expect(screen.getByRole('button', { name: 'Dismiss success message' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Source name')).toHaveValue('Jane Pundit');
-    expect(screen.getByLabelText('Staff password')).toHaveValue('secret');
-    expect(screen.getByLabelText('Prediction text')).toHaveValue('');
-    expect(screen.getByLabelText('Date said')).toHaveValue('');
-    expect(screen.getByLabelText('Deadline')).toHaveValue('');
-    expect(screen.getByLabelText('Evidence URL')).toHaveValue('');
+    expect(screen.getByLabelText('Source name (required)')).toHaveValue('Jane Pundit');
+    expect(screen.getByLabelText('Staff password (required)')).toHaveValue('secret');
+    expect(screen.getByLabelText('Prediction text (required)')).toHaveValue('');
+    expect(screen.getByLabelText('Date said (required)')).toHaveValue('');
+    expect(screen.getByLabelText('Deadline (required)')).toHaveValue('');
+    expect(screen.getByLabelText('Evidence URL (required)')).toHaveValue('');
     expect(screen.queryByRole('button', { name: 'Remove AI regulation 2026' })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Prediction text')).not.toHaveFocus();
+    expect(screen.getByLabelText('Prediction text (required)')).not.toHaveFocus();
     await waitFor(() => {
       expect(screen.getByRole('status')).toHaveFocus();
     });
@@ -193,7 +194,7 @@ describe('StaffAddView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss success message' }));
 
     expect(screen.queryByRole('button', { name: 'Dismiss success message' })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Source name')).toHaveFocus();
+    expect(screen.getByLabelText('Source name (required)')).toHaveFocus();
   });
 
   test('given create returns nothing, should keep the filled fields and not announce success.', async () => {
@@ -210,8 +211,8 @@ describe('StaffAddView', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('');
     expect(screen.queryByRole('link', { name: 'View prediction' })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Prediction text')).toHaveValue('Markets will rally');
-    expect(screen.getByLabelText('Evidence URL')).toHaveValue('https://example.com/quote');
+    expect(screen.getByLabelText('Prediction text (required)')).toHaveValue('Markets will rally');
+    expect(screen.getByLabelText('Evidence URL (required)')).toHaveValue('https://example.com/quote');
     expect(screen.getByRole('button', { name: 'Remove AI regulation 2026' })).toBeInTheDocument();
   });
 });

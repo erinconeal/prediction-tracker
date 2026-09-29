@@ -29,6 +29,7 @@ export const STAFF_ADD_ERROR_FOCUS_IDS = [
   { field: STAFF_ADD_FIELD.source, id: 'source' },
   { field: STAFF_ADD_FIELD.text, id: 'text' },
   { field: STAFF_ADD_FIELD.createdAt, id: 'dateSaid' },
+  { field: STAFF_ADD_FIELD.targetDate, id: 'deadline' },
   { field: STAFF_ADD_FIELD.evidenceUrl, id: 'evidenceUrl' },
   { field: STAFF_ADD_FIELD.topicIds, id: 'topicIds' },
   { field: STAFF_ADD_FIELD.staffSecret, id: 'staffSecret' },
@@ -71,8 +72,8 @@ function isIsoOrCalendarDate(value: string): boolean {
 
 /**
  * Reads a staff add form into create input plus the secret header value.
- * Does not POST. Empty deadline is omitted. A deadline that is present must be
- * a real date after the date said. At least one topic is required.
+ * Does not POST. A deadline is required and must be a real date after the
+ * date said. At least one topic is required.
  * Date said must be a real ISO or YYYY-MM-DD date.
  */
 export function parseStaffAddFormValues(formData: FormData): StaffAddFormValuesResult {
@@ -95,7 +96,10 @@ export function parseStaffAddFormValues(formData: FormData): StaffAddFormValuesR
   else if (!dateSaidIsValid) {
     fields.created_at = 'Date said must be a valid date in YYYY-MM-DD format';
   }
-  if (targetDate && !isIsoOrCalendarDate(targetDate)) {
+  if (!targetDate) {
+    fields.target_date = 'Deadline is required';
+  }
+  else if (targetDate && !isIsoOrCalendarDate(targetDate)) {
     fields.target_date = 'Deadline must be a valid date in YYYY-MM-DD format';
   }
   else if (

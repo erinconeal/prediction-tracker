@@ -104,7 +104,7 @@ export function StaffTopicCombobox({ topics, disabled, invalid }: StaffTopicComb
       disabled={disabled}
       invalid={invalid}
     >
-      <label htmlFor="topicIds" className="font-medium text-foreground">Topics</label>
+      <label htmlFor="topicIds" className="font-medium text-foreground">Topics (required)</label>
       {selectedIds.map(id => (
         <input key={id} type="hidden" name={STAFF_ADD_FIELD.topicIds} value={id} />
       ))}
