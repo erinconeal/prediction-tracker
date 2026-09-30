@@ -52,6 +52,7 @@ export const predictions = sqliteTable('predictions', {
     enum: OUTCOMES,
   }).notNull().default('still_open'),
   evidenceUrl: text('evidence_url'),
+  resolutionUrl: text('resolution_url'),
 }, table => [
   index('predictions_source_idx').on(table.sourceId),
   index('predictions_outcome_idx').on(table.outcome),

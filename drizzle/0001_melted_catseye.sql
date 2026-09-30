@@ -1,0 +1,1 @@
+ALTER TABLE `predictions` ADD `resolution_url` text;
