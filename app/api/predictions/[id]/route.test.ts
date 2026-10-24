@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { loadRouteModule } from '@/test/helpers/load-route-module';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { jsonStaffHeaders } from '@/test/helpers/json-staff-headers';
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 async function loadRoutes() {
   return loadRouteModule(async () => {
@@ -67,7 +68,13 @@ describe('GET /api/predictions/[id] route', () => {
 
 describe('PATCH /api/predictions/[id] route', () => {
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-24T00:00:00.000Z'));
     vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test('given missing staff secret header, should return 401', async () => {
@@ -155,7 +162,10 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify(await createBody('Patch Source', 'Update me')),
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2026-06-01',
+      }),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -190,7 +200,10 @@ describe('PATCH /api/predictions/[id] route', () => {
     const createRequest = new Request('http://localhost/api/predictions', {
       method: 'POST',
       headers: jsonStaffHeaders,
-      body: JSON.stringify(await createBody('Patch Source', 'Update me')),
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2026-06-01',
+      }),
     });
     const created = (await (await POST(createRequest)).json()) as {
       id: string;
@@ -202,7 +215,10 @@ describe('PATCH /api/predictions/[id] route', () => {
       {
         method: 'PATCH',
         headers: jsonStaffHeaders,
-        body: JSON.stringify({ outcome: 'incorrect' }),
+        body: JSON.stringify({
+          outcome: 'incorrect',
+          resolutionUrl: 'https://example.com/result',
+        }),
       },
     );
     const response = await PATCH(patchRequest, {
@@ -212,11 +228,218 @@ describe('PATCH /api/predictions/[id] route', () => {
       id: string;
       outcome: string;
       finished_at: string | null;
+      resolutionUrl: string | null;
     };
 
     expect(response.status).toBe(200);
     expect(body.id).toBe(created.id);
     expect(body.outcome).toBe('incorrect');
+    expect(body.resolutionUrl).toBe('https://example.com/result');
     expect(typeof body.finished_at).toBe('string');
+  });
+
+  test('given the deadline has not passed, should return 409', async () => {
+    const { GET, POST, PATCH } = await loadRoutes();
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2099-01-01',
+      }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      outcome: string;
+    };
+
+    const patchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: 'PATCH',
+        headers: jsonStaffHeaders,
+        body: JSON.stringify({
+          outcome: 'correct',
+          resolutionUrl: 'https://example.com/result',
+        }),
+      },
+    );
+    const response = await PATCH(patchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+    const body = (await response.json()) as { message: string };
+
+    const saved = await GET(
+      new Request(`http://localhost/api/predictions/${created.id}`),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    const row = (await saved.json()) as {
+      outcome: string;
+      finished_at: string | null;
+      resolutionUrl: string | null;
+    };
+
+    expect(saved.status).toBe(200);
+    expect(row.outcome).toBe('still_open');
+    expect(row.finished_at).toBeNull();
+    expect(row.resolutionUrl).toBeNull();
+
+    expect(response.status).toBe(409);
+    expect(body.message).toBe('deadline_not_passed');
+  });
+
+  test('given a score is missing a resolutionUrl, should return 409', async () => {
+    const { GET, POST, PATCH } = await loadRoutes();
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2026-06-01',
+      }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      outcome: string;
+    };
+
+    const patchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: 'PATCH',
+        headers: jsonStaffHeaders,
+        body: JSON.stringify({
+          outcome: 'correct',
+        }),
+      },
+    );
+    const response = await PATCH(patchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+    const body = (await response.json()) as { message: string };
+
+    const saved = await GET(
+      new Request(`http://localhost/api/predictions/${created.id}`),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    const row = (await saved.json()) as {
+      outcome: string;
+      finished_at: string | null;
+      resolutionUrl: string | null;
+    };
+
+    expect(saved.status).toBe(200);
+    expect(row.outcome).toBe('still_open');
+    expect(row.finished_at).toBeNull();
+    expect(row.resolutionUrl).toBeNull();
+
+    expect(response.status).toBe(409);
+    expect(body.message).toBe('resolution_url_required');
+  });
+
+  test('given an already scored row, should return 409 and keep the first score', async () => {
+    const { GET, POST, PATCH } = await loadRoutes();
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2026-06-01',
+      }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      outcome: string;
+    };
+
+    const patchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: 'PATCH',
+        headers: jsonStaffHeaders,
+        body: JSON.stringify({
+          outcome: 'incorrect',
+          resolutionUrl: 'https://example.com/result',
+        }),
+      },
+    );
+    await PATCH(patchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+
+    const saved = await GET(
+      new Request(`http://localhost/api/predictions/${created.id}`),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    const row = (await saved.json()) as {
+      outcome: string;
+      finished_at: string | null;
+      resolutionUrl: string | null;
+    };
+
+    expect(saved.status).toBe(200);
+    expect(row.outcome).toBe('incorrect');
+    expect(row.resolutionUrl).toBe('https://example.com/result');
+
+    const secondPatchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: 'PATCH',
+        headers: jsonStaffHeaders,
+        body: JSON.stringify({ outcome: 'correct' }),
+      },
+    );
+    const secondResponse = await PATCH(secondPatchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+    const secondBody = (await secondResponse.json()) as { message: string };
+
+    const secondGet = await GET(
+      new Request(`http://localhost/api/predictions/${created.id}`),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    const secondRow = (await secondGet.json()) as {
+      outcome: string;
+      finished_at: string | null;
+      resolutionUrl: string | null;
+    };
+
+    expect(secondResponse.status).toBe(409);
+    expect(secondBody.message).toBe('already_terminal');
+    expect(secondGet.status).toBe(200);
+    expect(secondRow.outcome).toBe('incorrect');
+    expect(secondRow.resolutionUrl).toBe('https://example.com/result');
+  });
+
+  test('given a deadline that has not passed, should allow invalid', async () => {
+    const { POST, PATCH } = await loadRoutes();
+    const createRequest = new Request('http://localhost/api/predictions', {
+      method: 'POST',
+      headers: jsonStaffHeaders,
+      body: JSON.stringify({
+        ...(await createBody('Patch Source', 'Update me')),
+        target_date: '2099-01-01',
+      }),
+    });
+    const created = (await (await POST(createRequest)).json()) as {
+      id: string;
+      outcome: string;
+    };
+
+    const patchRequest = new Request(
+      `http://localhost/api/predictions/${created.id}`,
+      {
+        method: 'PATCH',
+        headers: jsonStaffHeaders,
+        body: JSON.stringify({ outcome: 'invalid' }),
+      },
+    );
+    const response = await PATCH(patchRequest, {
+      params: Promise.resolve({ id: created.id }),
+    });
+    const body = (await response.json()) as { outcome: string; resolutionUrl: string | null };
+
+    expect(response.status).toBe(200);
+    expect(body.outcome).toBe('invalid');
   });
 });

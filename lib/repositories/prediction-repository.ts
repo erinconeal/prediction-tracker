@@ -1,9 +1,16 @@
 import { eq, inArray } from 'drizzle-orm';
+
 import { getDb } from '@/lib/db';
 import { normalizeTargetDate, toPrediction, toPredictionInsert } from '@/lib/mappers/prediction-mapper';
+import type { JudgeReason } from '@/lib/prediction-outcome';
+import { isScoredOutcome, judgePredictionOutcome } from '@/lib/prediction-outcome';
 import { findOrCreateSource } from '@/lib/repositories/source-repository';
-import { predictionTopics, predictions, sources } from '@/lib/schema';
+import { predictions, predictionTopics, sources } from '@/lib/schema';
 import type { CreatePredictionInput, Prediction, TerminalOutcome } from '@/types/prediction';
+
+type PatchPredictionOutcomeResult
+  = | { ok: true; prediction: Prediction }
+    | { ok: false; reason: 'not_found' | Exclude<JudgeReason, 'allowed'> };
 
 export async function loadPredictionById(id: string): Promise<Prediction | null> {
   const row = await getDb()
@@ -81,16 +88,35 @@ export async function insertPrediction(input: CreatePredictionInput): Promise<Pr
 export async function patchPredictionOutcome(
   id: string,
   outcome: TerminalOutcome,
-): Promise<Prediction | null> {
+  resolutionUrl: string | null,
+): Promise<PatchPredictionOutcomeResult> {
   const existing = await loadPredictionById(id);
-  if (!existing) return null;
-  if (existing.outcome === outcome) return existing;
+  if (!existing) return { ok: false, reason: 'not_found' };
+  if (existing.outcome === outcome) return { ok: true, prediction: existing };
 
+  const submittedUrl = resolutionUrl?.trim() || null;
+
+  const verdict = judgePredictionOutcome({
+    currentOutcome: existing.outcome,
+    requestedOutcome: outcome,
+    targetDate: existing.target_date,
+    resolutionUrl: submittedUrl,
+    now: new Date(),
+  });
+
+  if (verdict.reason !== 'allowed') {
+    return { ok: false as const, reason: verdict.reason };
+  }
   const finishedAt = new Date().toISOString();
+  const storedResolutionUrl = isScoredOutcome(outcome) ? submittedUrl : null;
+
   await getDb()
     .update(predictions)
-    .set({ outcome, finishedAt })
+    .set({ outcome, finishedAt, resolutionUrl: storedResolutionUrl })
     .where(eq(predictions.id, id));
 
-  return { ...existing, outcome, finished_at: finishedAt };
+  return {
+    ok: true as const,
+    prediction: { ...existing, outcome, finished_at: finishedAt, resolutionUrl: storedResolutionUrl },
+  };
 };

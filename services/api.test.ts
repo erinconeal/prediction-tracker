@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { buildPrediction } from '@/test/factories/prediction';
+
 import {
   ApiError,
   createPrediction,
@@ -435,6 +437,7 @@ describe('updatePredictionOutcome', () => {
     fetchMock.mockResolvedValue(jsonResponse(updated));
 
     const result = await updatePredictionOutcome('a/b', 'correct', {
+      resolutionUrl: 'https://example.com/result',
       staffSecret: 'staff-secret',
     });
 
@@ -442,7 +445,7 @@ describe('updatePredictionOutcome', () => {
       '/api/predictions/a%2Fb',
       expect.objectContaining({
         method: 'PATCH',
-        body: JSON.stringify({ outcome: 'correct' }),
+        body: JSON.stringify({ outcome: 'correct', resolutionUrl: 'https://example.com/result' }),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',

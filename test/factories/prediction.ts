@@ -12,6 +12,7 @@ export function buildPrediction(overrides: Partial<Prediction> = {}): Prediction
     target_date: null,
     outcome: 'still_open',
     evidenceUrl: null,
+    resolutionUrl: null,
     ...overrides,
   };
 }

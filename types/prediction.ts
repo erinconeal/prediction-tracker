@@ -40,6 +40,7 @@ export type Prediction = {
   target_date: string | null;
   outcome: Outcome;
   evidenceUrl: string | null;
+  resolutionUrl: string | null;
 };
 
 /** List ordering for `/api/predictions`; default is `newest`. */
@@ -74,6 +75,3 @@ export type CreatePredictionInput = {
   evidenceUrl: string;
 };
 
-export type UpdatePredictionOutcomeInput = {
-  outcome: TerminalOutcome;
-};

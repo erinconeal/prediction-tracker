@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+
+import { assertStaffSecret } from '@/lib/assert-staff-secret';
 import { loadPredictionById, patchPredictionOutcome } from '@/lib/repositories/prediction-repository';
 import { isTerminalOutcomeValue } from '@/types/prediction';
-import { assertStaffSecret } from '@/lib/assert-staff-secret';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -38,9 +39,17 @@ export async function PATCH(request: Request, context: RouteContext) {
       { status: 400 },
     );
   }
-  const updated = await patchPredictionOutcome(id, outcome);
-  if (!updated) {
-    return NextResponse.json({ message: 'Prediction not found' }, { status: 404 });
+  const rawUrl = (body as { resolutionUrl?: unknown }).resolutionUrl;
+  if (rawUrl !== undefined && rawUrl !== null && typeof rawUrl !== 'string') {
+    return NextResponse.json({ message: '`resolutionUrl` must be null or a string' }, { status: 400 });
   }
-  return NextResponse.json(updated);
+  const resolutionUrl = typeof rawUrl === 'string' ? rawUrl : null;
+  const result = await patchPredictionOutcome(id, outcome, resolutionUrl);
+  if (!result.ok) {
+    if (result.reason === 'not_found') {
+      return NextResponse.json({ message: 'Prediction not found' }, { status: 404 });
+    }
+    return NextResponse.json({ message: result.reason }, { status: 409 });
+  }
+  return NextResponse.json(result.prediction);
 }

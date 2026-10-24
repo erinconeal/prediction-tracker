@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { normalizeTargetDate, toPrediction, toPredictionInsert } from './prediction-mapper';
+
 import { predictions } from '@/lib/schema';
+
+import { normalizeTargetDate, toPrediction, toPredictionInsert } from './prediction-mapper';
 
 describe('normalizeTargetDate', () => {
   test('given YYYY-MM-DD, should return ISO string', () => {
@@ -41,6 +43,7 @@ describe('toPredictionInsert', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -76,6 +79,7 @@ describe('toPredictionInsert', () => {
       targetDate: null,
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -100,6 +104,7 @@ describe('toPredictionInsert', () => {
       targetDate: null,
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -125,6 +130,7 @@ describe('toPredictionInsert', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -149,6 +155,7 @@ describe('toPredictionInsert', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -173,6 +180,7 @@ describe('toPredictionInsert', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     expect(toPredictionInsert(input, sourceId, createdAt)).toEqual(expected);
   });
@@ -205,6 +213,7 @@ describe('toPrediction', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: null,
+      resolutionUrl: null,
     };
     const sourceRow = {
       id: 'source-jane-analyst',
@@ -225,6 +234,7 @@ describe('toPrediction', () => {
       outcome: 'still_open',
       evidenceUrl: null,
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
+      resolutionUrl: null,
     };
     expect(toPrediction(predictionRow, sourceRow, topicIds)).toEqual(expected);
   });
@@ -239,6 +249,7 @@ describe('toPrediction', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: null,
+      resolutionUrl: null,
     };
     const sourceRow = {
       id: 'source-jane-analyst',
@@ -259,6 +270,7 @@ describe('toPrediction', () => {
       outcome: 'still_open',
       evidenceUrl: null,
       topicIds: ['topic-sp-hits-8000', 'topic-housing-market-2026'],
+      resolutionUrl: null,
     };
     expect(toPrediction(predictionRow, sourceRow, topicIds)).toEqual(expected);
   });
@@ -273,6 +285,7 @@ describe('toPrediction', () => {
       targetDate: '2026-12-31T00:00:00.000Z',
       outcome: 'still_open',
       evidenceUrl: 'https://example.com/jane-analyst/inflation-above-2pct',
+      resolutionUrl: null,
     };
     const sourceRow = {
       id: 'source-jane-analyst',

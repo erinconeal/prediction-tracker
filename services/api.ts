@@ -1,12 +1,12 @@
+import type { LeaderboardPage } from '@/lib/leaderboard';
 import type {
   CreatePredictionInput,
   Prediction,
   PredictionFilters,
   TerminalOutcome,
 } from '@/types/prediction';
+import { type Topic, TOPIC_KINDS, type TopicKind } from '@/types/topic';
 import { toListRequestFilters } from '@/utils/list-request-filters';
-import type { LeaderboardPage } from '@/lib/leaderboard';
-import { TOPIC_KINDS, type Topic, type TopicKind } from '@/types/topic';
 
 /**
  * Browser-side client for `/api/predictions`, `/api/topics`, and `/api/leaderboard`.
@@ -266,6 +266,10 @@ export type PredictionWriteOptions = {
   staffSecret?: string;
 };
 
+type UpdatePredictionOutcomeOptions = PredictionWriteOptions & {
+  resolutionUrl?: string | null;
+};
+
 /**
  * Creates a prediction via POST /api/predictions.
  */
@@ -302,13 +306,17 @@ export async function createPrediction(
 export async function updatePredictionOutcome(
   id: string,
   outcome: TerminalOutcome,
-  { signal, staffSecret }: PredictionWriteOptions = {},
+  {
+    resolutionUrl = null,
+    signal,
+    staffSecret,
+  }: UpdatePredictionOutcomeOptions = {},
 ): Promise<Prediction> {
   const response = await fetch(`${PREDICTIONS_BASE}/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     signal,
     headers: jsonWriteHeaders(staffSecret),
-    body: JSON.stringify({ outcome }),
+    body: JSON.stringify({ outcome, resolutionUrl }),
   });
   let body: { message?: string } & Partial<Prediction> = {};
   try {
