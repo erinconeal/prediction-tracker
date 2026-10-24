@@ -1,8 +1,10 @@
+import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
-import stylistic from '@stylistic/eslint-plugin';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import testingLibrary from 'eslint-plugin-testing-library';
+
 import mockImportFirst from './eslint-rules/mock-import-first.mjs';
 import noImplementationAssertions from './eslint-rules/no-implementation-assertions.mjs';
 
@@ -18,9 +20,24 @@ const eslintConfig = defineConfig([
   {
     plugins: {
       '@stylistic': stylistic,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
-      eqeqeq: ['error', 'always'],
+      'eqeqeq': ['error', 'always'],
+      'simple-import-sort/imports': ['error', {
+        groups: [
+          // Side-effect imports (`import 'server-only'`, test mocks).
+          ['^\\u0000'],
+          // Node.js builtins (`node:path`).
+          ['^node:'],
+          // External packages. `@` plus a package name, not the `@/` alias.
+          ['^@?\\w'],
+          // Internal `@/` imports, and anything else that is not relative.
+          ['^'],
+          // Relative imports (`./`, `../`).
+          ['^\\.'],
+        ],
+      }],
     },
   },
   {

@@ -2,5 +2,14 @@
   "css.customData": [".vscode/css-custom-data.json"],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
 }

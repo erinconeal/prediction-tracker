@@ -43,6 +43,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-testing-library": "^7.16.2",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
