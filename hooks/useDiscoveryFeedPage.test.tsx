@@ -1,8 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { buildPrediction } from '@/test/factories/prediction';
-import { idlePredictionFeed } from '@/test/factories/hook-results';
+
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
+import { idlePredictionFeed } from '@/test/factories/hook-results';
+import { buildPrediction } from '@/test/factories/prediction';
+
 import { useDiscoveryFeedPage } from './useDiscoveryFeedPage';
 
 vi.mock('@/hooks/usePredictionFeed', () => ({

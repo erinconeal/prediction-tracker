@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { isAbortError } from './is-abort-error';
 
 describe('isAbortError', () => {

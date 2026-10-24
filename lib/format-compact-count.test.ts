@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { formatCompactCount } from './format-compact-count';
 
 describe('formatCompactCount', () => {

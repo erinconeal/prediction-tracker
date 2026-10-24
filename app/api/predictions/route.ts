@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
-import { findUnknownTopicIds } from '@/lib/validate-topic-ids';
-import {
-  OUTCOMES,
-  type Outcome,
-  type PredictionListSort,
-} from '@/types/prediction';
-import { loadAllPredictions, insertPrediction } from '@/lib/repositories/prediction-repository';
-import { filterAndSortPredictions, paginatePredictions } from '@/lib/prediction-query';
+
 import { assertStaffSecret } from '@/lib/assert-staff-secret';
 import { parseCreatePredictionBody } from '@/lib/parse-create-prediction-body';
+import { filterAndSortPredictions, paginatePredictions } from '@/lib/prediction-query';
+import { insertPrediction, loadAllPredictions } from '@/lib/repositories/prediction-repository';
+import { findUnknownTopicIds } from '@/lib/validate-topic-ids';
+import {
+  type Outcome,
+  OUTCOMES,
+  type PredictionListSort,
+} from '@/types/prediction';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;

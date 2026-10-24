@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { isDeadlineDateAfterDateSaid } from './prediction-dates';
 
 describe('isDeadlineDateAfterDateSaid', () => {

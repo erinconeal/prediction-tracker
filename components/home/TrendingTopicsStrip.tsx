@@ -3,6 +3,7 @@
 import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+
 import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicEntry } from '@/lib/trending-topics';
 

@@ -1,12 +1,14 @@
 'use client';
 
 import { memo, type ReactNode } from 'react';
+
+import { LeaderboardLoadingSkeleton } from '@/components/leaderboard/LeaderboardLoadingSkeleton';
 import { LeaderboardPreviewLayout } from '@/components/leaderboard/LeaderboardPreviewLayout';
 import { LeaderboardSectionFooter } from '@/components/leaderboard/LeaderboardSectionFooter';
-import { LeaderboardLoadingSkeleton } from '@/components/leaderboard/LeaderboardLoadingSkeleton';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
+
 import { LeaderboardInsufficientPanel } from './leaderboard/LeaderboardInsufficientPanel';
-import { LeaderboardSectionHeader, LEADERBOARD_HEADING_ID } from './leaderboard/LeaderboardSectionHeader';
+import { LEADERBOARD_HEADING_ID, LeaderboardSectionHeader } from './leaderboard/LeaderboardSectionHeader';
 
 type LeaderboardSectionProps = {
   limit?: number;

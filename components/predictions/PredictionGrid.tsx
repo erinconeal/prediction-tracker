@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+
 import { browseForecastGridClass } from '@/components/forecast/forecast-card-tokens';
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
 import type { Outcome, Prediction } from '@/types/prediction';

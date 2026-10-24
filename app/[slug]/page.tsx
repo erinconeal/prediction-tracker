@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
+
 import { TopicFeedView } from '@/components/feed/TopicFeedView';
-import { isReservedTopicSlug } from '@/lib/topic-path';
 import { getTopicBySlug } from '@/lib/repositories/topic-repository';
+import { isReservedTopicSlug } from '@/lib/topic-path';
 
 type PageProps = {
   params: Promise<{ slug: string }>;

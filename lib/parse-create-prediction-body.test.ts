@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { parseCreatePredictionBody } from './parse-create-prediction-body';
 
 const validBody = {

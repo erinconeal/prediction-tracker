@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { PredictionDetailHeader } from '@/components/predictions/detail/PredictionDetailHeader';
 import { PredictionLifecycleTimeline } from '@/components/predictions/detail/PredictionLifecycleTimeline';
 import { PredictionSourceSidebar } from '@/components/predictions/detail/PredictionSourceSidebar';

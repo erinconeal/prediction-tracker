@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
+
+import { predictions, topics } from '@/lib/schema';
 import { createMigratedTestDb, expectForeignKeysEnabled, listUserTables } from '@/test/helpers/create-test-db';
 import { insertSource } from '@/test/helpers/db-fixtures';
-import { predictions, topics } from '@/lib/schema';
 
 describe('database migrations', () => {
   test('given fresh in-memory db, when migrations run, then core tables exist', () => {

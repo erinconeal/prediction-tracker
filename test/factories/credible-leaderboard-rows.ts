@@ -1,5 +1,5 @@
-import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
 import type { LeaderboardRow } from '@/lib/leaderboard';
+import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
 
 /** Six-row credible set for full split leaderboard layout tests. */
 export function credibleLeaderboardRows(): LeaderboardRow[] {

@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as useLeaderboardPageModule from '@/hooks/useLeaderboardPage';
 import { credibleLeaderboardRows } from '@/test/factories/credible-leaderboard-rows';
 import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+
 import { LeaderboardPageView } from './LeaderboardPageView';
-import * as useLeaderboardPageModule from '@/hooks/useLeaderboardPage';
 
 vi.mock('@/hooks/useLeaderboardPage');
 

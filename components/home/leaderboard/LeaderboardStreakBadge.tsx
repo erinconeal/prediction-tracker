@@ -1,6 +1,7 @@
 'use client';
 
 import { TrendingDown, TrendingUp } from 'lucide-react';
+
 import type { LeaderboardRow } from '@/lib/leaderboard';
 
 function formatStreak(row: LeaderboardRow): string | null {

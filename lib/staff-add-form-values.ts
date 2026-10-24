@@ -1,6 +1,7 @@
 import { normalizeTargetDate } from '@/lib/mappers/prediction-mapper';
 import type { CreatePredictionInput } from '@/types/prediction';
-import { readString, readStringList, isHttpOrHttpsUrl } from '@/utils/form-helpers';
+import { isHttpOrHttpsUrl, readString, readStringList } from '@/utils/form-helpers';
+
 import { isDeadlineDateAfterDateSaid } from './prediction-dates';
 
 export const STAFF_ADD_FIELD = {

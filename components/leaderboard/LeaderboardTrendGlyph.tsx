@@ -1,6 +1,7 @@
 'use client';
 
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+
 import {
   forecastDisplayMetricFromAccuracyPercent,
   type ForecastTrend,

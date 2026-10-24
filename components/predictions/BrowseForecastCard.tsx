@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+
 import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
 import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';

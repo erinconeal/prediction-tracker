@@ -1,13 +1,14 @@
-import type { Outcome } from '@/types/prediction';
-import { OUTCOME_STILL_OPEN_LABEL } from '@/lib/lifecycle-copy';
 import {
   Check,
   CircleQuestionMark,
   CircleX,
   Clock,
-  X,
   type LucideIcon,
+  X,
 } from 'lucide-react';
+
+import { OUTCOME_STILL_OPEN_LABEL } from '@/lib/lifecycle-copy';
+import type { Outcome } from '@/types/prediction';
 
 export const outcomeStyles: Record<Outcome, string> = {
   still_open:

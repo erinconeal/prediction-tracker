@@ -1,11 +1,12 @@
 'use client';
 
 import { memo } from 'react';
+
 import {
+  type ForecastDisplayMetric,
   sourceAccuracyBadgeAriaLabel,
   sourceAccuracyBadgeTone,
   sourceAccuracyBadgeVisibleText,
-  type ForecastDisplayMetric,
 } from '@/lib/forecast-display-metric';
 
 type SourceAccuracyBadgeProps = {

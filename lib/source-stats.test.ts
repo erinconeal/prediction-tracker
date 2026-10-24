@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+
 import { buildPrediction } from '@/test/factories/prediction';
+import type { Prediction } from '@/types/prediction';
+
 import { computeSourceAccuracyStats } from './source-stats';
 
 function row(overrides: Partial<Prediction> = {}): Prediction {

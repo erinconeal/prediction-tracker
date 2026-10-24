@@ -1,13 +1,14 @@
 'use client';
 
-import { memo } from 'react';
-import type { PredictionListSort } from '@/types/prediction';
 import { ArrowDownWideNarrow } from 'lucide-react';
+import { memo } from 'react';
+
 import { InfoPopover } from '@/components/ui/InfoPopover';
 import {
   SORT_RECENTLY_FINISHED,
   SORT_RECENTLY_FINISHED_HINT,
 } from '@/lib/lifecycle-copy';
+import type { PredictionListSort } from '@/types/prediction';
 
 const SORT_TABS: { value: PredictionListSort; label: string }[] = [
   { value: 'newest', label: 'Newest' },

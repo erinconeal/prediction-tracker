@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest';
+
 import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+
 import { formatLeaderboardAccuracyContext } from './leaderboard-row-context';
 
 describe('formatLeaderboardAccuracyContext', () => {

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import type { MethodologyTocEntry } from '@/lib/methodology-toc';
 
 type MethodologyTableOfContentsProps = {

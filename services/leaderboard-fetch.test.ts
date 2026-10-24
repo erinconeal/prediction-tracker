@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { ApiError } from '@/services/api';
 import { buildLeaderboardPage } from '@/test/factories/leaderboard-page';
+
 import {
   getLeaderboardFetchErrorMessage,
   loadLeaderboardPageWithOutcome,

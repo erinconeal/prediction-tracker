@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest';
+
 import { listTopics } from '@/lib/repositories/topic-repository';
+
 import { findUnknownTopicIds } from './validate-topic-ids';
 
 describe('findUnknownTopicIds', () => {

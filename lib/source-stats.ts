@@ -1,9 +1,9 @@
-import type { Prediction } from '@/types/prediction';
 import {
   accuracyPercentFromRollup,
-  emptySourceOutcomeRollup,
   addPredictionToRollup,
+  emptySourceOutcomeRollup,
 } from '@/lib/source-outcome-rollup';
+import type { Prediction } from '@/types/prediction';
 
 export type SourceAccuracyStats = {
   name: string;

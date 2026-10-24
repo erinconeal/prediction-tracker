@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { formatMonthYear, formatFinishedRelativeTime } from './format-date';
+
+import { formatFinishedRelativeTime, formatMonthYear } from './format-date';
 
 describe('formatMonthYear', () => {
   test('given ISO instant, should include calendar year', () => {

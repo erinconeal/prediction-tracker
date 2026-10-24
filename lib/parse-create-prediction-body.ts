@@ -1,6 +1,7 @@
 import { normalizeTargetDate } from '@/lib/mappers/prediction-mapper';
 import type { CreatePredictionInput } from '@/types/prediction';
 import { isHttpOrHttpsUrl } from '@/utils/form-helpers';
+
 import { isDeadlineDateAfterDateSaid } from './prediction-dates';
 
 export type ParseCreatePredictionResult

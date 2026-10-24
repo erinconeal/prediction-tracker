@@ -1,8 +1,9 @@
-import type { LeaderboardRow } from '@/lib/leaderboard';
+import { vi } from 'vitest';
+
 import type { UseDiscoveryFeedPageResult } from '@/hooks/useDiscoveryFeedPage';
 import type { UseLeaderboardResult } from '@/hooks/useLeaderboard';
 import type { UsePredictionFeedResult } from '@/hooks/usePredictionFeed';
-import { vi } from 'vitest';
+import type { LeaderboardRow } from '@/lib/leaderboard';
 
 export function idlePredictionFeed(
   overrides: Partial<UsePredictionFeedResult> = {},

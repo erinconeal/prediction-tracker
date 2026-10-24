@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+
 import { topicDisplayFromName } from '@/lib/topic-display';
 import { topicPagePath } from '@/lib/topic-path';
 import type { Topic } from '@/types/topic';
+
 import { forecastCardLinkClass } from './forecast-card-tokens';
 
 type ForecastTopicLinkProps = {

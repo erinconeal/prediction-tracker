@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import type { Prediction } from '@/types/prediction';
+
 import { listTopics } from '@/lib/repositories/topic-repository';
+import type { Prediction } from '@/types/prediction';
+
 import {
   predictionMatchesTopicSlug,
   predictionMatchesTopicWithCatalog,

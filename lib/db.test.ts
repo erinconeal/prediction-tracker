@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { topics } from './schema';
+
 import { createMigratedTestDb } from '@/test/helpers/create-test-db';
+
+import { topics } from './schema';
 
 describe('createDb', () => {
   test('given in-memory db, when selecting topics, then returns empty list', async () => {

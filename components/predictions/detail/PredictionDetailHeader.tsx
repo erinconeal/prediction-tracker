@@ -1,10 +1,11 @@
 'use client';
 
-import { forwardRef, type ReactNode } from 'react';
 import Link from 'next/link';
+import { forwardRef, type ReactNode } from 'react';
+
+import { breadcrumbLinkClass } from '@/components/feed/DiscoveryFeedLayout';
 import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
-import { breadcrumbLinkClass } from '@/components/feed/DiscoveryFeedLayout';
 import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import {
   TIMELINE_FINISHED_LABEL,

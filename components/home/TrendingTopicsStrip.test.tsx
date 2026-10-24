@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
+
 import { buildTopic } from '@/test/factories/topic';
+
 import { TrendingTopicsStrip } from './TrendingTopicsStrip';
 
 const topic = (slug: string, name: string) =>

@@ -1,4 +1,4 @@
-import { getDb, type AppDb } from '@/lib/db';
+import { type AppDb, getDb } from '@/lib/db';
 import { predictions, sources } from '@/lib/schema';
 
 /**

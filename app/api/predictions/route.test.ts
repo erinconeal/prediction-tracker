@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { loadRouteModule } from '@/test/helpers/load-route-module';
+
 import { jsonStaffHeaders } from '@/test/helpers/json-staff-headers';
+import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/predictions route', () => {
   beforeEach(() => {

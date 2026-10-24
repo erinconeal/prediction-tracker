@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
 import type { Prediction } from '@/types/prediction';
 

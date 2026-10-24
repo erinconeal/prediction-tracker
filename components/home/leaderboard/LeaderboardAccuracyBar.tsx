@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  forecastDisplayMetricFromAccuracyPercent,
   type ForecastDisplayMetric,
+  forecastDisplayMetricFromAccuracyPercent,
 } from '@/lib/forecast-display-metric';
 
 type AccuracyTone = ForecastDisplayMetric['trend'] | 'unknown';

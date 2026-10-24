@@ -1,11 +1,11 @@
 'use client';
 
 import {
+  type RefObject,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type RefObject,
 } from 'react';
 
 export type UseCollapsibleSortFiltersResult = {

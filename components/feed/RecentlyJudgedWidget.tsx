@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+
 import {
-  OutcomeGlyph,
   outcomeAccentTextStyles,
+  OutcomeGlyph,
   outcomeIconCircleStyles,
   outcomeLabels,
 } from '@/components/predictions/outcome-display';

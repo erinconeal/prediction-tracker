@@ -1,17 +1,20 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { render, screen, within } from '@testing-library/react';
-import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
+import { beforeEach, describe, expect, type Mock, test, vi } from 'vitest';
+
+import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
+import { idleDiscoveryFeedPage } from '@/test/factories/hook-results';
 import {
   buildTopic,
   curatedAiTopic,
 } from '@/test/factories/topic';
-import { idleDiscoveryFeedPage } from '@/test/factories/hook-results';
 import {
   resetTopicCatalogMockForTests,
   topicCatalogMockValue,
 } from '@/test/mocks/use-topic-catalog';
+
 import { TopicFeedView } from './TopicFeedView';
-import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
 
 vi.mock('@/hooks/useDiscoveryFeedPage', () => ({
   useDiscoveryFeedPage: vi.fn(),

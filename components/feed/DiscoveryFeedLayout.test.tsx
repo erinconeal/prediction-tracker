@@ -1,8 +1,11 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
-import type { Prediction, PredictionListSort } from '@/types/prediction';
+
 import { buildIndexedPrediction } from '@/test/factories/prediction';
+import type { Prediction, PredictionListSort } from '@/types/prediction';
+
 import { DiscoveryFeedLayout } from './DiscoveryFeedLayout';
 
 function renderLayout(

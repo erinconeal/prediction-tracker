@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
-import { computeFeedPlatformStats } from '@/lib/feed-platform-stats';
-import { pickRecentlyJudgedScored } from '@/lib/recently-judged-scored';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
+import { computeFeedPlatformStats } from '@/lib/feed-platform-stats';
 import type { RecentlyJudgedScored } from '@/lib/recently-judged-scored';
+import { pickRecentlyJudgedScored } from '@/lib/recently-judged-scored';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
 
 const LIST_PAGE_SIZE = 20;

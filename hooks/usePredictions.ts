@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { ApiError, listPredictions } from '@/services/api';
 import type { Prediction, PredictionFilters } from '@/types/prediction';
 import { getFilterKey } from '@/utils/filter-key';

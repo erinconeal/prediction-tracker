@@ -1,12 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as useLeaderboardModule from '@/hooks/useLeaderboard';
 import {
   credibleLeaderboardRows,
   thinLeaderboardRows,
 } from '@/test/factories/credible-leaderboard-rows';
 import { idleLeaderboard } from '@/test/factories/hook-results';
+
 import { LeaderboardSection } from './LeaderboardSection';
-import * as useLeaderboardModule from '@/hooks/useLeaderboard';
 
 vi.mock('@/hooks/useLeaderboard');
 

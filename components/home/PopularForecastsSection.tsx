@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+
 import { PopularForecastCard } from '@/components/home/PopularForecastCard';
 import { POPULAR_FORECAST_GRID_CLASS } from '@/lib/popular-forecast-columns';
 import type { Prediction } from '@/types/prediction';

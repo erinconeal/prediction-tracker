@@ -2,12 +2,12 @@
 
 import { Info } from 'lucide-react';
 import {
+  type ReactNode,
   useCallback,
   useEffect,
   useId,
   useRef,
   useState,
-  type ReactNode,
 } from 'react';
 
 type InfoPopoverTone = 'default' | 'onPrimary';

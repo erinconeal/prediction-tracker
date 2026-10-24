@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { memo, type ReactNode } from 'react';
+
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
+
 import { forecastCardLinkClass } from './forecast-card-tokens';
 
 type ForecastCardSourceHeaderProps = {

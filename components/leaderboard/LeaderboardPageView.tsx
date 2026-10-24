@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useLeaderboardPage } from '@/hooks/useLeaderboardPage';
+
 import { LeaderboardInsufficientPanel } from '@/components/home/leaderboard/LeaderboardInsufficientPanel';
+import { useLeaderboardPage } from '@/hooks/useLeaderboardPage';
+
 import { LeaderboardFullTableLayout } from './LeaderboardFullTableLayout';
 import { LeaderboardLoadingSkeleton } from './LeaderboardLoadingSkeleton';
 import { LeaderboardPageHeader } from './LeaderboardPageHeader';

@@ -1,6 +1,8 @@
 import path from 'node:path';
+
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import { createDb, type AppDb } from '@/lib/db';
+
+import { type AppDb, createDb } from '@/lib/db';
 
 const migrationsFolder = path.resolve(import.meta.dirname, '../../drizzle');
 

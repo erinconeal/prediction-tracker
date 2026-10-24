@@ -1,14 +1,16 @@
 import { describe, expect, test } from 'vitest';
-import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+
 import {
   boundaryCredibleLeaderboardRows,
   credibleLeaderboardRows,
 } from '@/test/factories/credible-leaderboard-rows';
+import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+
 import {
+  insufficientLeaderboardMessage,
   LEADERBOARD_MIN_SOURCES_WITH_SCORED,
   LEADERBOARD_MIN_TOP_SOURCE_SCORED,
   LEADERBOARD_MIN_TOTAL_SCORED,
-  insufficientLeaderboardMessage,
   leaderboardDisplayStats,
   platformLeaderboardDisplayStats,
   shouldShowFullLeaderboard,

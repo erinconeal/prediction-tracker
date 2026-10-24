@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 import { ConstitutionBody } from '@/components/about/ConstitutionBody';
 import { LifecycleLanguage } from '@/components/about/LifecycleLanguage';
 import { MethodologyTableOfContents } from '@/components/about/MethodologyTableOfContents';

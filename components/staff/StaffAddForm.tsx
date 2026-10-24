@@ -1,10 +1,12 @@
 'use client';
 
-import { useRef, type SubmitEvent } from 'react';
-import type { Topic } from '@/types/topic';
-import { STAFF_ADD_FIELD, type StaffAddFormFieldErrors } from '@/lib/staff-add-form-values';
-import { CircleX } from 'lucide-react';
 import { Description, Field } from '@headlessui/react';
+import { CircleX } from 'lucide-react';
+import { type SubmitEvent, useRef } from 'react';
+
+import { STAFF_ADD_FIELD, type StaffAddFormFieldErrors } from '@/lib/staff-add-form-values';
+import type { Topic } from '@/types/topic';
+
 import { StaffTopicCombobox } from './StaffTopicCombobox';
 
 const staffAddFieldClassName

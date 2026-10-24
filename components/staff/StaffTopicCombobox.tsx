@@ -1,11 +1,12 @@
 'use client';
 
+import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
+import { Check, ChevronDown, X } from 'lucide-react';
 import { useRef, useState } from 'react';
-import type { Topic } from '@/types/topic';
+
 import { groupTopicsForPicker, type TopicPickerGroup } from '@/lib/group-topics-for-picker';
 import { STAFF_ADD_FIELD } from '@/lib/staff-add-form-values';
-import { Check, ChevronDown, X } from 'lucide-react';
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
+import type { Topic } from '@/types/topic';
 
 const staffTopicInputClassName
   = 'w-full min-h-11 rounded-md border border-border bg-background px-2 pr-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';

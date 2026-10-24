@@ -1,7 +1,9 @@
 import '@/test/mocks/api-service';
 import '@/test/mocks/next-navigation';
+
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
+
 import { ApiError } from '@/services/api';
 import { getTopic } from '@/test/mocks/api-service';
 import {
@@ -9,6 +11,7 @@ import {
   resetNextNavigationMocks,
   setMockSearchParams,
 } from '@/test/mocks/next-navigation';
+
 import { useHomeTopicQuery } from './useHomeTopicQuery';
 
 describe('useHomeTopicQuery', () => {

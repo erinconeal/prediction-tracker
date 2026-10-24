@@ -1,11 +1,13 @@
+import './globals.css';
+
 import type { Metadata } from 'next';
 import {
   IBM_Plex_Mono,
   Instrument_Serif,
   Source_Sans_3,
 } from 'next/font/google';
+
 import { SiteHeader } from '@/components/layout/SiteHeader';
-import './globals.css';
 
 const instrumentSerif = Instrument_Serif({
   variable: '--font-pt-display',

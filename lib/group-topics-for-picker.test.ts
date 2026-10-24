@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'vitest';
+
+import { groupTopicsForPicker } from '@/lib/group-topics-for-picker';
 import {
   curatedAiTopic,
   curatedHousingTopic,
@@ -7,7 +9,6 @@ import {
   parentPoliticsTopic,
   parentTechTopic,
 } from '@/test/factories/topic';
-import { groupTopicsForPicker } from '@/lib/group-topics-for-picker';
 
 const catalog = [
   curatedMidtermTopic,

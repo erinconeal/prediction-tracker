@@ -1,4 +1,5 @@
 import type { Outcome } from '@/types/prediction';
+
 import {
   OutcomeGlyph,
   outcomeLabels,

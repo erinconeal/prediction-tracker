@@ -1,7 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
-import { SourceStatCountCard } from './SourceStatCountCard';
+
 import { STAT_NO_LONGER_OPEN_HINT } from '@/lib/lifecycle-copy';
+
+import { SourceStatCountCard } from './SourceStatCountCard';
 
 describe('SourceStatCountCard', () => {
   test('given label and value, should render count without popover', () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+
 import { breadcrumbLinkClass } from '@/components/feed/DiscoveryFeedLayout';
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';

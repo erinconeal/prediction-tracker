@@ -2,15 +2,16 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+
 import {
   buildHomeBrowseHref,
+  type HomeTopicQueryResolution,
   resolveHomeTopicQuery,
   topicBucketTabFromSearchParam,
-  type HomeTopicQueryResolution,
 } from '@/lib/home-topic-url';
 import {
-  topicSlugFromBucketTab,
   type TopicBucketTab,
+  topicSlugFromBucketTab,
 } from '@/lib/topic-tabs';
 import { ApiError, getTopic } from '@/services/api';
 import { isAbortError } from '@/utils/is-abort-error';

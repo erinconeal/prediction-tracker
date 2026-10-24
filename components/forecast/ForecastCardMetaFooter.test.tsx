@@ -1,10 +1,13 @@
 import '@/test/mocks/use-topic-catalog';
-import { beforeEach, describe, expect, test } from 'vitest';
+
 import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, test } from 'vitest';
+
 import {
   resetTopicCatalogMockForTests,
   topicCatalogMockValue,
 } from '@/test/mocks/use-topic-catalog';
+
 import { ForecastCardMetaFooter } from './ForecastCardMetaFooter';
 
 const TOPIC_AI = 'topic-ai-regulation-2026';

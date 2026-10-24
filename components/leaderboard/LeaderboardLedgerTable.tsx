@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
+import { LeaderboardRankBadge } from '@/components/home/leaderboard/LeaderboardRankBadge';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
 import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
 import type { LeaderboardRow } from '@/lib/leaderboard';
-import { LeaderboardRankBadge } from '@/components/home/leaderboard/LeaderboardRankBadge';
+
 import { LeaderboardTrendGlyph } from './LeaderboardTrendGlyph';
 
 function LedgerTableRow({ row }: { row: LeaderboardRow }) {

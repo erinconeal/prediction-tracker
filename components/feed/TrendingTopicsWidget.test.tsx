@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
+
 import { TrendingTopicsWidget } from './TrendingTopicsWidget';
 
 describe('TrendingTopicsWidget', () => {

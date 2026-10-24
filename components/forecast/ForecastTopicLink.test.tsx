@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
+
 import { getTopicBySlug } from '@/lib/repositories/topic-repository';
+
 import { ForecastTopicLink } from './ForecastTopicLink';
 
 describe('ForecastTopicLink', () => {

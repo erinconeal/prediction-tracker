@@ -1,10 +1,12 @@
-import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
-import type { Outcome } from '@/types/prediction';
-import type { TimelineStepId } from '@/lib/prediction-lifecycle-timeline';
-import { PredictionLifecycleTimeline } from './PredictionLifecycleTimeline';
+
+import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { TIMELINE_FINISHED_LABEL } from '@/lib/lifecycle-copy';
+import type { TimelineStepId } from '@/lib/prediction-lifecycle-timeline';
+import type { Outcome } from '@/types/prediction';
+
+import { PredictionLifecycleTimeline } from './PredictionLifecycleTimeline';
 
 function getTimelineSection(): HTMLElement {
   return screen.getByRole('region', { name: 'Timeline' });

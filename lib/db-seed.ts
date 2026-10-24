@@ -1,8 +1,9 @@
-import { BUCKET_TOPICS } from '@/lib/topic-buckets';
-import { getDb } from '@/lib/db';
-import { predictions, topicParents, topics } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
+
+import { getDb } from '@/lib/db';
 import { insertPrediction } from '@/lib/repositories/prediction-repository';
+import { predictions, topicParents, topics } from '@/lib/schema';
+import { BUCKET_TOPICS } from '@/lib/topic-buckets';
 
 export const CURATED_TOPIC_SEED = [
   {

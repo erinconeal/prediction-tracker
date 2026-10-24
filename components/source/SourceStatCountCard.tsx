@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, type ReactNode } from 'react';
+import { type ReactNode, useId } from 'react';
+
 import { InfoPopover } from '@/components/ui/InfoPopover';
 
 export const sourceStatCardClass

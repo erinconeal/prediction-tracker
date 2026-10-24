@@ -1,9 +1,9 @@
+import { topicPagePath } from '@/lib/topic-path';
 import type { TopicBucketTab } from '@/lib/topic-tabs';
 import {
   topicBucketTabFromSlug,
   topicSlugFromBucketTab,
 } from '@/lib/topic-tabs';
-import { topicPagePath } from '@/lib/topic-path';
 import type { TopicKind } from '@/types/topic';
 
 /** Maps `?topic=` slug on the home page to an active bucket tab. */

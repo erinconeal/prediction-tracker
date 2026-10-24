@@ -1,14 +1,17 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { PredictionDetailView } from './PredictionDetailView';
-import { buildPrediction } from '@/test/factories/prediction';
+
 import { usePrediction } from '@/hooks/usePrediction';
 import { usePredictions } from '@/hooks/usePredictions';
 import {
   TIMELINE_FINISHED_LABEL,
   TIMELINE_SUBMITTED_LABEL,
 } from '@/lib/lifecycle-copy';
+import { buildPrediction } from '@/test/factories/prediction';
+
+import { PredictionDetailView } from './PredictionDetailView';
 
 vi.mock('@/hooks/usePrediction', () => ({
   usePrediction: vi.fn(),

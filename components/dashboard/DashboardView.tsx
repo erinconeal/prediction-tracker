@@ -2,24 +2,25 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { BrowseForecastsSection } from '@/components/home/BrowseForecastsSection';
 import { HomeHeroBand } from '@/components/home/HomeHeroBand';
 import { HomeHeroCard } from '@/components/home/HomeHeroCard';
 import { LeaderboardSection } from '@/components/home/LeaderboardSection';
-import { TrendingTopicsStrip } from '@/components/home/TrendingTopicsStrip';
 import type { TopicBucketTab } from '@/components/home/TopicBucketTabs';
+import { TrendingTopicsStrip } from '@/components/home/TrendingTopicsStrip';
+import { useHomeTopicQuery } from '@/hooks/useHomeTopicQuery';
+import { usePopularForecastSlotCount } from '@/hooks/usePopularForecastSlotCount';
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import { browseEmptyMessage } from '@/lib/browse-empty-message';
-import { pickPopularForecastsFromFeed } from '@/lib/popular-forecasts';
 import { buildHomeBrowseHref } from '@/lib/home-topic-url';
-import { useHomeTopicQuery } from '@/hooks/useHomeTopicQuery';
+import { pickPopularForecastsFromFeed } from '@/lib/popular-forecasts';
 import { scrollBrowseForecastsIntoView } from '@/lib/scroll-to-browse';
-import { listTopics } from '@/services/api';
 import { rankTrendingTopics } from '@/lib/trending-topics';
-import type { Topic } from '@/types/topic';
-import { usePopularForecastSlotCount } from '@/hooks/usePopularForecastSlotCount';
+import { listTopics } from '@/services/api';
 import type { Outcome, PredictionListSort } from '@/types/prediction';
+import type { Topic } from '@/types/topic';
 
 const PAGE_SIZE = 20;
 const HOME_SAMPLE_SIZE = 50;

@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
+
 import { useTopicCatalog } from '@/hooks/useTopicCatalog';
 import {
-  resolvePredictionTopics,
   type ResolvedPredictionTopics,
+  resolvePredictionTopics,
 } from '@/lib/resolve-prediction-topics';
 
 export type PredictionTopicsState = ResolvedPredictionTopics & {

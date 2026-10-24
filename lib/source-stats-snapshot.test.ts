@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest';
+
 import {
-  SOURCE_STATS_SNAPSHOT_LIMIT,
   formatSourceStatCountDisplay,
   isSourceStatsSnapshotCapped,
+  SOURCE_STATS_SNAPSHOT_LIMIT,
   sourceStatsSnapshotCappedCopy,
 } from './source-stats-snapshot';
 

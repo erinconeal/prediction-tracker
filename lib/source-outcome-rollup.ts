@@ -1,8 +1,8 @@
-import type { Prediction } from '@/types/prediction';
 import {
   isScoredOutcome,
   isStillOpenOutcome,
 } from '@/lib/prediction-outcome';
+import type { Prediction } from '@/types/prediction';
 
 /** Per-source counts for constitution-aligned accuracy (§7.2–7.3). */
 export type SourceOutcomeRollup = {

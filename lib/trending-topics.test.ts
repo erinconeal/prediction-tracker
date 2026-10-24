@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest';
-import type { Prediction } from '@/types/prediction';
-import type { Topic } from '@/types/topic';
+
 import { buildPrediction } from '@/test/factories/prediction';
 import { buildTopic } from '@/test/factories/topic';
+import type { Prediction } from '@/types/prediction';
+import type { Topic } from '@/types/topic';
+
 import { rankTrendingTopics } from './trending-topics';
 
 function topic(

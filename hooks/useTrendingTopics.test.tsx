@@ -1,9 +1,12 @@
 import '@/test/mocks/api-service';
+
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { listTopics } from '@/test/mocks/api-service';
-import { useTrendingTopics } from './useTrendingTopics';
+
 import { TrendingTopicDto } from '@/services/api';
+import { listTopics } from '@/test/mocks/api-service';
+
+import { useTrendingTopics } from './useTrendingTopics';
 
 function trendingTopic(overrides: Partial<TrendingTopicDto> = {}): TrendingTopicDto {
   return {

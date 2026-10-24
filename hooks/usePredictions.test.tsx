@@ -1,12 +1,15 @@
 import '@/test/mocks/api-service';
+
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useMemo } from 'react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import type { Prediction, PredictionFilters } from '@/types/prediction';
+
 import { ApiError } from '@/services/api';
 import { buildPrediction } from '@/test/factories/prediction';
 import { createDeferred } from '@/test/helpers/deferred';
 import { listPredictions } from '@/test/mocks/api-service';
+import type { Prediction, PredictionFilters } from '@/types/prediction';
+
 import { usePredictions } from './usePredictions';
 
 describe('usePredictions', () => {

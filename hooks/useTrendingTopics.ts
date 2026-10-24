@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { listTopics, type TrendingTopicDto } from '@/services/api';
 import { isAbortError } from '@/utils/is-abort-error';
 

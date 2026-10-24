@@ -1,15 +1,15 @@
-import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
+import {
+  type LeaderboardDisplayStats,
+  platformLeaderboardDisplayStats,
+  shouldShowFullLeaderboardFromStats,
+} from '@/lib/leaderboard-display';
 import { isScoredOutcome } from '@/lib/prediction-outcome';
+import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import {
   accuracyPercentFromRollup,
   rollupBySource,
   type SourceOutcomeRollup,
 } from '@/lib/source-outcome-rollup';
-import {
-  platformLeaderboardDisplayStats,
-  shouldShowFullLeaderboardFromStats,
-  type LeaderboardDisplayStats,
-} from '@/lib/leaderboard-display';
 import type { Prediction } from '@/types/prediction';
 
 export type LeaderboardRow = {

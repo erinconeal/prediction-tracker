@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { computeLeaderboardPage } from '@/lib/leaderboard';
 import { filterAndSortPredictions } from '@/lib/prediction-query';
 import { loadAllPredictions } from '@/lib/repositories/prediction-repository';

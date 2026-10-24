@@ -1,12 +1,15 @@
 import '@/test/mocks/api-service';
+
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { createPrediction } from '@/test/mocks/api-service';
-import { useCreatePrediction } from './useCreatePrediction';
-import { buildPrediction } from '@/test/factories/prediction';
-import type { CreatePredictionInput, Prediction } from '@/types/prediction';
-import { createDeferred } from '@/test/helpers/deferred';
+
 import { ApiError } from '@/services/api';
+import { buildPrediction } from '@/test/factories/prediction';
+import { createDeferred } from '@/test/helpers/deferred';
+import { createPrediction } from '@/test/mocks/api-service';
+import type { CreatePredictionInput, Prediction } from '@/types/prediction';
+
+import { useCreatePrediction } from './useCreatePrediction';
 
 const input: CreatePredictionInput = {
   source: 'Bob',

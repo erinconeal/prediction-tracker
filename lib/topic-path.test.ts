@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest';
+
 import {
   isReservedTopicSlug,
-  topicPagePath,
   RESERVED_ROOT_SEGMENTS,
+  topicPagePath,
 } from '@/lib/topic-path';
 
 describe('topicPagePath', () => {

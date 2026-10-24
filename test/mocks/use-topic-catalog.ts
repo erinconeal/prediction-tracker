@@ -1,4 +1,5 @@
-import type { Topic } from '@/types/topic';
+import { vi } from 'vitest';
+
 import { pickPrimaryTopicFromLinked } from '@/lib/topic-primary';
 import {
   curatedAiTopic,
@@ -8,7 +9,7 @@ import {
   parentPoliticsTopic,
   parentTechTopic,
 } from '@/test/factories/topic';
-import { vi } from 'vitest';
+import type { Topic } from '@/types/topic';
 
 const TOPIC_BY_ID = new Map<string, Topic>([
   [curatedAiTopic.id, curatedAiTopic],

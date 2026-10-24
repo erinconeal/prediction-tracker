@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
 import {
   formatAccuracyPercent,

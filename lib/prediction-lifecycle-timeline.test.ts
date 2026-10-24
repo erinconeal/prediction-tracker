@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { buildTimelineSteps, isActiveTimelineStep } from './prediction-lifecycle-timeline';
 
 describe('buildTimelineSteps', () => {

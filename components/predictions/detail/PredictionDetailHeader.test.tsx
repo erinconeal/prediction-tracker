@@ -1,7 +1,9 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { render, screen, within } from '@testing-library/react';
 import { createRef } from 'react';
 import { describe, expect, test } from 'vitest';
+
 import { PredictionDetailHeader } from './PredictionDetailHeader';
 
 const defaultProps = {

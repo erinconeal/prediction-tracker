@@ -1,8 +1,7 @@
+import { POPULAR_FORECAST_MAX_SLOTS } from '@/lib/popular-forecast-columns';
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import { pickPrimaryBucketFromLinked } from '@/lib/topic-primary';
 import type { Prediction } from '@/types/prediction';
-
-import { POPULAR_FORECAST_MAX_SLOTS } from '@/lib/popular-forecast-columns';
 import type { Topic } from '@/types/topic';
 
 /** Upper bound when the viewport fits four columns (xl). */

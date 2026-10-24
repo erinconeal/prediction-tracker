@@ -1,14 +1,16 @@
 import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import type { AppDb } from '@/lib/db';
 import { getDb } from '@/lib/db';
 import { resetDbSingletonForTests } from '@/lib/db.test-utils';
 import { clearPredictions } from '@/lib/db-clear-predictions';
 import { runSeed } from '@/lib/db-seed';
 import {
-  predictionTopics,
   predictions,
+  predictionTopics,
   sources,
   topics,
 } from '@/lib/schema';

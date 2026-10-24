@@ -1,12 +1,13 @@
 'use client';
 
 import { type ReactNode } from 'react';
+
+import { PredictionFeedList } from '@/components/feed/PredictionFeedList';
+import { outcomeLabels } from '@/components/predictions/outcome-display';
 import {
   PredictionSortFilterPanel,
   PredictionSortFilterToolbar,
 } from '@/components/predictions/PredictionSortFilterControls';
-import { PredictionFeedList } from '@/components/feed/PredictionFeedList';
-import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { useCollapsibleSortFilters } from '@/hooks/useCollapsibleSortFilters';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
 

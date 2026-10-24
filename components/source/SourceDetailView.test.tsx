@@ -1,12 +1,15 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { SourceDetailView } from './SourceDetailView';
-import { buildPrediction } from '@/test/factories/prediction';
-import { idlePredictionFeed } from '@/test/factories/hook-results';
+
 import { usePredictionFeed } from '@/hooks/usePredictionFeed';
 import { usePredictions } from '@/hooks/usePredictions';
+import { idlePredictionFeed } from '@/test/factories/hook-results';
+import { buildPrediction } from '@/test/factories/prediction';
 import type { Prediction, PredictionFilters } from '@/types/prediction';
+
+import { SourceDetailView } from './SourceDetailView';
 
 vi.mock('@/hooks/usePredictions', () => ({
   usePredictions: vi.fn(),

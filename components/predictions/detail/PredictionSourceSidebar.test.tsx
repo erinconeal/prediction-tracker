@@ -1,7 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
-import { PredictionSourceSidebar } from './PredictionSourceSidebar';
+
 import type { SourceAccuracyStats } from '@/lib/source-stats';
+
+import { PredictionSourceSidebar } from './PredictionSourceSidebar';
 
 const stats: SourceAccuracyStats = {
   name: 'Alice',

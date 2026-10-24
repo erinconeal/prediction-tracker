@@ -2,12 +2,13 @@
 
 import { Trophy } from 'lucide-react';
 import Link from 'next/link';
+
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
+import { LeaderboardStreakBadge } from '@/components/home/leaderboard/LeaderboardStreakBadge';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
 import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
 import type { LeaderboardRow } from '@/lib/leaderboard';
 import { formatLeaderboardAccuracyContext } from '@/lib/leaderboard-row-context';
-import { LeaderboardStreakBadge } from '@/components/home/leaderboard/LeaderboardStreakBadge';
 
 export function LeaderboardFeaturedSource({ row }: { row: LeaderboardRow }) {
   const metric = forecastDisplayMetricFromAccuracyPercent(row.accuracyPercent);

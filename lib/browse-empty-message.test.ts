@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { browseEmptyMessage } from './browse-empty-message';
 
 describe('browseEmptyMessage', () => {

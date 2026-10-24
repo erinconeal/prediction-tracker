@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useId } from 'react';
+
 import { OUTCOME_STILL_OPEN_LABEL } from '@/lib/lifecycle-copy';
 import type { SourceFeedStatusFilter } from '@/lib/source-feed-empty-message';
 

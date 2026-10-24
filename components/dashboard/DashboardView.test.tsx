@@ -1,11 +1,12 @@
 import '@/test/mocks/api-service';
 import '@/test/mocks/next-navigation';
+
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import type { PredictionFilters } from '@/types/prediction';
+
 import { ApiError } from '@/services/api';
-import { buildIndexedPrediction } from '@/test/factories/prediction';
 import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
+import { buildIndexedPrediction } from '@/test/factories/prediction';
 import {
   getTopic,
   listLeaderboard,
@@ -17,6 +18,8 @@ import {
   resetNextNavigationMocks,
   setMockSearchParams,
 } from '@/test/mocks/next-navigation';
+import type { PredictionFilters } from '@/types/prediction';
+
 import { DashboardView } from './DashboardView';
 
 function browseForecastsSection() {

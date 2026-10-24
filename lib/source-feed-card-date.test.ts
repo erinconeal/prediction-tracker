@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { buildPrediction } from '@/test/factories/prediction';
-import { sourceFeedCardDate } from './source-feed-card-date';
+
 import {
   TIMELINE_FINISHED_LABEL,
   TIMELINE_SUBMITTED_LABEL,
 } from '@/lib/lifecycle-copy';
+import { buildPrediction } from '@/test/factories/prediction';
+
+import { sourceFeedCardDate } from './source-feed-card-date';
 
 describe('sourceFeedCardDate', () => {
   test('given still open, should use Submitted and created_at', () => {

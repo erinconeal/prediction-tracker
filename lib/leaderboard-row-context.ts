@@ -1,5 +1,5 @@
-import { formatStillOpenCount } from '@/lib/lifecycle-copy';
 import type { LeaderboardRow } from '@/lib/leaderboard';
+import { formatStillOpenCount } from '@/lib/lifecycle-copy';
 
 /** Shared §7.3 rollup fields for leaderboard rows and source stats. */
 export type AccuracyContextCounts = Pick<

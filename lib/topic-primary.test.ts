@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest';
+
 import { buildTopic } from '@/test/factories/topic';
+
 import {
   pickDisplayBucketTopic,
   pickPrimaryBucketFromLinked,

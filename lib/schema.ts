@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
 import { OUTCOMES } from '@/types/prediction';
 import { TOPIC_KINDS } from '@/types/topic';
 

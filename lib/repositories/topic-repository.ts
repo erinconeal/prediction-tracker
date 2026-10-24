@@ -1,4 +1,5 @@
 import { eq, inArray } from 'drizzle-orm';
+
 import { getDb } from '@/lib/db';
 import { toTopic } from '@/lib/mappers/topic-mapper';
 import { topicParents, topics } from '@/lib/schema';

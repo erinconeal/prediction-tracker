@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+
 import { BUCKET_TOPICS } from '@/lib/topic-buckets';
 import { topicPagePath } from '@/lib/topic-path';
 

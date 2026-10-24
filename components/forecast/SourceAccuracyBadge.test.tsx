@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
+
 import type { ForecastDisplayMetric } from '@/lib/forecast-display-metric';
+
 import { SourceAccuracyBadge } from './SourceAccuracyBadge';
 
 describe('SourceAccuracyBadge', () => {

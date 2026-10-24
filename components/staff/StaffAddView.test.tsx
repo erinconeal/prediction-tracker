@@ -1,14 +1,17 @@
 // Side-effect mock imports first — see test/README.md#mock-import-order
 import '@/test/mocks/use-topic-catalog';
+
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+import * as useCreatePredictionModule from '@/hooks/useCreatePrediction';
 import { buildPrediction } from '@/test/factories/prediction';
 import {
   resetTopicCatalogMockForTests,
   topicCatalogMockValue,
 } from '@/test/mocks/use-topic-catalog';
+
 import { StaffAddView } from './StaffAddView';
-import * as useCreatePredictionModule from '@/hooks/useCreatePrediction';
 
 vi.mock('@/hooks/useCreatePrediction');
 

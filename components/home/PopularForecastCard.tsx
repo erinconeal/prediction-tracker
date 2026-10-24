@@ -1,11 +1,12 @@
 'use client';
 
 import { memo, useMemo } from 'react';
+
 import { ForecastCardMetaFooter } from '@/components/forecast/ForecastCardMetaFooter';
 import { ForecastCardShell } from '@/components/forecast/ForecastCardShell';
 import { ForecastCardSourceHeader } from '@/components/forecast/ForecastCardSourceHeader';
-import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { ForecastCardTitle } from '@/components/forecast/ForecastCardTitle';
+import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { forecastDisplayMetricFromStats } from '@/lib/forecast-display-metric';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
 import type { Prediction } from '@/types/prediction';

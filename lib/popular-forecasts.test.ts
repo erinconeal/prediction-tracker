@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest';
+
 import { buildPredictionWithId } from '@/test/factories/prediction';
-import { pickPopularForecastsFromFeed } from './popular-forecasts';
 import { buildTopic } from '@/test/factories/topic';
+
+import { pickPopularForecastsFromFeed } from './popular-forecasts';
 
 function prediction(
   id: string,

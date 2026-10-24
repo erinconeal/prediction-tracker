@@ -1,12 +1,15 @@
 import '@/test/mocks/api-service';
+
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
-import { listTopics } from '@/test/mocks/api-service';
+
 import {
   curatedAiTopic,
   parentPoliticsTopic,
   parentTechTopic,
 } from '@/test/factories/topic';
+import { listTopics } from '@/test/mocks/api-service';
+
 import {
   resetTopicCatalogCacheForTests,
   useTopicCatalog,

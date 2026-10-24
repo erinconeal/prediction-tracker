@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { getFilterKey } from './filter-key';
 
 describe('getFilterKey', () => {

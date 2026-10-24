@@ -1,8 +1,10 @@
 'use client';
 
 import { ListOrdered } from 'lucide-react';
+
 import type { LeaderboardRow } from '@/lib/leaderboard';
 import { LEADERBOARD_RUNNER_UP_CARD_MIN_ROWS } from '@/lib/leaderboard-display';
+
 import { LeaderboardFeaturedSource } from './LeaderboardFeaturedSource';
 import { LeaderboardLedgerTable } from './LeaderboardLedgerTable';
 import { LeaderboardRunnerUpCard } from './LeaderboardRunnerUpCard';

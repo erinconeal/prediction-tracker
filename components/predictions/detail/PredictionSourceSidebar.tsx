@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { SourceStatsSidebar } from '@/components/source/SourceStatsSidebar';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';

@@ -1,5 +1,5 @@
-import type { Topic } from '@/types/topic';
 import { topics } from '@/lib/schema';
+import type { Topic } from '@/types/topic';
 
 type TopicRow = typeof topics.$inferSelect;
 

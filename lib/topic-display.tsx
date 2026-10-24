@@ -5,8 +5,8 @@ import {
   Cpu,
   History,
   Landmark,
-  Trophy,
   type LucideIcon,
+  Trophy,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 

@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { rankTrendingTopics } from '@/lib/trending-topics';
+
+import { filterAndSortPredictions } from '@/lib/prediction-query';
+import { loadAllPredictions } from '@/lib/repositories/prediction-repository';
 import {
-  listTopics,
   listCuratedTopics,
+  listTopics,
   listTopicsForBucket,
 } from '@/lib/repositories/topic-repository';
-import { loadAllPredictions } from '@/lib/repositories/prediction-repository';
-import { filterAndSortPredictions } from '@/lib/prediction-query';
+import { rankTrendingTopics } from '@/lib/trending-topics';
 
 function parseQueryInt(value: string | null, fallback: number): number {
   if (value === null || value === '') return fallback;

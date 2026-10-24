@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import type { TopicSlugLookup } from './home-topic-url';
 import {
   buildHomeBrowseHref,

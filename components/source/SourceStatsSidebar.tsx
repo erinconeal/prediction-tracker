@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+
 import { LeaderboardAccuracyBar } from '@/components/home/leaderboard/LeaderboardAccuracyBar';
 import {
   sourceStatCardClass,
@@ -14,11 +15,11 @@ import {
   STAT_NO_LONGER_OPEN_HINT,
   STAT_STILL_OPEN_HINT,
 } from '@/lib/lifecycle-copy';
+import type { SourceAccuracyStats } from '@/lib/source-stats';
 import {
   formatSourceStatCountDisplay,
   sourceStatsSnapshotCappedCopy,
 } from '@/lib/source-stats-snapshot';
-import type { SourceAccuracyStats } from '@/lib/source-stats';
 
 type SourceStatsSidebarProps = {
   stats: SourceAccuracyStats;

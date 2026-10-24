@@ -1,13 +1,13 @@
-import type { Prediction, PredictionListSort, Outcome } from '@/types/prediction';
-import { slugify } from '@/utils/slugify';
+import { isStillOpenOutcome } from '@/lib/prediction-outcome';
 import { comparePredictionsNewestFirst } from '@/lib/prediction-sort';
 import { predictionMatchesTopicWithCatalog } from '@/lib/prediction-topic-match';
-import { isStillOpenOutcome } from '@/lib/prediction-outcome';
+import { getTopicBySlug, getTopicsByIds } from '@/lib/repositories/topic-repository';
 import {
   accuracyPercentFromRollup,
   rollupBySource,
 } from '@/lib/source-outcome-rollup';
-import { getTopicBySlug, getTopicsByIds } from '@/lib/repositories/topic-repository';
+import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
+import { slugify } from '@/utils/slugify';
 
 type SourceSortKey = {
   accuracyPercent: number | null;

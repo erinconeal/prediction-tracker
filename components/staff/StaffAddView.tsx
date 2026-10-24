@@ -1,6 +1,9 @@
 'use client';
 
-import { StaffAddForm } from './StaffAddForm';
+import { X } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+
 import { useCreatePrediction } from '@/hooks/useCreatePrediction';
 import { useTopicCatalog } from '@/hooks/useTopicCatalog';
 import {
@@ -10,9 +13,8 @@ import {
   STAFF_ADD_FIELD,
   type StaffAddFormFieldErrors,
 } from '@/lib/staff-add-form-values';
-import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { X } from 'lucide-react';
+
+import { StaffAddForm } from './StaffAddForm';
 
 export function StaffAddView() {
   const [fieldErrors, setFieldErrors] = useState<StaffAddFormFieldErrors>({});

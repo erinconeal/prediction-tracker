@@ -1,16 +1,17 @@
 'use client';
 
 import { memo } from 'react';
+
 import {
-  TopicBucketTabs,
   type TopicBucketTab,
+  TopicBucketTabs,
 } from '@/components/home/TopicBucketTabs';
+import { outcomeLabels } from '@/components/predictions/outcome-display';
+import { PredictionGrid } from '@/components/predictions/PredictionGrid';
 import {
   PredictionSortFilterPanel,
   PredictionSortFilterToolbar,
 } from '@/components/predictions/PredictionSortFilterControls';
-import { PredictionGrid } from '@/components/predictions/PredictionGrid';
-import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { useCollapsibleSortFilters } from '@/hooks/useCollapsibleSortFilters';
 import type { Outcome, Prediction, PredictionListSort } from '@/types/prediction';
 

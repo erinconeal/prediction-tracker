@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, type ReactNode } from 'react';
+
 import {
   forecastCardShellClass,
 } from './forecast-card-tokens';

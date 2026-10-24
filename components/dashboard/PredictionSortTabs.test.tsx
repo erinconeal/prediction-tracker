@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
-import { PredictionSortTabs } from './PredictionSortTabs';
+
 import { SORT_RECENTLY_FINISHED } from '@/lib/lifecycle-copy';
+
+import { PredictionSortTabs } from './PredictionSortTabs';
 
 describe('PredictionSortTabs', () => {
   test('given default props, should show a visible Sort by legend', () => {

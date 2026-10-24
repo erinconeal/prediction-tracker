@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
+
 import {
   breadcrumbLinkClass,
   DiscoveryFeedLayout,
@@ -10,10 +11,10 @@ import { FeedSidebar } from '@/components/feed/FeedSidebar';
 import { outcomeLabels } from '@/components/predictions/outcome-display';
 import { useDiscoveryFeedPage } from '@/hooks/useDiscoveryFeedPage';
 import { useTopicCatalog } from '@/hooks/useTopicCatalog';
-import { topicPagePath } from '@/lib/topic-path';
 import { useTrendingTopics } from '@/hooks/useTrendingTopics';
-import type { Topic } from '@/types/topic';
+import { topicPagePath } from '@/lib/topic-path';
 import type { Outcome } from '@/types/prediction';
+import type { Topic } from '@/types/topic';
 
 type TopicFeedViewProps = {
   topic: Topic;

@@ -3,6 +3,7 @@
 import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
+
 import { formatCompactCount } from '@/lib/format-compact-count';
 import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicDto } from '@/services/api';

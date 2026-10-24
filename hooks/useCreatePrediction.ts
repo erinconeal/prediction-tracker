@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useState, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { ApiError, createPrediction } from '@/services/api';
 import type { CreatePredictionInput, Prediction } from '@/types/prediction';
 import { isAbortError } from '@/utils/is-abort-error';

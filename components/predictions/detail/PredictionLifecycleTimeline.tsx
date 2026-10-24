@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { OutcomeBadge } from '@/components/predictions/OutcomeBadge';
 import {
   buildTimelineSteps,
@@ -9,7 +11,6 @@ import {
 } from '@/lib/prediction-lifecycle-timeline';
 import type { Outcome } from '@/types/prediction';
 import { formatIsoDate, formatMonthYear } from '@/utils/format-date';
-import type { ReactNode } from 'react';
 
 type PredictionLifecycleTimelineProps = {
   createdAt: string;

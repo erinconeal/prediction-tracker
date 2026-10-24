@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { memo } from 'react';
+
 import { forecastCardLinkClass, forecastCardTitleClass } from './forecast-card-tokens';
 
 type ForecastCardTitleProps = {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import {
   curatedAiTopic,
   curatedHousingTopic,
@@ -6,6 +7,7 @@ import {
   parentPoliticsTopic,
   parentTechTopic,
 } from '@/test/factories/topic';
+
 import { resolvePredictionTopics } from './resolve-prediction-topics';
 
 describe('resolvePredictionTopics', () => {

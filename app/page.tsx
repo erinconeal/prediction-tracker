@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+
 import { DashboardView } from '@/components/dashboard/DashboardView';
 
 export default function HomePage() {

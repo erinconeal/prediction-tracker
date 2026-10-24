@@ -1,10 +1,12 @@
 'use client';
 
 import { memo } from 'react';
+
 import type { Outcome } from '@/types/prediction';
+
 import {
-  OutcomeGlyph,
   outcomeFilterButtonStyles,
+  OutcomeGlyph,
   outcomeLabels,
 } from './outcome-display';
 

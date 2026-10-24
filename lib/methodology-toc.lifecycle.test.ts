@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
+
+import { LIFECYCLE_GLOSSARY_ANCHOR } from './lifecycle-copy';
 import {
   LIFECYCLE_GLOSSARY_TOC_ENTRY,
   methodologyTocWithLifecycleGlossary,
 } from './methodology-toc';
-import { LIFECYCLE_GLOSSARY_ANCHOR } from './lifecycle-copy';
 
 describe('methodologyTocWithLifecycleGlossary', () => {
   it('given constitution entries, should prepend the lifecycle glossary link', () => {

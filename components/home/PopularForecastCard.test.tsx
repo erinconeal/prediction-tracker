@@ -1,7 +1,10 @@
 import '@/test/mocks/use-topic-catalog';
+
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { buildPrediction } from '@/test/factories/prediction';
+
 import { PopularForecastCard } from './PopularForecastCard';
 
 const cardPrediction = (overrides: Parameters<typeof buildPrediction>[0] = {}) =>

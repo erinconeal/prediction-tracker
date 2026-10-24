@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { pickRecentlyJudgedScored } from './recently-judged-scored';
+
 import { buildPrediction } from '@/test/factories/prediction';
+
+import { pickRecentlyJudgedScored } from './recently-judged-scored';
 
 describe('pickRecentlyJudgedScored', () => {
   test('given scored terminal outcomes, should return newest first', () => {

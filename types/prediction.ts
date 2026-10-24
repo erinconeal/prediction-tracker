@@ -74,4 +74,3 @@ export type CreatePredictionInput = {
   /** Public http(s) URL for the original statement. */
   evidenceUrl: string;
 };
-

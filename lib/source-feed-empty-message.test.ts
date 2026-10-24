@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+
 import { sourceFeedEmptyMessage } from './source-feed-empty-message';
 
 describe('sourceFeedEmptyMessage', () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+
 import { SourceDetailHeader } from '@/components/source/SourceDetailHeader';
 import { SourceStatsSidebar } from '@/components/source/SourceStatsSidebar';
 import { SourceTimelineSection } from '@/components/source/SourceTimelineSection';
@@ -11,8 +12,8 @@ import {
   sourceFeedEmptyMessage,
   type SourceFeedStatusFilter,
 } from '@/lib/source-feed-empty-message';
-import { SOURCE_STATS_SNAPSHOT_LIMIT } from '@/lib/source-stats-snapshot';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
+import { SOURCE_STATS_SNAPSHOT_LIMIT } from '@/lib/source-stats-snapshot';
 
 const SOURCE_FEED_PAGE_SIZE = 20;
 

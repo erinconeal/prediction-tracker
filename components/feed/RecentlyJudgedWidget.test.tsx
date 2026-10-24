@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
-import { RecentlyJudgedWidget } from './RecentlyJudgedWidget';
-import { buildPrediction } from '@/test/factories/prediction';
+
 import {
   WIDGET_RECENTLY_JUDGED,
   WIDGET_RECENTLY_JUDGED_EMPTY,
 } from '@/lib/lifecycle-copy';
+import { buildPrediction } from '@/test/factories/prediction';
+
+import { RecentlyJudgedWidget } from './RecentlyJudgedWidget';
 
 vi.mock('@/utils/format-date', () => ({
   formatFinishedRelativeTime: () => '2h ago',

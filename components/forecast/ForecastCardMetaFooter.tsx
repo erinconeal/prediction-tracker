@@ -1,9 +1,11 @@
 'use client';
 
 import { memo } from 'react';
+
 import { usePredictionTopics } from '@/hooks/usePredictionTopics';
-import { ForecastTopicLink } from './ForecastTopicLink';
+
 import { forecastCardMetaFooterClass } from './forecast-card-tokens';
+import { ForecastTopicLink } from './ForecastTopicLink';
 
 type ForecastCardMetaFooterProps = {
   topicIds?: string[];

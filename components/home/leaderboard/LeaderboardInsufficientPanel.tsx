@@ -2,13 +2,14 @@
 
 import { BarChart3 } from 'lucide-react';
 import Link from 'next/link';
+
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
 import type { LeaderboardRow } from '@/lib/leaderboard';
 import {
   insufficientLeaderboardMessage,
+  type LeaderboardDisplayStats,
   leaderboardDisplayStats,
   sourcesByScoredVolume,
-  type LeaderboardDisplayStats,
 } from '@/lib/leaderboard-display';
 
 export function LeaderboardInsufficientPanel({

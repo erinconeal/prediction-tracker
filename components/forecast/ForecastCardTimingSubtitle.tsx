@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+
 import { formatIsoDate } from '@/utils/format-date';
 
 type ForecastCardTimingSubtitleProps = {

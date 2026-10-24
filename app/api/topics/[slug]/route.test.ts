@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { loadRouteModule } from '@/test/helpers/load-route-module';
 
 describe('GET /api/topics/[slug] route', () => {

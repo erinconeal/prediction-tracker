@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, test } from 'vitest';
+
 import { curatedAiTopic, parentPoliticsTopic, parentTechTopic } from '@/test/factories/topic';
+
 import {
   resetTopicCatalogMockForTests,
   setMockGetParentBucketTopics,

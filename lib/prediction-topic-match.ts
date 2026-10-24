@@ -1,6 +1,6 @@
+import { getTopicBySlug, getTopicsByIds } from '@/lib/repositories/topic-repository';
 import type { Prediction } from '@/types/prediction';
 import type { Topic } from '@/types/topic';
-import { getTopicBySlug, getTopicsByIds } from '@/lib/repositories/topic-repository';
 
 /**
  * Sync match using a preloaded topic map (avoids per-prediction DB lookups).

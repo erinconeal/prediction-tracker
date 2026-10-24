@@ -1,11 +1,13 @@
 import { describe, expect, test } from 'vitest';
+
+import { isTerminalOutcomeValue } from '@/types/prediction';
+
 import {
   isScoredOutcome,
   isStillOpenOutcome,
   isTerminalOutcome,
   judgePredictionOutcome,
 } from './prediction-outcome';
-import { isTerminalOutcomeValue } from '@/types/prediction';
 
 describe('isTerminalOutcome', () => {
   test('given still_open, should return false', () => {

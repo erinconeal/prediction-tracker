@@ -1,9 +1,12 @@
 import '@/test/mocks/api-service';
+
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test } from 'vitest';
+
 import { buildLeaderboardPage } from '@/test/factories/leaderboard-page';
 import { buildLeaderboardRow } from '@/test/factories/leaderboard-row';
 import { listLeaderboard } from '@/test/mocks/api-service';
+
 import { useLeaderboardPage } from './useLeaderboardPage';
 
 describe('useLeaderboardPage', () => {

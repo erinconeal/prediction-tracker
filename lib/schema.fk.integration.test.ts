@@ -1,5 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';
+
+import {
+  predictions,
+  predictionTopics,
+  sources,
+  topicParents,
+  topics,
+} from '@/lib/schema';
 import {
   createMigratedTestDb,
   expectForeignKeysEnabled,
@@ -9,13 +17,6 @@ import {
   insertPrediction,
   insertSource,
 } from '@/test/helpers/db-fixtures';
-import {
-  predictionTopics,
-  predictions,
-  sources,
-  topicParents,
-  topics,
-} from '@/lib/schema';
 
 describe('database foreign keys', () => {
   test('given migrated db, when foreign_keys is queried, then enforcement is enabled', () => {

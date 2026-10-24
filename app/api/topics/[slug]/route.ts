@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+
 import { filterAndSortPredictions } from '@/lib/prediction-query';
-import { getTopicBySlug } from '@/lib/repositories/topic-repository';
 import { loadAllPredictions } from '@/lib/repositories/prediction-repository';
+import { getTopicBySlug } from '@/lib/repositories/topic-repository';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+
 import { popularForecastSlotCount } from '@/lib/popular-forecast-columns';
 
 function subscribe(onStoreChange: () => void) {

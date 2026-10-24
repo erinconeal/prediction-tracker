@@ -1,5 +1,6 @@
 import type { Components } from 'react-markdown';
 import Markdown from 'react-markdown';
+
 import type { MethodologyTocEntry, MethodologyTocLevel } from '@/lib/methodology-toc';
 
 function createMarkdownComponents(

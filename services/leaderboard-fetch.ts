@@ -1,5 +1,5 @@
-import { ApiError, listLeaderboard } from '@/services/api';
 import type { LeaderboardPage } from '@/lib/leaderboard';
+import { ApiError, listLeaderboard } from '@/services/api';
 import { isAbortError } from '@/utils/is-abort-error';
 
 export type FetchLeaderboardPageOptions = {

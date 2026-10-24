@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { formatCompactCount } from './format-compact-count';
+
 import { formatTrackedCount } from './feed-platform-stats';
+import { formatCompactCount } from './format-compact-count';
 
 describe('formatTrackedCount', () => {
   test('matches formatCompactCount rules', () => {

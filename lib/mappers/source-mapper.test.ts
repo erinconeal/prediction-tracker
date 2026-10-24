@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { toSourceInsert } from './source-mapper';
+
 import { slugify } from '@/utils/slugify';
+
+import { toSourceInsert } from './source-mapper';
 
 describe('toSourceInsert', () => {
   test('given whitespace around displayName, should trim', () => {

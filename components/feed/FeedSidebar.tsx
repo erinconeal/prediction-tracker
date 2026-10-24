@@ -1,9 +1,10 @@
 'use client';
 
 import { memo } from 'react';
-import { TopicBucketPills } from '@/components/feed/TopicBucketPills';
+
 import { PlatformStatsWidget } from '@/components/feed/PlatformStatsWidget';
 import { RecentlyJudgedWidget } from '@/components/feed/RecentlyJudgedWidget';
+import { TopicBucketPills } from '@/components/feed/TopicBucketPills';
 import { TrendingTopicsWidget } from '@/components/feed/TrendingTopicsWidget';
 import type { FeedPlatformStats } from '@/lib/feed-platform-stats';
 import type { RecentlyJudgedScored } from '@/lib/recently-judged-scored';

@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { LeaderboardDisplayStats } from '@/lib/leaderboard-display';
+
 import type { LeaderboardRow } from '@/lib/leaderboard';
+import type { LeaderboardDisplayStats } from '@/lib/leaderboard-display';
 import { loadLeaderboardPageWithOutcome } from '@/services/leaderboard-fetch';
 
 const PAGE_SIZE = 50;

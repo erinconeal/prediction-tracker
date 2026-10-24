@@ -1,15 +1,17 @@
 import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+import { getDb } from '@/lib/db';
+import { resetDbSingletonForTests } from '@/lib/db.test-utils';
+import { runSeed } from '@/lib/db-seed';
 import { computeLeaderboardPage } from '@/lib/leaderboard';
 import {
   LEADERBOARD_MIN_TOP_SOURCE_SCORED,
   LEADERBOARD_RUNNER_UP_CARD_MIN_ROWS,
   shouldShowFullLeaderboard,
 } from '@/lib/leaderboard-display';
-import { getDb } from '@/lib/db';
-import { resetDbSingletonForTests } from '@/lib/db.test-utils';
-import { runSeed } from '@/lib/db-seed';
 import { filterAndSortPredictions } from '@/lib/prediction-query';
 import { loadAllPredictions } from '@/lib/repositories/prediction-repository';
 

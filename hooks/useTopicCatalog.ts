@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+
 import { pickPrimaryTopicFromLinked } from '@/lib/topic-primary';
 import { listTopics } from '@/services/api';
 import type { Topic } from '@/types/topic';
