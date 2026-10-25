@@ -61,4 +61,18 @@ describe('PredictionDetailHeader', () => {
     expect(heading).toHaveAttribute('id', 'prediction-page-heading');
     expect(heading).toHaveAttribute('tabindex', '-1');
   });
+
+  test('given a resolution URL, should expose a link to the resolution', () => {
+    render(<PredictionDetailHeader {...defaultProps} resolutionUrl="https://example.com/resolution" outcome="correct" />);
+
+    const link = screen.getByRole('link', { name: 'See resolution' });
+    expect(link).toHaveAttribute('href', 'https://example.com/resolution');
+  });
+
+  test('given a resolution URL, should not expose a link to the resolution if the outcome is still_open', () => {
+    render(<PredictionDetailHeader {...defaultProps} resolutionUrl="https://example.com/resolution" outcome="still_open" />);
+
+    const link = screen.queryByRole('link', { name: 'See resolution' });
+    expect(link).not.toBeInTheDocument();
+  });
 });

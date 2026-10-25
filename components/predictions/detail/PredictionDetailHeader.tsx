@@ -23,6 +23,7 @@ type PredictionDetailHeaderProps = {
   finishedAt: string | null;
   topicIds: string[];
   evidenceUrl?: string | null;
+  resolutionUrl?: string | null;
 };
 
 function MetricCell({
@@ -56,10 +57,13 @@ export const PredictionDetailHeader = forwardRef<
     finishedAt,
     topicIds,
     evidenceUrl = null,
+    resolutionUrl = null,
   },
   ref,
 ) {
   const breadcrumbTitle = truncateWithEllipsis(text, 48);
+
+  const showResolutionLink = resolutionUrl && (outcome === 'correct' || outcome === 'incorrect');
 
   return (
     <header className="space-y-4">
@@ -105,6 +109,18 @@ export const PredictionDetailHeader = forwardRef<
                     className="inline-flex min-h-11 items-center font-medium text-interactive underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     See original
+                  </a>
+                )
+              : null}
+            {showResolutionLink
+              ? (
+                  <a
+                    href={resolutionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center font-medium text-interactive underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    See resolution
                   </a>
                 )
               : null}
