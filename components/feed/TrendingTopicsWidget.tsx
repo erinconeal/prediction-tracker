@@ -4,6 +4,8 @@ import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
 
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatCompactCount } from '@/lib/format-compact-count';
 import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicDto } from '@/services/api';
@@ -33,13 +35,17 @@ export const TrendingTopicsWidget = memo(function TrendingTopicsWidget({
       </h2>
       {loading
         ? (
-            <ul className="mt-3 space-y-2" aria-busy="true">
+            <LoadingRegion
+              as="ul"
+              label="Loading trending topics"
+              className="mt-3 space-y-2"
+            >
               {[1, 2, 3].map(i => (
                 <li key={i} className="list-none">
-                  <div className="h-10 animate-pulse rounded-lg bg-white/20" />
+                  <Skeleton tone="onPrimary" className="h-10 rounded-lg" />
                 </li>
               ))}
-            </ul>
+            </LoadingRegion>
           )
         : topics.length === 0
           ? (

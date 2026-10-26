@@ -3,6 +3,8 @@
 import { memo } from 'react';
 
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Outcome, Prediction } from '@/types/prediction';
 
 type PredictionFeedListProps = {
@@ -20,13 +22,13 @@ export const PredictionFeedList = memo(function PredictionFeedList({
 }: PredictionFeedListProps) {
   if (loading && predictions.length === 0) {
     return (
-      <ul className="space-y-4" aria-busy="true" aria-label="Loading predictions">
+      <LoadingRegion as="ul" label="Loading predictions" className="space-y-4">
         {[1, 2, 3, 4].map(i => (
           <li key={i} className="list-none">
-            <div className="h-40 animate-pulse rounded-xl bg-surface" />
+            <Skeleton className="h-40 rounded-xl" />
           </li>
         ))}
-      </ul>
+      </LoadingRegion>
     );
   }
 

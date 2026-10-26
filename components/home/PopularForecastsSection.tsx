@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { memo } from 'react';
 
 import { PopularForecastCard } from '@/components/home/PopularForecastCard';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { POPULAR_FORECAST_GRID_CLASS } from '@/lib/popular-forecast-columns';
 import type { Prediction } from '@/types/prediction';
 
@@ -18,17 +20,17 @@ type PopularForecastsSectionProps = {
 
 function PopularForecastsSkeleton({ slotCount }: { slotCount: number }) {
   return (
-    <ul
+    <LoadingRegion
+      as="ul"
+      label="Loading popular forecasts"
       className={POPULAR_FORECAST_GRID_CLASS}
-      aria-busy="true"
-      aria-label="Loading popular forecasts"
     >
       {Array.from({ length: slotCount }, (_, i) => (
         <li key={i}>
-          <div className="h-52 animate-pulse rounded-xl border border-border bg-surface" />
+          <Skeleton className="h-52 rounded-xl border border-border" />
         </li>
       ))}
-    </ul>
+    </LoadingRegion>
   );
 }
 

@@ -1,16 +1,16 @@
 import { Suspense } from 'react';
 
 import { DashboardView } from '@/components/dashboard/DashboardView';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function HomePage() {
   return (
     <Suspense
       fallback={(
-        <div
-          className="min-h-[50vh] animate-pulse rounded-xl bg-surface-elevated motion-reduce:animate-none"
-          aria-busy="true"
-          aria-label="Loading dashboard"
-        />
+        <LoadingRegion label="Loading dashboard">
+          <Skeleton tone="elevated" className="min-h-[50vh] rounded-xl" />
+        </LoadingRegion>
       )}
     >
       <DashboardView />

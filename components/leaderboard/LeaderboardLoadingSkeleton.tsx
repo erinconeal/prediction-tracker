@@ -1,30 +1,24 @@
-'use client';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export function LeaderboardLoadingSkeleton({ variant = 'preview' }: {
   variant?: 'preview' | 'full';
 }) {
   if (variant === 'full') {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="h-64 animate-pulse rounded-md bg-surface motion-reduce:animate-none"
-        aria-busy="true"
-        aria-label="Loading leaderboard"
-      />
+      <LoadingRegion label="Loading leaderboard">
+        <Skeleton className="h-64 rounded-md" />
+      </LoadingRegion>
     );
   }
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
+    <LoadingRegion
+      label="Loading leaderboard"
       className="grid gap-6 lg:grid-cols-2"
-      aria-busy="true"
-      aria-label="Loading leaderboard"
     >
-      <div className="h-48 animate-pulse rounded-xl bg-surface-elevated motion-reduce:animate-none" />
-      <div className="h-48 animate-pulse rounded-md bg-surface motion-reduce:animate-none" />
-    </div>
+      <Skeleton tone="elevated" className="h-48 rounded-xl" />
+      <Skeleton className="h-48 rounded-md" />
+    </LoadingRegion>
   );
 }

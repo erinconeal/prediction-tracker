@@ -4,6 +4,8 @@ import Link from 'next/link';
 
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
 import { SourceStatsSidebar } from '@/components/source/SourceStatsSidebar';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
 import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
 import type { SourceAccuracyStats } from '@/lib/source-stats';
@@ -31,11 +33,11 @@ export function PredictionSourceSidebar({
 
   if (loading) {
     return (
-      <div className="space-y-4" aria-busy="true" aria-label="Source profile">
-        <div className="h-36 animate-pulse rounded-xl bg-surface" />
-        <div className="h-32 animate-pulse rounded-xl bg-surface" />
-        <div className="h-20 animate-pulse rounded-xl bg-surface" />
-      </div>
+      <LoadingRegion label="Source profile" className="space-y-4">
+        <Skeleton className="h-36 rounded-xl" />
+        <Skeleton className="h-32 rounded-xl" />
+        <Skeleton className="h-20 rounded-xl" />
+      </LoadingRegion>
     );
   }
 

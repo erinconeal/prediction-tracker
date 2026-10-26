@@ -7,6 +7,8 @@ import {
   sourceStatCardClass,
   SourceStatCountCard,
 } from '@/components/source/SourceStatCountCard';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { formatLeaderboardAccuracyContext } from '@/lib/leaderboard-row-context';
 import {
   LIFECYCLE_GLOSSARY_ANCHOR,
@@ -35,14 +37,14 @@ export function SourceStatsSidebar({
 }: SourceStatsSidebarProps) {
   if (loading) {
     return (
-      <aside aria-label="Source statistics" aria-busy="true">
+      <LoadingRegion as="aside" label="Source statistics">
         <div className="space-y-4">
-          <div className="h-32 animate-pulse rounded-xl bg-surface" />
-          <div className="h-20 animate-pulse rounded-xl bg-surface" />
-          <div className="h-20 animate-pulse rounded-xl bg-surface" />
-          <div className="h-20 animate-pulse rounded-xl bg-surface" />
+          <Skeleton className="h-32 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
         </div>
-      </aside>
+      </LoadingRegion>
     );
   }
 

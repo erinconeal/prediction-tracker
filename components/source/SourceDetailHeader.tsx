@@ -4,6 +4,8 @@ import Link from 'next/link';
 
 import { breadcrumbLinkClass } from '@/components/feed/DiscoveryFeedLayout';
 import { SourceAccuracyBadge } from '@/components/forecast/SourceAccuracyBadge';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { SourceAvatar } from '@/components/ui/SourceAvatar';
 import { forecastDisplayMetricFromAccuracyPercent } from '@/lib/forecast-display-metric';
 
@@ -37,13 +39,13 @@ export function SourceDetailHeader({
 
       {loading
         ? (
-            <div className="flex items-start gap-4" aria-busy="true">
-              <div className="size-16 shrink-0 animate-pulse rounded-full bg-surface" />
+            <LoadingRegion label="Loading source" className="flex items-start gap-4">
+              <Skeleton className="size-16 shrink-0 rounded-full" />
               <div className="min-w-0 flex-1 space-y-2 pt-1">
-                <div className="h-9 w-48 max-w-full animate-pulse rounded bg-surface" />
-                <div className="h-6 w-20 animate-pulse rounded-full bg-surface" />
+                <Skeleton className="h-9 w-48 max-w-full rounded" />
+                <Skeleton className="h-6 w-20 rounded-full" />
               </div>
-            </div>
+            </LoadingRegion>
           )
         : (
             <div className="flex flex-wrap items-start gap-4">

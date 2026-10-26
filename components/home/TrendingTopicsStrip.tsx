@@ -4,6 +4,8 @@ import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { topicPagePath } from '@/lib/topic-path';
 import type { TrendingTopicEntry } from '@/lib/trending-topics';
 
@@ -193,19 +195,18 @@ function TrendingTopicsScroller({
 
       {loading
         ? (
-            <ul
+            <LoadingRegion
+              as="ul"
               ref={scrollRef}
+              label="Loading trending topics"
               className={`${scrollListClass} ${listPadClass}`.trim()}
-              aria-busy="true"
-              aria-label="Loading trending topics"
             >
               {Array.from({ length: 4 }, (_, i) => (
-                <li
-                  key={i}
-                  className="h-5 w-24 shrink-0 animate-pulse rounded bg-surface"
-                />
+                <li key={i} className="shrink-0">
+                  <Skeleton className="h-5 w-24 rounded" />
+                </li>
               ))}
-            </ul>
+            </LoadingRegion>
           )
         : (
             <ul

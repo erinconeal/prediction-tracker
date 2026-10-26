@@ -4,6 +4,8 @@ import { memo } from 'react';
 
 import { browseForecastGridClass } from '@/components/forecast/forecast-card-tokens';
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Outcome, Prediction } from '@/types/prediction';
 
 type PredictionGridProps = {
@@ -21,15 +23,14 @@ export const PredictionGrid = memo(function PredictionGrid({
 }: PredictionGridProps) {
   if (loading && predictions.length === 0) {
     return (
-      <div
+      <LoadingRegion
+        label="Loading predictions"
         className={browseForecastGridClass.replace('list-none ', '')}
-        aria-busy="true"
-        aria-label="Loading predictions"
       >
         {[1, 2, 3, 4, 5, 6].map(i => (
-          <div key={i} className="h-52 animate-pulse rounded-xl bg-surface" />
+          <Skeleton key={i} className="h-52 rounded-xl" />
         ))}
-      </div>
+      </LoadingRegion>
     );
   }
 

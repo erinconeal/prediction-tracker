@@ -6,6 +6,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { PredictionDetailHeader } from '@/components/predictions/detail/PredictionDetailHeader';
 import { PredictionLifecycleTimeline } from '@/components/predictions/detail/PredictionLifecycleTimeline';
 import { PredictionSourceSidebar } from '@/components/predictions/detail/PredictionSourceSidebar';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { usePrediction } from '@/hooks/usePrediction';
 import { usePredictions } from '@/hooks/usePredictions';
 import { computeSourceAccuracyStats } from '@/lib/source-stats';
@@ -64,19 +66,19 @@ export function PredictionDetailView({ id }: PredictionDetailViewProps) {
 
   if (loading && !prediction) {
     return (
-      <div className="space-y-8" aria-busy="true">
-        <div className="h-5 w-56 animate-pulse rounded bg-surface" />
-        <div className="h-48 animate-pulse rounded-xl bg-surface" />
+      <LoadingRegion label="Loading prediction" className="space-y-8">
+        <Skeleton className="h-5 w-56 rounded" />
+        <Skeleton className="h-48 rounded-xl" />
         <div className="grid gap-8 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-8">
-            <div className="h-40 animate-pulse rounded-xl bg-surface" />
-            <div className="h-32 animate-pulse rounded-xl bg-surface" />
+            <Skeleton className="h-40 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
           </div>
           <div className="lg:col-span-4">
-            <div className="h-64 animate-pulse rounded-xl bg-surface" />
+            <Skeleton className="h-64 rounded-xl" />
           </div>
         </div>
-      </div>
+      </LoadingRegion>
     );
   }
 

@@ -3,6 +3,8 @@
 import { memo } from 'react';
 
 import { BrowseForecastCard } from '@/components/predictions/BrowseForecastCard';
+import { LoadingRegion } from '@/components/ui/LoadingRegion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Prediction } from '@/types/prediction';
 
 type SourceTimelineListProps = {
@@ -18,13 +20,13 @@ export const SourceTimelineList = memo(function SourceTimelineList({
 }: SourceTimelineListProps) {
   if (loading && predictions.length === 0) {
     return (
-      <ul className="space-y-3" aria-busy="true" aria-label="Loading predictions">
+      <LoadingRegion as="ul" label="Loading predictions" className="space-y-3">
         {[1, 2, 3].map(i => (
           <li key={i} className="list-none">
-            <div className="h-28 animate-pulse rounded-xl bg-surface" />
+            <Skeleton className="h-28 rounded-xl" />
           </li>
         ))}
-      </ul>
+      </LoadingRegion>
     );
   }
 
