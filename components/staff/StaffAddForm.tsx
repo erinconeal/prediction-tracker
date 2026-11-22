@@ -7,23 +7,13 @@ import { type SubmitEvent, useRef } from 'react';
 import { STAFF_ADD_FIELD, type StaffAddFormFieldErrors } from '@/lib/staff-add-form-values';
 import type { Topic } from '@/types/topic';
 
+import { FieldError } from './FieldError';
+import { staffFieldClassName } from './staff-field-class';
+import { StaffPassword } from './StaffPassword';
 import { StaffTopicCombobox } from './StaffTopicCombobox';
-
-const staffAddFieldClassName
-  = 'w-full min-h-11 rounded-md border border-border bg-background px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 const staffAddSubmitClassName
   = 'w-full min-h-11 rounded-md bg-primary px-4 py-2 text-base font-medium text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive focus-visible:ring-offset-2 focus-visible:ring-offset-background';
-
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null;
-  return (
-    <p id={id} className="border-error/35 bg-error/10 text-error flex items-center gap-2 pl-2">
-      <CircleX className="size-3 shrink-0 stroke-current" aria-hidden strokeWidth={1.75} />
-      {message}
-    </p>
-  );
-}
 
 export type StaffAddFormProps = {
   topics: Topic[];
@@ -90,7 +80,7 @@ export function StaffAddForm({
         <input
           type="text"
           id="source"
-          className={staffAddFieldClassName}
+          className={staffFieldClassName}
           name={STAFF_ADD_FIELD.source}
           autoComplete="off"
           aria-invalid={fieldErrors.source ? true : undefined}
@@ -103,7 +93,7 @@ export function StaffAddForm({
         <label htmlFor="text" className="font-medium text-foreground">Prediction text (required)</label>
         <textarea
           id="text"
-          className={`${staffAddFieldClassName} min-h-48 py-2 resize-y`}
+          className={`${staffFieldClassName} min-h-48 py-2 resize-y`}
           name={STAFF_ADD_FIELD.text}
           required
           rows={8}
@@ -117,7 +107,7 @@ export function StaffAddForm({
         <input
           type="date"
           id="dateSaid"
-          className={`${staffAddFieldClassName} font-mono tabular-nums`}
+          className={`${staffFieldClassName} font-mono tabular-nums`}
           name={STAFF_ADD_FIELD.createdAt}
           required
           aria-describedby={fieldErrors.created_at ? 'createdAtErrorMessage dateSaidHelp' : 'dateSaidHelp'}
@@ -131,7 +121,7 @@ export function StaffAddForm({
         <input
           type="date"
           id="deadline"
-          className={`${staffAddFieldClassName} font-mono tabular-nums`}
+          className={`${staffFieldClassName} font-mono tabular-nums`}
           name={STAFF_ADD_FIELD.targetDate}
           required
           aria-invalid={fieldErrors.target_date ? true : undefined}
@@ -142,7 +132,7 @@ export function StaffAddForm({
       </div>
       <div>
         <label htmlFor="evidenceUrl" className="font-medium text-foreground">Evidence URL (required)</label>
-        <input type="url" id="evidenceUrl" className={staffAddFieldClassName} name={STAFF_ADD_FIELD.evidenceUrl} required aria-invalid={fieldErrors.evidenceUrl ? true : undefined} aria-describedby={fieldErrors.evidenceUrl ? 'evidenceUrlErrorMessage evidenceUrlHelp' : 'evidenceUrlHelp'} />
+        <input type="url" id="evidenceUrl" className={staffFieldClassName} name={STAFF_ADD_FIELD.evidenceUrl} required aria-invalid={fieldErrors.evidenceUrl ? true : undefined} aria-describedby={fieldErrors.evidenceUrl ? 'evidenceUrlErrorMessage evidenceUrlHelp' : 'evidenceUrlHelp'} />
         <FieldError id="evidenceUrlErrorMessage" message={fieldErrors.evidenceUrl} />
         <span id="evidenceUrlHelp" className="text-muted">Public http(s) link to the original statement.</span>
       </div>
@@ -189,19 +179,7 @@ export function StaffAddForm({
             )}
       </Field>
       <div>
-        <label htmlFor="staffSecret" className="font-medium text-foreground">Staff password (required)</label>
-        <input
-          ref={staffSecretInputRef}
-          type="password"
-          id="staffSecret"
-          className={staffAddFieldClassName}
-          required
-          autoComplete="new-password"
-          aria-invalid={fieldErrors.staffSecret ? true : undefined}
-          aria-describedby={fieldErrors.staffSecret ? 'staffSecretErrorMessage staffSecretHelp' : 'staffSecretHelp'}
-        />
-        <FieldError id="staffSecretErrorMessage" message={fieldErrors.staffSecret} />
-        <span id="staffSecretHelp" className="text-muted">Not stored. Compared on the server.</span>
+        <StaffPassword ref={staffSecretInputRef} fieldErrors={fieldErrors} />
       </div>
       <button type="submit" className={staffAddSubmitClassName} disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</button>
     </form>

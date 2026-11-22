@@ -6,6 +6,7 @@ const apiMocks = vi.hoisted(() => ({
   listLeaderboard: vi.fn(),
   getTopic: vi.fn(),
   createPrediction: vi.fn(),
+  updatePredictionOutcome: vi.fn(),
 }));
 
 vi.mock('@/services/api', async (importOriginal) => {
@@ -17,6 +18,7 @@ vi.mock('@/services/api', async (importOriginal) => {
     listLeaderboard: apiMocks.listLeaderboard,
     getTopic: apiMocks.getTopic,
     createPrediction: apiMocks.createPrediction,
+    updatePredictionOutcome: apiMocks.updatePredictionOutcome,
   };
 });
 
@@ -25,3 +27,4 @@ export const listTopics = apiMocks.listTopics;
 export const listLeaderboard = apiMocks.listLeaderboard;
 export const getTopic = apiMocks.getTopic;
 export const createPrediction = apiMocks.createPrediction;
+export const updatePrediction = apiMocks.updatePredictionOutcome;
